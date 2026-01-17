@@ -12,43 +12,27 @@ const replyText = document.getElementById('reply-text');
 const replyCancelBtn = document.getElementById('reply-cancel');
 const emojiPicker = document.getElementById('emoji-picker');
 
-// Social Share Elements
+// Social Elements
 const shareBtn = document.getElementById('share-btn');
 const chatContainer = document.querySelector('.chat-container');
-const exportContainer = document.getElementById('export-container');
-const exportMessages = document.getElementById('export-messages');
-const shareModal = document.getElementById('share-modal');
-const sharePreview = document.getElementById('share-preview');
-const downloadLink = document.getElementById('download-link');
-const closeModal = document.querySelector('.close-modal');
 
 const socket = io();
 
-let myColor = null;
+let currentUsername = '';
+let currentRoom = '';
 let replyToId = null;
 let replyToText = null;
 let currentMessageIdForReaction = null;
-let reactionEmojis = ['👍', '❤️', '😂', '😮', '😢', '🔥'];
+let reactionEmojis = [];
 
-// Selection Mode State
-let isSelectionMode = false;
-const selectedMessages = new Set();
-let selectionControls = null;
-
-// Global State
-let currentUsername = '';
-let currentRoom = '';
-
-// Fetch config
-async function fetchConfig() {
+// Get Config
+async function getConfig() {
     try {
         const res = await fetch('/api/config');
-        const data = await res.json();
-        reactionEmojis = data.reactionEmojis || reactionEmojis;
+        const config = await res.json();
+        reactionEmojis = config.reactionEmojis;
         populateEmojiPicker();
-    } catch (err) {
-        console.error('Failed to fetch config', err);
-    }
+    } catch (err) { console.error(err); }
 }
 
 function populateEmojiPicker() {
@@ -66,337 +50,308 @@ function populateEmojiPicker() {
     });
 }
 
-// Fetch rooms
+// Fetch Rooms
 async function fetchRooms() {
     try {
         const res = await fetch('/api/rooms');
-        const data = await res.json();
-        populateRoomSelect(data);
-    } catch (err) {
-        console.error('Failed to fetch rooms', err);
-    }
+        const rooms = await res.json();
+        renderRooms(rooms);
+    } catch (e) { console.error(e); }
 }
 
-function populateRoomSelect({ standard, trending }) {
-    const roomSelect = document.getElementById('room');
-    if (!roomSelect) return;
-
-    const currentVal = roomSelect.value;
-    roomSelect.innerHTML = '';
-
-    const stdGroup = document.createElement('optgroup');
-    stdGroup.label = "Standard Rooms";
-    standard.forEach(room => {
-        const opt = document.createElement('option');
-        opt.value = room;
-        opt.innerText = room;
-        stdGroup.appendChild(opt);
-    });
-    roomSelect.appendChild(stdGroup);
-
-    if (trending && trending.length > 0) {
-        const trendGroup = document.createElement('optgroup');
-        trendGroup.label = "🔥 Viral Topics";
-        trending.forEach(room => {
-            const opt = document.createElement('option');
-            opt.value = room;
-            opt.innerText = `🔥 ${room}`;
-            trendGroup.appendChild(opt);
-        });
-        roomSelect.appendChild(trendGroup);
-    }
-
-    if (currentVal) roomSelect.value = currentVal;
-
-    // Also populate sidebar
-    populateSidebar({ standard, trending });
-}
-
-// Sidebar Population
-function populateSidebar({ standard, trending }) {
+function renderRooms(rooms) {
+    // 1. Sidebar
     const sidebarList = document.getElementById('sidebar-room-list');
-    if (!sidebarList) return;
+    if (sidebarList) {
+        sidebarList.innerHTML = '';
+        rooms.forEach((r) => {
+            const li = document.createElement('li');
+            li.className = 'room-item';
+            if (r.name === currentRoom) li.classList.add('active');
+            if (r.locked) li.classList.add('locked');
 
-    sidebarList.innerHTML = '';
+            const icon = r.locked ? '<i class="fas fa-lock" style="color:#ff6b6b"></i>' : '<i class="fas fa-hashtag"></i>';
+            li.innerHTML = `${icon} <span>${r.name}</span>`;
 
-    // Helper to create list item
-    const createItem = (room, isTrending) => {
-        const li = document.createElement('li');
-        li.innerHTML = isTrending ? `<i class="fas fa-fire" style="color: #ffaa00;"></i> ${room}` : `<i class="fas fa-hashtag"></i> ${room}`;
-        li.dataset.room = room;
-        if (room === currentRoom) li.classList.add('active');
-
-        li.addEventListener('click', () => {
-            if (currentRoom === room) return;
-            switchRoom(room);
+            li.onclick = () => {
+                if (r.locked && currentUsername !== 'AdminMonitor') {
+                    showError(`Room Locked: ${r.reason}`);
+                    return;
+                }
+                if (r.name !== currentRoom) switchRoom(r.name);
+            };
+            sidebarList.appendChild(li);
         });
+    }
 
-        return li;
-    };
-
-    // Standard Rooms
-    standard.forEach(room => sidebarList.appendChild(createItem(room, false)));
-
-    // Trending Rooms
-    if (trending && trending.length > 0) {
-        const divider = document.createElement('li');
-        divider.style.borderTop = "1px solid rgba(255,255,255,0.1)";
-        divider.style.margin = "10px 0";
-        divider.style.pointerEvents = "none";
-        sidebarList.appendChild(divider);
-
-        trending.forEach(room => sidebarList.appendChild(createItem(room, true)));
+    // 2. Dropdown
+    const select = document.getElementById('room');
+    if (select) {
+        const saved = select.value;
+        select.innerHTML = '';
+        rooms.forEach(r => {
+            const opt = document.createElement('option');
+            opt.value = r.name;
+            opt.innerText = r.name + (r.locked ? ' (Locked)' : '');
+            if (r.locked) opt.disabled = true;
+            select.appendChild(opt);
+        });
+        if (saved) select.value = saved;
     }
 }
 
-// Switch Room Logic
-function switchRoom(newRoom) {
-    // update state
-    currentRoom = newRoom;
-
-    // Update local UI
-    roomNameEl.innerText = newRoom;
-    chatMessages.innerHTML = ''; // Clear chat
-    onlineCountEl.innerText = '0'; // Reset count
-
-    // Update Sidebar Active State
-    document.querySelectorAll('.room-list li').forEach(li => {
-        li.classList.remove('active');
-        if (li.dataset.room === newRoom) li.classList.add('active');
-    });
-
-    // Re-join via Socket
-    socket.emit('joinRoom', { username: currentUsername, room: newRoom });
-}
-
-// Initialize
-fetchConfig();
-fetchRooms();
-
-socket.on('rooms-updated', (data) => {
-    populateRoomSelect(data);
-});
-
-// Join room
+// Join Room
 joinForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const username = e.target.elements.username.value;
+    const user = e.target.elements.username.value;
     const room = e.target.elements.room.value;
-    if (!room) {
-        alert("Please select a valid room!");
-        return;
-    }
 
-    // Store globally
-    currentUsername = username;
+    if (!room) return showError('Select a room');
+
+    currentUsername = user;
     currentRoom = room;
 
-    socket.emit('joinRoom', { username, room });
+    socket.emit('joinRoom', { username: user, room });
+
     joinScreen.style.display = 'none';
-    chatScreen.style.display = 'flex'; // Flex for sidebar
-
-    // Trigger sidebar update for active state
-    fetchRooms();
-});
-
-// Room info
-socket.on('roomUsers', ({ room, count, userColor }) => {
+    chatScreen.style.display = 'flex';
     roomNameEl.innerText = room;
-    onlineCountEl.innerText = count;
-    if (userColor) myColor = userColor;
 
-    // Sync currentRoom in case of direct join
-    currentRoom = room;
+    document.querySelectorAll('.room-item').forEach(li => {
+        if (li.innerText.includes(room)) li.classList.add('active');
+    });
 });
 
-// Receive message
-socket.on('message', message => {
-    outputMessage(message);
+function switchRoom(newRoom) {
+    chatMessages.innerHTML = '';
+    currentRoom = newRoom;
+    roomNameEl.innerText = newRoom;
+    socket.emit('joinRoom', { username: currentUsername, room: newRoom });
+    fetchRooms(); // Refresh UI state
+}
+
+// Socket Events
+socket.on('rooms-updated', (rooms) => {
+    if (Array.isArray(rooms)) renderRooms(rooms);
+});
+
+socket.on('roomUsers', ({ count }) => {
+    onlineCountEl.innerText = count;
+});
+
+socket.on('message', (msg) => {
+    outputMessage(msg);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 });
 
-// Message expired
-socket.on('message-expired', (id) => {
-    const msgEl = document.getElementById(`msg-${id}`);
-    if (msgEl) {
-        msgEl.classList.add('expired');
-        setTimeout(() => msgEl.remove(), 500);
-    }
+socket.on('message-pinned', ({ text, username }) => {
+    document.getElementById('pinned-bar').style.display = 'flex';
+    document.getElementById('pinned-author').innerText = username || 'Moderator';
+    document.getElementById('pinned-text').innerText = text;
 });
 
-// Reaction added
+socket.on('message-unpinned', () => {
+    document.getElementById('pinned-bar').style.display = 'none';
+});
+
+socket.on('room-locked', () => {
+    showError('Room Locked');
+    setTimeout(() => location.reload(), 2000);
+});
+
+socket.on('error-message', (msg) => showError(msg));
+
 socket.on('reactionAdded', ({ messageId, reactions }) => {
-    const msgEl = document.getElementById(`msg-${messageId}`);
-    if (msgEl) {
-        updateReactions(msgEl, reactions);
+    const el = document.querySelector(`.message[data-id="${messageId}"]`);
+    if (el) updateReactions(el, reactions);
+});
+
+socket.on('message-expired', (id) => {
+    const el = document.querySelector(`.message[data-id="${id}"]`);
+    if (el) el.remove();
+});
+
+socket.on('message-deleted', (id) => {
+    const el = document.querySelector(`.message[data-id="${id}"]`);
+    if (el) {
+        el.innerHTML = '<em style="color:#888;">Message deleted by moderator</em>';
+        setTimeout(() => el.remove(), 2000);
     }
 });
 
-// Error message
-socket.on('error-message', (text) => {
-    showError(text);
-});
 
-// Send text message
-chatForm.addEventListener('submit', e => {
+// Chat Form
+chatForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const text = msgInput.value.trim();
-    if (text) {
-        socket.emit('chatMessage', { text, replyTo: replyToId, replyToText: replyToText });
-        msgInput.value = '';
-        clearReply();
-    }
+    const text = msgInput.value;
+    if (!text) return;
+
+    socket.emit('chatMessage', { text, replyTo: replyToId, replyToText: replyToText });
+
+    msgInput.value = '';
     msgInput.focus();
+    clearReply();
 });
 
-// Send image
-imageInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (file.size > 2 * 1024 * 1024) {
-        showError('Image too large. Max 2MB.');
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-        socket.emit('chatImage', { imageData: reader.result, replyTo: replyToId, replyToText: replyToText });
-        clearReply();
-    };
-    reader.readAsDataURL(file);
-    imageInput.value = '';
-});
-
-// Output message
-function outputMessage(message) {
+// Output Message
+function outputMessage(msg) {
     const div = document.createElement('div');
-    div.classList.add('message');
-    div.id = `msg-${message.id}`;
-    div.dataset.id = message.id;
+    div.className = 'message';
+    div.dataset.id = msg.id;
 
-    // System message styling
-    if (message.username === 'System') {
-        div.classList.add('system');
-        div.innerHTML = `<p class="text">${message.text}</p>`;
-        chatMessages.appendChild(div);
-        return;
+    // Classes
+    if (msg.username === currentUsername) div.classList.add('my-message');
+    if (msg.isAdmin) div.classList.add('admin-message');
+
+    // Meta
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+
+    // REMOVED PROFILE PICTURE (User request 5)
+
+    const name = document.createElement('span');
+    name.className = 'username';
+    name.innerText = msg.username;
+    name.style.color = msg.color || '#fff';
+    meta.appendChild(name);
+
+    // Mod Badge (Checkmark) (User request 4)
+    if (msg.isAdmin) {
+        const badge = document.createElement('span');
+        badge.innerHTML = '<i class="fas fa-check-circle"></i> MOD';
+        badge.style.color = '#ffd700';
+        badge.style.marginLeft = '5px';
+        badge.style.fontSize = '0.8rem';
+        meta.appendChild(badge);
     }
 
-    // Set border color
-    div.style.borderLeftColor = message.color || '#7289da';
+    const time = document.createElement('span');
+    time.className = 'time';
+    time.innerText = msg.time;
+    meta.appendChild(time);
 
-    let html = '';
+    div.appendChild(meta);
 
-    // Reply quote - use replyToText sent from server
-    if (message.replyTo && message.replyToText) {
-        const text = message.replyToText;
-        html += `<div class="reply-quote">↩ ${text.substring(0, 50)}${text.length > 50 ? '...' : ''}</div>`;
+    // Reply
+    if (msg.replyToText) {
+        const rep = document.createElement('div');
+        rep.className = 'reply-preview';
+        rep.innerText = `Replying to: ${msg.replyToText}`;
+        rep.style.fontSize = '0.8rem';
+        div.appendChild(rep);
     }
 
-    // Meta (username + color dot + time)
-    html += `<div class="meta">
-        <span class="color-dot" style="background: ${message.color || '#7289da'}"></span>
-        <span class="username" style="color: ${message.color || '#7289da'}">${escapeHtml(message.username)}</span>
-        <span class="time">${message.time}</span>
-    </div>`;
-
-    // Content
-    if (message.imageData) {
-        html += `<img src="${message.imageData}" class="image-content" alt="shared image" />`;
-    } else {
-        html += `<p class="text">${escapeHtml(message.text)}</p>`;
+    // Image
+    if (msg.imageData) {
+        const img = document.createElement('img');
+        img.src = msg.imageData;
+        img.className = 'message-image';
+        div.appendChild(img);
     }
 
-    // Reactions container
-    html += `<div class="reactions" id="reactions-${message.id}"></div>`;
+    // Text
+    if (msg.text) {
+        const p = document.createElement('p');
+        p.className = 'text';
+        p.innerText = msg.text;
+        div.appendChild(p);
+    }
 
-    // Actions (Reply, React)
-    html += `<div class="message-actions">
-        <button class="action-btn reply-btn" title="Reply"><i class="fas fa-reply"></i></button>
-        <button class="action-btn react-btn" title="React"><i class="fas fa-smile"></i></button>
-    </div>`;
+    // Reactions
+    const reacts = document.createElement('div');
+    reacts.className = 'reactions';
+    div.appendChild(reacts);
+    if (msg.reactions) updateReactions(div, msg.reactions);
 
-    div.innerHTML = html;
+    // Actions
+    const actions = document.createElement('div');
+    actions.className = 'message-actions';
 
-    // Add event listeners (standard mode)
-    const replyBtn = div.querySelector('.reply-btn');
-    const reactBtn = div.querySelector('.react-btn');
+    const repBtn = document.createElement('button');
+    repBtn.className = 'action-btn';
+    repBtn.innerHTML = '<i class="fas fa-reply"></i>';
+    repBtn.onclick = () => {
+        replyToId = msg.id;
+        replyToText = msg.text || '[Image]';
+        replyPreview.style.display = 'flex';
+        replyText.innerText = `Replying: ${replyToText}`;
+        msgInput.focus();
+    };
 
-    replyBtn.addEventListener('click', (e) => {
+    const reactBtn = document.createElement('button');
+    reactBtn.className = 'action-btn';
+    reactBtn.innerHTML = '<i class="far fa-smile"></i>';
+    reactBtn.onclick = (e) => {
+        currentMessageIdForReaction = msg.id;
+        const rect = reactBtn.getBoundingClientRect();
+        emojiPicker.style.display = 'flex';
+        emojiPicker.style.top = (rect.top - 50) + 'px';
+        emojiPicker.style.left = rect.left + 'px';
         e.stopPropagation();
-        setReply(message);
-    });
-    reactBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        showEmojiPicker(e, message.id);
-    });
+    };
 
-    // Selection Mode Click Handler
-    div.addEventListener('click', (e) => {
-        if (isSelectionMode) {
-            e.preventDefault();
-            toggleSelection(div, message.id);
-        }
-    });
-
-    // Long-press to toggle selection mode (if not already active)
-    let pressTimer;
-    div.addEventListener('touchstart', (e) => {
-        // Only if not replying or reacting
-        if (e.target.closest('.action-btn')) return;
-
-        pressTimer = setTimeout(() => {
-            if (!isSelectionMode) {
-                enterSelectionMode();
-                toggleSelection(div, message.id);
-            }
-        }, 500);
-    });
-    div.addEventListener('touchend', () => clearTimeout(pressTimer));
-
-    // Also support right click for selection on desktop for ease
-    div.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        if (!isSelectionMode) {
-            enterSelectionMode();
-            toggleSelection(div, message.id);
-        }
-    });
+    actions.appendChild(repBtn);
+    actions.appendChild(reactBtn);
+    div.appendChild(actions);
 
     chatMessages.appendChild(div);
+}
 
-    // Initialize reactions
-    if (message.reactions && Object.keys(message.reactions).length > 0) {
-        updateReactions(div, message.reactions);
+function updateReactions(el, reactions) {
+    const c = el.querySelector('.reactions');
+    if (!c) return;
+    c.innerHTML = '';
+    for (const [e, n] of Object.entries(reactions)) {
+        const s = document.createElement('span');
+        s.className = 'reaction-badge';
+        s.innerText = `${e} ${n}`;
+        s.onclick = () => socket.emit('addReaction', { messageId: el.dataset.id, emoji: e });
+        c.appendChild(s);
     }
 }
 
-function updateReactions(msgEl, reactions) {
-    const container = msgEl.querySelector('.reactions');
-    if (!container) return;
-    container.innerHTML = '';
-    for (const [emoji, count] of Object.entries(reactions)) {
-        const badge = document.createElement('span');
-        badge.className = 'reaction-badge';
-        badge.innerText = `${emoji} ${count}`;
-        badge.addEventListener('click', (e) => {
-            // If in selection mode, bubble up to select message
-            if (isSelectionMode) return;
-            e.stopPropagation();
-            socket.emit('addReaction', { messageId: msgEl.dataset.id, emoji });
-        });
-        container.appendChild(badge);
-    }
-}
+// Emoji Picker Logic
+// Emoji Picker Logic (Consolidated)
 
-function setReply(message) {
-    if (isSelectionMode) return;
-    replyToId = message.id;
-    replyToText = message.text || '[Image]';
-    replyText.innerText = `Replying: ${replyToText.substring(0, 40)}${replyToText.length > 40 ? '...' : ''}`;
-    replyPreview.style.display = 'flex';
-    msgInput.focus();
+// Close Picker on Outside Click
+document.addEventListener('click', (e) => {
+    if (!emojiPicker.contains(e.target) && !e.target.closest('.action-btn')) {
+        emojiPicker.style.display = 'none';
+        currentMessageIdForReaction = null;
+    }
+});
+
+function showEmojiPicker(x, y, msgId) {
+    currentMessageIdForReaction = msgId;
+    emojiPicker.style.display = 'flex';
+
+    // Boundary checks
+    const rect = emojiPicker.getBoundingClientRect();
+    const winWidth = window.innerWidth;
+    const winHeight = window.innerHeight;
+
+    let finalX = x;
+    let finalY = y;
+
+    if (x + 300 > winWidth) finalX = winWidth - 310;
+    if (y + 50 > winHeight) finalY = y - 60; // Show above if near bottom
+
+    emojiPicker.style.left = `${finalX}px`;
+    emojiPicker.style.top = `${finalY}px`;
+}
+function showError(msg) {
+    const d = document.createElement('div');
+    d.style.position = 'fixed';
+    d.style.top = '20px';
+    d.style.left = '50%';
+    d.style.transform = 'translateX(-50%)';
+    d.style.background = '#ff4757';
+    d.style.color = '#fff';
+    d.style.padding = '10px 20px';
+    d.style.zIndex = 10000;
+    d.innerText = msg;
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 3000);
 }
 
 function clearReply() {
@@ -404,200 +359,28 @@ function clearReply() {
     replyToText = null;
     replyPreview.style.display = 'none';
 }
+replyCancelBtn.onclick = clearReply;
 
-replyCancelBtn.addEventListener('click', clearReply);
+// Setup
+fetchRooms();
+getConfig();
+document.getElementById('leave-btn').onclick = () => location.reload();
+document.getElementById('close-pin').onclick = () => document.getElementById('pinned-bar').style.display = 'none';
 
-// Emoji picker
-function showEmojiPicker(e, messageId) {
-    e.preventDefault();
-    if (isSelectionMode) return;
-
-    currentMessageIdForReaction = messageId;
-
-    // Position near the button that was clicked
-    const rect = e.target.closest('.react-btn').getBoundingClientRect();
-    emojiPicker.style.display = 'flex';
-    emojiPicker.style.left = `${rect.left}px`;
-    emojiPicker.style.top = `${rect.top - 50}px`;
-}
-
-function hideEmojiPicker() {
-    emojiPicker.style.display = 'none';
-    currentMessageIdForReaction = null;
-}
-
-document.addEventListener('click', (e) => {
-    // Don't close if clicking on react button or inside picker
-    if (e.target.closest('.react-btn')) return;
-    if (emojiPicker.contains(e.target)) return;
-    hideEmojiPicker();
-});
-
-// --- Phase 4: Social Share Logic ---
-
-// Bind actions statically
-shareBtn.addEventListener('click', enterSelectionMode);
-document.getElementById('cancel-share-btn').addEventListener('click', exitSelectionMode);
-document.getElementById('generate-share-btn').addEventListener('click', generateImage);
-
-function enterSelectionMode() {
-    if (isSelectionMode) return;
-    isSelectionMode = true;
-    chatContainer.classList.add('selection-mode');
-}
-
-function exitSelectionMode() {
-    isSelectionMode = false;
-    chatContainer.classList.remove('selection-mode');
-    selectedMessages.clear();
-
-    // Remove selections
-    document.querySelectorAll('.message.selected-msg').forEach(el => el.classList.remove('selected-msg'));
-}
-
-function toggleSelection(el, id) {
-    if (selectedMessages.has(id)) {
-        selectedMessages.delete(id);
-        el.classList.remove('selected-msg');
-    } else {
-        selectedMessages.add(id);
-        el.classList.add('selected-msg');
+// Image
+imageInput.onchange = function () {
+    if (this.files[0]) {
+        const r = new FileReader();
+        r.onload = (e) => {
+            socket.emit('chatImage', { imageData: e.target.result, replyTo: replyToId, replyToText: replyToText });
+            clearReply();
+        };
+        r.readAsDataURL(this.files[0]);
     }
-}
+    this.value = '';
+};
 
-async function generateImage() {
-    console.log('generateImage called, selections:', selectedMessages.size);
-
-    if (selectedMessages.size === 0) {
-        alert("Select at least one message!");
-        return;
-    }
-
-    // Show loading feedback
-    const generateBtn = document.getElementById('generate-share-btn');
-    const originalText = generateBtn.innerText;
-    generateBtn.innerText = 'Loading...';
-    generateBtn.disabled = true;
-
-    // Clear export container
-    exportMessages.innerHTML = '';
-
-    // Get selected messages in order (by DOM order)
-    const allMessages = Array.from(chatMessages.children);
-    console.log('Total messages:', allMessages.length);
-
-    allMessages.forEach(msgEl => {
-        if (selectedMessages.has(msgEl.dataset.id)) {
-            console.log('Adding message:', msgEl.dataset.id);
-            const clone = msgEl.cloneNode(true);
-
-            // Remove actions
-            const actions = clone.querySelector('.message-actions');
-            if (actions) actions.remove();
-
-            // Remove selected styling
-            clone.classList.remove('selected-msg');
-
-            // --- FORCE STYLES (Fix for invisible text) ---
-            clone.style.backgroundColor = '#FFFFFF';
-            clone.style.border = '1px solid #E5E7EB';
-            clone.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-            clone.style.borderRadius = '12px';
-            clone.style.marginBottom = '10px';
-            clone.style.color = '#000000'; // Fallback
-
-            const textEl = clone.querySelector('.text');
-            if (textEl) {
-                textEl.style.setProperty('color', '#000000', 'important');
-                textEl.style.fontSize = '16px';
-                textEl.style.fontWeight = '500';
-            }
-
-            const nameEl = clone.querySelector('.username');
-            if (nameEl) {
-                nameEl.style.setProperty('color', '#111827', 'important');
-                nameEl.style.fontWeight = '700';
-            }
-
-            const timeEl = clone.querySelector('.time');
-            if (timeEl) {
-                timeEl.style.color = '#6B7280';
-            }
-
-            const metaEl = clone.querySelector('.meta');
-            if (metaEl) {
-                metaEl.style.color = '#6B7280';
-            }
-            // ---------------------------------------------
-
-            exportMessages.appendChild(clone);
-        }
-    });
-
-    console.log('Export messages count:', exportMessages.children.length);
-
-    // Render with html2canvas via CDN
-    try {
-        console.log('Calling html2canvas...');
-        const canvas = await html2canvas(exportContainer, {
-            backgroundColor: '#ffffff',
-            scale: 2,
-            useCORS: true,
-            logging: true
-        });
-
-        const imgUrl = canvas.toDataURL("image/png");
-
-        // Show Modal
-        const img = document.createElement('img');
-        img.src = imgUrl;
-        sharePreview.innerHTML = '';
-        sharePreview.appendChild(img);
-
-        downloadLink.href = imgUrl;
-        shareModal.style.display = 'flex';
-
-        exitSelectionMode();
-    } catch (err) {
-        console.error("Image generation failed", err);
-        alert("Failed to generate image: " + err.message);
-    } finally {
-        // Reset button
-        generateBtn.innerText = originalText;
-        generateBtn.disabled = false;
-    }
-}
-
-// Modal Close
-closeModal.addEventListener('click', () => {
-    shareModal.style.display = 'none';
-});
-window.addEventListener('click', (e) => {
-    if (e.target == shareModal) {
-        shareModal.style.display = 'none';
-    }
-});
-
-// Error toast
-function showError(text) {
-    const toast = document.createElement('div');
-    toast.className = 'error-toast';
-    toast.innerText = text;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-}
-
-// Escape HTML
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.innerText = text;
-    return div.innerHTML;
-}
-
-// Leave button
-document.getElementById('leave-btn').addEventListener('click', (e) => {
-    e.preventDefault();
-    if (confirm('Leave the chatroom?')) {
-        window.location.reload();
-    }
-});
+// Close emoji
+document.onclick = (e) => {
+    if (!e.target.closest('.action-btn') && !emojiPicker.contains(e.target)) emojiPicker.style.display = 'none';
+};

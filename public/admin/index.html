@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/admin/admin.css?v=9999">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Login Screen -->
+    <div id="admin-login-screen" class="login-screen">
+        <div class="login-card">
+            <h1><i class="fas fa-shield-alt"></i> Admin Access</h1>
+            <form id="admin-login-form">
+                <input type="text" id="admin-user" placeholder="Username" required>
+                <input type="password" id="admin-pass" placeholder="Password" required>
+                <input type="password" id="admin-secret" placeholder="Secret Key" required>
+                <button type="submit" class="btn">Login</button>
+                <p id="login-error" class="error"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="admin-dashboard" class="dashboard" style="display: none;">
+        <aside class="sidebar">
+            <h2><i class="fas fa-ghost"></i> Primal Admin</h2>
+            <nav>
+                <button class="nav-btn active" data-tab="overview"><i class="fas fa-chart-bar"></i> Overview</button>
+                <button class="nav-btn" data-tab="rooms"><i class="fas fa-door-open"></i> Rooms</button>
+                <button class="nav-btn" data-tab="monitor"><i class="fas fa-eye"></i> Monitor</button>
+                <button class="nav-btn" data-tab="config"><i class="fas fa-cog"></i> Config</button>
+            </nav>
+            <button id="logout-btn" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </aside>
+
+        <main class="main-content">
+            <!-- Overview Tab -->
+            <section id="tab-overview" class="tab-content active">
+                <h2>Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <div class="stat-info">
+                            <span id="stat-users">0</span>
+                            <label>Active Users</label>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-comments"></i>
+                        <div class="stat-info">
+                            <span id="stat-rooms">0</span>
+                            <label>Active Rooms</label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Rooms Tab -->
+            <section id="tab-rooms" class="tab-content">
+                <h2>Room Management</h2>
+                <div class="room-controls">
+                    <input type="text" id="new-room-name" placeholder="New Room Name">
+                    <button id="add-room-btn" class="btn"><i class="fas fa-plus"></i> Create</button>
+                </div>
+                <ul id="admin-room-list" class="admin-room-list"></ul>
+            </section>
+
+            <!-- Monitor Tab -->
+            <section id="tab-monitor" class="tab-content">
+                <h2>Live Monitor</h2>
+                <div class="monitor-layout">
+                    <select id="monitor-room-select">
+                        <option value="">Select a Room</option>
+                    </select>
+                    <div class="chat-viewport" id="monitor-messages">
+                        <!-- Messages render here -->
+                    </div>
+                    <div class="admin-chat-area" id="admin-chat-input-area"
+                        style="display: none; padding: 10px; background: #222; gap: 10px; align-items:center;">
+                        <input type="text" id="admin-chat-input" placeholder="Message as Moderator..."
+                            style="flex:1; padding: 10px; border-radius: 4px; border:none;">
+                        <button id="admin-chat-btn"
+                            style="padding: 10px 20px; background: gold; color: #000; border:none; font-weight: bold; cursor: pointer;">SEND</button>
+                        <button onclick="unpinMessage()"
+                            style="padding: 10px; background: #ff4757; color: white; border:none; border-radius:4px; cursor: pointer; font-weight:bold;"
+                            title="Unpin Active Message"><i class="fas fa-unlink"></i> UNPIN</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Config Tab -->
+            <section id="tab-config" class="tab-content">
+                <h2>Configuration</h2>
+                <div class="config-grid">
+                    <div class="config-item">
+                        <label>Message TTL (0 = Never Delete)</label>
+                        <input type="range" id="config-ttl" min="0" max="3600" value="600">
+                        <span id="ttl-val">600s</span>
+                    </div>
+                    <div class="config-item">
+                        <label>Spam Limit (seconds)</label>
+                        <input type="range" id="config-spam" min="1" max="30" value="3">
+                        <span id="spam-val">3s</span>
+                    </div>
+                    <button id="save-config-btn" class="btn"><i class="fas fa-save"></i> Save Changes</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/admin/admin.js?v=FINAL_REV5"></script>
+</body>
+
+</html>

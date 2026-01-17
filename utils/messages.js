@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const config = require('./config');
 
-const messages = new Map(); // Store messages: key=id, value=messageObject
+const messages = new Map();
 
 function formatMessage(username, text, room, color = null, replyTo = null, replyToText = null, imageData = null) {
     return {
@@ -10,10 +10,10 @@ function formatMessage(username, text, room, color = null, replyTo = null, reply
         text,
         room,
         color,
-        replyTo,       // ID of message being replied to
-        replyToText,   // Text of message being replied to (for visibility to all)
-        imageData,     // Base64 image data
-        reactions: {}, // { emoji: count }
+        replyTo,
+        replyToText,
+        imageData,
+        reactions: {},
         time: new Date().toLocaleTimeString(),
         createdAt: Date.now()
     };
@@ -21,20 +21,27 @@ function formatMessage(username, text, room, color = null, replyTo = null, reply
 
 function storeMessage(message, io) {
     messages.set(message.id, message);
+}
 
-    // TTL DISABLED - Messages persist until server restart
-    // To re-enable, uncomment below:
-    // setTimeout(() => {
-    //     deleteMessage(message.id, io);
-    // }, config.messageTTL);
+// Called periodically to clean up. TTL=0 means never delete.
+function cleanExpiredMessages(io) {
+    const ttl = (config.ttlSeconds !== undefined ? config.ttlSeconds * 1000 : config.messageTTL) || 0;
+    if (ttl === 0) return; // Never delete mode
+
+    const now = Date.now();
+
+    for (const [id, msg] of messages.entries()) {
+        if (msg.pinned) continue;
+        if (now - msg.createdAt > ttl) {
+            deleteMessage(id, io);
+        }
+    }
 }
 
 function deleteMessage(id, io) {
     if (messages.has(id)) {
         const msg = messages.get(id);
         messages.delete(id);
-
-        // Notify clients in the room to remove the message from UI
         if (io) {
             io.to(msg.room).emit('message-expired', id);
         }
@@ -45,7 +52,6 @@ function getMessage(id) {
     return messages.get(id);
 }
 
-// Get all messages for a room (for history)
 function getRoomMessages(room) {
     const roomMessages = [];
     messages.forEach(msg => {
@@ -53,7 +59,6 @@ function getRoomMessages(room) {
             roomMessages.push(msg);
         }
     });
-    // Sort by creation time
     return roomMessages.sort((a, b) => a.createdAt - b.createdAt);
 }
 
@@ -75,5 +80,6 @@ module.exports = {
     deleteMessage,
     getMessage,
     getRoomMessages,
-    addReaction
+    addReaction,
+    cleanExpiredMessages
 };
