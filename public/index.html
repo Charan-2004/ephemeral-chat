@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
+        integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="style.css?v=2">
+    <title>Ephemeral Chat</title>
+</head>
+
+<body>
+    <div class="join-container" id="join-screen">
+        <header class="join-header">
+            <h1><i class="fas fa-ghost"></i> Ephemeral Chat</h1>
+        </header>
+        <main class="join-main">
+            <form id="join-form">
+                <div class="form-control">
+                    <label for="username">Display Name (private, not shown)</label>
+                    <input type="text" name="username" id="username" placeholder="Enter anonymous name..." required />
+                </div>
+                <div class="form-control">
+                    <label for="room">Topic Room</label>
+                    <select name="room" id="room">
+                        <option value="" disabled selected>Loading rooms...</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Join Room</button>
+            </form>
+        </main>
+    </div>
+
+    <div class="chat-container" id="chat-screen" style="display: none;">
+        <header class="chat-header">
+            <h1><i class="fas fa-ghost"></i> <span id="room-name">Room Name</span></h1>
+            <div class="header-right">
+                <button id="share-btn" class="btn btn-sm" title="Select messages to share"><i
+                        class="fas fa-share-alt"></i></button>
+                <span id="online-count" class="online-badge"><i class="fas fa-circle"></i> 0 online</span>
+                <a href="#" id="leave-btn" class="btn btn-leave">Leave</a>
+            </div>
+        </header>
+        <main class="chat-main">
+            <div class="chat-messages" id="chat-messages">
+                <!-- Messages will be injected here -->
+            </div>
+        </main>
+
+        <!-- Reply Preview -->
+        <div class="reply-preview" id="reply-preview" style="display: none;">
+            <span class="reply-text" id="reply-text"></span>
+            <button type="button" class="reply-cancel" id="reply-cancel"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="chat-form-container">
+            <form id="chat-form">
+                <label for="image-input" class="btn btn-icon" title="Upload Image">
+                    <i class="fas fa-image"></i>
+                </label>
+                <input type="file" id="image-input" accept="image/*" style="display: none;" />
+                <input id="msg" type="text" placeholder="Type your message..." autocomplete="off" />
+                <button class="btn"><i class="fas fa-paper-plane"></i></button>
+            </form>
+
+            <div id="selection-controls" class="selection-controls" style="display: none;">
+                <span>Select messages to share...</span>
+                <div class="selection-buttons">
+                    <button id="cancel-share-btn" class="btn btn-secondary">Cancel</button>
+                    <button id="generate-share-btn" class="btn">Generate Image</button>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="emoji-picker" id="emoji-picker" style="display: none;">
+        <!-- Emojis will be populated by JS -->
+    </div>
+
+    <!-- Share Modal -->
+    <div id="share-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Share Conversation</h2>
+            <div id="share-preview"></div>
+            <a id="download-link" class="btn" download="ephemeral-chat.png">Download Image</a>
+        </div>
+    </div>
+
+    <!-- Hidden Export Container -->
+    <div id="export-container" class="export-container">
+        <div class="export-header">
+            <div class="export-brand">
+                <i class="fas fa-ghost"></i>
+                <span>Ephemeral</span>
+            </div>
+            <div class="export-tagline">Anonymous • Encrypted • Vanishing</div>
+        </div>
+        <div id="export-messages" class="export-messages"></div>
+        <div class="export-footer">
+            <span>ephemeral.chat</span>
+        </div>
+    </div>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
