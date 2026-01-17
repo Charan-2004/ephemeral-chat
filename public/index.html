@@ -38,42 +38,52 @@
             <div class="header-right">
                 <button id="share-btn" class="btn btn-sm" title="Select messages to share"><i
                         class="fas fa-share-alt"></i></button>
-                <span id="online-count" class="online-badge"><i class="fas fa-circle"></i> 0 online</span>
-                <a href="#" id="leave-btn" class="btn btn-leave">Leave</a>
+                <div class="online-badge"><i class="fas fa-circle"></i> <span id="online-count">0</span> online</div>
+                <a href="#" id="leave-btn" class="btn btn-leave">Sign Out</a>
             </div>
         </header>
-        <main class="chat-main">
-            <div class="chat-messages" id="chat-messages">
-                <!-- Messages will be injected here -->
-            </div>
-        </main>
+        
+        <div class="chat-layout">
+            <aside class="chat-sidebar">
+                <h2><i class="fas fa-comments"></i> Rooms</h2>
+                <ul id="sidebar-room-list" class="room-list">
+                    <!-- Javascript will populate this -->
+                </ul>
+            </aside>
+            
+            <div class="chat-content">
+                <main class="chat-main">
+                    <div class="chat-messages" id="chat-messages">
+                        <!-- Messages will be injected here -->
+                    </div>
+                </main>
 
-        <!-- Reply Preview -->
-        <div class="reply-preview" id="reply-preview" style="display: none;">
-            <span class="reply-text" id="reply-text"></span>
-            <button type="button" class="reply-cancel" id="reply-cancel"><i class="fas fa-times"></i></button>
-        </div>
+                <!-- Reply Preview -->
+                <div class="reply-preview" id="reply-preview" style="display: none;">
+                    <span class="reply-text" id="reply-text"></span>
+                    <button type="button" class="reply-cancel" id="reply-cancel"><i class="fas fa-times"></i></button>
+                </div>
 
-        <div class="chat-form-container">
-            <form id="chat-form">
-                <label for="image-input" class="btn btn-icon" title="Upload Image">
-                    <i class="fas fa-image"></i>
-                </label>
-                <input type="file" id="image-input" accept="image/*" style="display: none;" />
-                <input id="msg" type="text" placeholder="Type your message..." autocomplete="off" />
-                <button class="btn"><i class="fas fa-paper-plane"></i></button>
-            </form>
+                <div class="chat-form-container">
+                    <form id="chat-form">
+                        <label for="image-input" class="btn btn-icon" title="Upload Image">
+                            <i class="fas fa-image"></i>
+                        </label>
+                        <input type="file" id="image-input" accept="image/*" style="display: none;" />
+                        <input id="msg" type="text" placeholder="Type your message..." autocomplete="off" />
+                        <button class="btn"><i class="fas fa-paper-plane"></i></button>
+                    </form>
 
-            <div id="selection-controls" class="selection-controls" style="display: none;">
-                <span>Select messages to share...</span>
-                <div class="selection-buttons">
-                    <button id="cancel-share-btn" class="btn btn-secondary">Cancel</button>
-                    <button id="generate-share-btn" class="btn">Generate Image</button>
+                    <div id="selection-controls" class="selection-controls" style="display: none;">
+                        <span>Select messages to share...</span>
+                        <div class="selection-buttons">
+                            <button id="cancel-share-btn" class="btn btn-secondary">Cancel</button>
+                            <button id="generate-share-btn" class="btn">Generate Image</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
-
     </div>
 
     <div class="emoji-picker" id="emoji-picker" style="display: none;">
