@@ -1,7 +1,7 @@
-# Ephemeral Chat (chathere.online)
+# ChatHere (chathere.online)
 
 ## Description
-Ephemeral Chat is a free, anonymous, real-time chat application. It allows users to join topic-based rooms (Tech, Music, Politics, etc.) instantly without registration or login.
+ChatHere Chat is a free, anonymous, real-time chat application. It allows users to join topic-based rooms (Tech, Music, Politics, etc.) instantly without registration or login.
 
 ## Key Features
 - **Anonymous:** No user accounts, database, or tracking logic.

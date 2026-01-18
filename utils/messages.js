@@ -3,9 +3,10 @@ const config = require('./config');
 
 const messages = new Map();
 
-function formatMessage(username, text, room, color = null, replyTo = null, replyToText = null, imageData = null) {
+function formatMessage(username, text, room, color = null, replyTo = null, replyToText = null, imageData = null, senderId = null) {
     return {
         id: uuidv4(),
+        senderId,
         username,
         text,
         room,

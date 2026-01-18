@@ -200,10 +200,10 @@ io.on('connection', socket => {
         const history = getRoomMessages(user.room);
         history.forEach(msg => socket.emit('message', msg));
 
-        socket.emit('message', formatMessage(botName, 'Welcome to ChatHere! 👻 Messages here are anonymous and vanish when the server restarts. Be kind and have fun!', user.room, '#888'));
+        socket.emit('message', formatMessage(botName, 'Welcome to ChatHere! 👻 Messages here are anonymous and vanish when the server restarts. Be kind and have fun!', user.room, '#888', null, null, null, 'system'));
 
         socket.broadcast.to(user.room)
-            .emit('message', formatMessage(botName, 'A new user joined', user.room, '#888'));
+            .emit('message', formatMessage(botName, 'A new user joined', user.room, '#888', null, null, null, 'system'));
 
         io.to(user.room).emit('roomUsers', {
             room: user.room,
@@ -228,7 +228,7 @@ io.on('connection', socket => {
             }
 
             updateLastMessageTime(socket.id);
-            const message = formatMessage(user.username, text, user.room, user.color, replyTo, replyToText, null);
+            const message = formatMessage(user.username, text, user.room, user.color, replyTo, replyToText, null, user.id);
             storeMessage(message, io);
             io.to(user.room).emit('message', message);
         }
@@ -236,7 +236,7 @@ io.on('connection', socket => {
 
     socket.on('adminChat', ({ text, room, username }) => {
         const senderName = username || 'Moderator';
-        const message = formatMessage(senderName, text, room, '#ffd700', null, null, null);
+        const message = formatMessage(senderName, text, room, '#ffd700', null, null, null, 'admin');
         message.isAdmin = true;
         storeMessage(message, io);
         io.to(room).emit('message', message);
@@ -257,7 +257,7 @@ io.on('connection', socket => {
                 return;
             }
             updateLastMessageTime(socket.id);
-            const message = formatMessage(user.username, '', user.room, user.color, replyTo, replyToText, imageData);
+            const message = formatMessage(user.username, '', user.room, user.color, replyTo, replyToText, imageData, user.id);
             storeMessage(message, io);
             io.to(user.room).emit('message', message);
         }
@@ -276,7 +276,7 @@ io.on('connection', socket => {
     socket.on('disconnect', () => {
         const user = userLeave(socket.id);
         if (user) {
-            io.to(user.room).emit('message', formatMessage(botName, 'A user left', user.room, '#888'));
+            io.to(user.room).emit('message', formatMessage(botName, 'A user left', user.room, '#888', null, null, null, 'system'));
             io.to(user.room).emit('roomUsers', {
                 room: user.room,
                 count: getRoomUserCount(user.room)

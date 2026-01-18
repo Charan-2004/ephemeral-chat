@@ -200,7 +200,7 @@ function outputMessage(msg) {
     div.dataset.id = msg.id;
 
     // Classes
-    if (msg.username === currentUsername) div.classList.add('my-message');
+    if (msg.senderId === socket.id) div.classList.add('my-message');
     if (msg.isAdmin) div.classList.add('admin-message');
 
     // Meta
