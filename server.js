@@ -4,6 +4,7 @@ const http = require('http');
 const express = require('express');
 const socketio = require('socket.io');
 const helmet = require('helmet');
+const compression = require('compression');
 const { formatMessage, storeMessage, getMessage, getRoomMessages, addReaction, cleanExpiredMessages, deleteMessage } = require('./utils/messages');
 const { userJoin, getCurrentUser, userLeave, getRoomUsers, getRoomUserCount, updateLastMessageTime } = require('./utils/users');
 const config = require('./utils/config');
@@ -28,6 +29,9 @@ app.use(helmet({
     },
 }));
 
+// Performance
+app.use(compression());
+
 // Admin Subdomain Middleware
 app.use((req, res, next) => {
     const host = req.headers.host || '';
@@ -39,8 +43,11 @@ app.use((req, res, next) => {
     next();
 });
 
-// Set static folder
-app.use(express.static(path.join(__dirname, 'public')));
+// Set static folder with Caching
+app.use(express.static(path.join(__dirname, 'public'), {
+    maxAge: '1d', // Cache for 1 day
+    etag: false
+}));
 app.use(express.json());
 
 const botName = 'System';
