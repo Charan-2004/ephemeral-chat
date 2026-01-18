@@ -1,0 +1,20 @@
+# Ephemeral Chat (chathere.online)
+
+## Description
+Ephemeral Chat is a free, anonymous, real-time chat application. It allows users to join topic-based rooms (Tech, Music, Politics, etc.) instantly without registration or login.
+
+## Key Features
+- **Anonymous:** No user accounts, database, or tracking logic.
+- **Ephemeral:** Messages are stored in-memory only and vanish when the server restarts or via TTL (Time To Live).
+- **Real-time:** Built with WebSockets (Socket.io) for instant messaging.
+- **Secure:** Admin moderation (delete/pin messages) and basic spam protection.
+
+## Structure
+- `/`: Main chat interface.
+- `/admin`: Private dashboard for moderators.
+- `/api/rooms`: JSON endpoint listing available rooms.
+
+## Tech Stack
+- Frontend: HTML5, CSS3, Vanilla JavaScript
+- Backend: Node.js, Express, Socket.io
+- Hosting: Render.com
