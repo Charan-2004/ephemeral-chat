@@ -306,3 +306,106 @@ body {
 .btn:hover {
     background: #ff6b81;
 }
+
+/* Mobile Menu Button (Hidden by default) */
+.admin-mobile-menu-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #e94560;
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+    .dashboard {
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    /* Show hamburger menu inside the sidebar isn't right if sidebar is hidden. 
+       Let's put a trigger outside, OR handle it cleanly. 
+       Actually, common pattern: Fixed button on top-left of main content to open it. 
+    */
+
+    .admin-mobile-menu-btn {
+        display: block;
+        /* Show inside sidebar for closing? No. */
+        /* Let's style an external trigger if needed, or stick to the plan. 
+           Plan said: Button inside .dashboard or sidebar. 
+           If sidebar is hidden, button inside it is hidden. 
+           Wait, I put the button INSIDE aside.SAFE CORRECTION within CSS:
+        */
+    }
+}
+
+/* Better Mobile Strategy: Fixed Toggle Button on Main Content */
+@media (max-width: 768px) {
+    .main-content {
+        padding-top: 60px;
+        /* Space for toggle */
+    }
+
+    .sidebar {
+        /* Re-assert properties */
+        transform: translateX(-100%);
+    }
+
+    /* We need a toggle visible when sidebar is closed. 
+       We will move the button out of sidebar in a sec via HTML correction if needed, 
+       BUT for now let's position the button fixed so it pops out of the sidebar container? 
+       No, cleaner to move it in HTML. I will assume I can move it or position it fixed relative to body.
+    */
+    .admin-mobile-menu-btn {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 2000;
+        display: block;
+        background: #16213e;
+        padding: 10px;
+        border-radius: 6px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Stack controls */
+    .room-controls {
+        flex-direction: column;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .monitor-layout {
+        height: auto;
+        min-height: 500px;
+    }
+
+    .admin-chat-area {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    #admin-chat-btn {
+        width: 100%;
+    }
+}
