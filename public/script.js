@@ -425,3 +425,133 @@ if (acceptTermsBtn) acceptTermsBtn.onclick = () => termsModal.style.display = 'n
 window.onmousedown = (e) => {
     if (e.target === termsModal) termsModal.style.display = 'none';
 };
+
+// ============================================
+// SHARE / EXPORT FUNCTIONALITY
+// ============================================
+let isSelectionMode = false;
+let selectedMessages = new Set();
+const selectionControls = document.getElementById('selection-controls');
+const generateShareBtn = document.getElementById('generate-share-btn');
+const cancelShareBtn = document.getElementById('cancel-share-btn');
+const shareModal = document.getElementById('share-modal');
+const closeModalBtn = document.querySelector('.close-modal');
+const sharePreview = document.getElementById('share-preview');
+const downloadLink = document.getElementById('download-link');
+const exportContainer = document.getElementById('export-container');
+const exportList = document.getElementById('export-messages');
+
+if (shareBtn) {
+    shareBtn.onclick = () => toggleSelectionMode(true);
+}
+
+if (cancelShareBtn) {
+    cancelShareBtn.onclick = () => toggleSelectionMode(false);
+}
+
+if (closeModalBtn) {
+    closeModalBtn.onclick = () => shareModal.style.display = 'none';
+}
+
+function toggleSelectionMode(active) {
+    isSelectionMode = active;
+    selectedMessages.clear();
+
+    if (active) {
+        document.body.classList.add('selection-mode');
+        // Hide chat form, show selection controls
+        document.getElementById('chat-form').style.display = 'none';
+        selectionControls.style.display = 'flex';
+        // Clear previous selections visually
+        document.querySelectorAll('.message').forEach(m => m.classList.remove('selected'));
+    } else {
+        document.body.classList.remove('selection-mode');
+        document.getElementById('chat-form').style.display = 'flex';
+        selectionControls.style.display = 'none';
+        document.querySelectorAll('.message').forEach(m => m.classList.remove('selected'));
+    }
+}
+
+// Delegate Click for Message Selection
+chatMessages.addEventListener('click', (e) => {
+    if (!isSelectionMode) return;
+
+    const msgEl = e.target.closest('.message');
+    if (!msgEl) return;
+
+    // Prevent interaction with buttons inside
+    e.preventDefault();
+    e.stopPropagation();
+
+    const id = msgEl.dataset.id;
+    if (selectedMessages.has(id)) {
+        selectedMessages.delete(id);
+        msgEl.classList.remove('selected');
+    } else {
+        if (selectedMessages.size >= 10) return showError('Max 10 messages');
+        selectedMessages.add(id);
+        msgEl.classList.add('selected');
+    }
+});
+
+// Generate Image
+if (generateShareBtn) {
+    generateShareBtn.onclick = async () => {
+        if (selectedMessages.size === 0) return showError('Select at least one message');
+
+        // 1. Populate Export Container
+        exportList.innerHTML = '';
+
+        // Sort selected messages by position in DOM to maintain order
+        const allMessages = Array.from(document.querySelectorAll('.message'));
+        const sortedSelected = allMessages.filter(m => selectedMessages.has(m.dataset.id));
+
+        sortedSelected.forEach(el => {
+            const clone = el.cloneNode(true);
+            clone.classList.remove('selected');
+            clone.style.margin = '10px 0'; // ensure spacing in image
+            exportList.appendChild(clone);
+        });
+
+        // 2. Capture
+        try {
+            exportContainer.style.visibility = 'visible'; // Make visible for capture
+            exportContainer.style.top = '0'; // Bring into viewport temporarily (off-screen sometimes fails)
+
+            const canvas = await html2canvas(exportContainer, {
+                backgroundColor: '#2c2f33',
+                scale: 2, // High res
+                logging: false,
+                useCORS: true // For images
+            });
+
+            // Hide again
+            exportContainer.style.visibility = 'hidden';
+            exportContainer.style.top = '-9999px';
+
+            // 3. Show Modal
+            sharePreview.innerHTML = '';
+            const img = document.createElement('img');
+            img.src = canvas.toDataURL('image/png');
+            img.style.maxWidth = '100%';
+            img.style.borderRadius = '8px';
+            sharePreview.appendChild(img);
+
+            downloadLink.href = canvas.toDataURL('image/png');
+            shareModal.style.display = 'flex';
+
+            toggleSelectionMode(false); // Exit mode
+
+        } catch (err) {
+            console.error(err);
+            showError('Failed to generate image');
+            exportContainer.style.visibility = 'hidden';
+            exportContainer.style.top = '-9999px';
+        }
+    };
+}
+
+// Close Modal outside click
+window.onclick = (e) => {
+    if (e.target === shareModal) shareModal.style.display = 'none';
+};

@@ -522,6 +522,42 @@ body::before {
   color: #fff;
 }
 
+/* Selection Mode */
+.selection-mode .message {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid transparent;
+  /* Prepare for border change */
+}
+
+.selection-mode .message:hover {
+  transform: scale(1.02);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.selection-mode .message.selected {
+  border: 2px solid var(--primary-color);
+  background: rgba(114, 137, 218, 0.2);
+  box-shadow: 0 0 10px rgba(114, 137, 218, 0.3);
+}
+
+.selection-mode .message-actions {
+  display: none !important;
+  /* Hide actions during selection */
+}
+
+.selection-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.selection-buttons {
+  display: flex;
+  gap: 10px;
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   #mobile-menu-btn {
@@ -570,4 +606,54 @@ body::before {
     background: rgba(0, 0, 0, 0.5);
     z-index: -1;
   }
+}
+
+/* Share Image High Contrast Overrides */
+.export-container {
+  background-color: #202225 !important;
+  /* Dark solid bg */
+  color: #ffffff !important;
+}
+
+.export-messages .message {
+  background-color: #2f3136 !important;
+  /* Solid lighter grey (Discord message bg) */
+  border: none !important;
+  color: #dcddde !important;
+  /* Light grey text */
+  box-shadow: none !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+}
+
+.export-messages .text {
+  color: #ffffff !important;
+  /* Pure white text */
+}
+
+.export-messages .username {
+  text-shadow: none !important;
+}
+
+.export-messages .time {
+  color: #72767d !important;
+}
+
+/* Maintain Left/Right Alignment in Export */
+.export-messages {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+}
+
+.export-messages .message {
+  align-self: flex-start !important;
+  /* Default left */
+}
+
+.export-messages .my-message {
+  align-self: flex-end !important;
+  /* Right for me */
+  background-color: #3b405a !important;
+  /* Slightly distinct color (optional but nice) */
 }

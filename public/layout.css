@@ -590,12 +590,44 @@ body::before {
     font-weight: bold;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
+    /* Increased gap */
+    line-height: 1;
+    /* Reset line height */
+}
+
+.export-brand img {
+    display: block;
+    /* Remove inline gap */
+    margin: 0;
 }
 
 .export-tagline {
     font-size: 0.8rem;
-    color: #aaa;
+    color: #bbb;
+}
+
+/* Force high contrast for exported messages */
+.export-messages .message {
+    background: rgba(40, 43, 48, 1) !important;
+    /* Solid dark grey */
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+    margin-bottom: 10px;
+}
+
+.export-messages .text {
+    color: #ffffff !important;
+    font-weight: 500;
+}
+
+.export-messages .username {
+    text-shadow: none !important;
+}
+
+.export-messages .time {
+    color: #bbbbbb !important;
 }
 
 
