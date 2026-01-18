@@ -13,10 +13,6 @@ const io = socketio(server, {
     maxHttpBufferSize: 3e6
 });
 
-// Set static folder
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json());
-
 // Admin Subdomain Middleware
 app.use((req, res, next) => {
     const host = req.headers.host || '';
@@ -27,6 +23,10 @@ app.use((req, res, next) => {
     }
     next();
 });
+
+// Set static folder
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json());
 
 const botName = 'System';
 
