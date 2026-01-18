@@ -25,7 +25,8 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
         integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
-    <link rel="stylesheet" href="layout.css?v=FINAL_REV3">
+    <link rel="stylesheet" href="layout.css?v=FINAL_REV4">
+    <link rel="stylesheet" href="style.css?v=FINAL_REV4">
     <link rel="icon" href="favicon.png" type="image/x-icon">
     <title>ChatHere - Anonymous & Free</title>
 </head>
@@ -63,14 +64,16 @@
     <div class="chat-container" id="chat-screen" style="display: none;">
         <header class="chat-header">
             <div class="header-branding">
+                <button id="mobile-menu-btn" class="btn btn-icon" style="display: none; margin-right: 10px;">
+                    <i class="fas fa-bars"></i>
+                </button>
                 <img src="logo.png" alt="Logo" class="header-logo-small">
                 <h1><span id="room-name">Room Name</span></h1>
             </div>
             <div class="header-right">
                 <button id="share-btn" class="btn btn-sm" title="Select messages to share"><i
                         class="fas fa-share-alt"></i></button>
-                <div class="online-badge"><i class="fas fa-circle"></i> <span id="online-count">0</span> online</div>
-                <a href="#" id="leave-btn" class="btn btn-leave">Sign Out</a>
+                <a href="#" id="leave-btn" class="btn btn-icon" title="Sign Out"><i class="fas fa-sign-out-alt"></i></a>
             </div>
         </header>
 

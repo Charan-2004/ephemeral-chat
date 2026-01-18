@@ -1,7 +1,6 @@
 const chatForm = document.getElementById('chat-form');
 const chatMessages = document.getElementById('chat-messages');
 const roomNameEl = document.getElementById('room-name');
-const onlineCountEl = document.getElementById('online-count');
 const joinScreen = document.getElementById('join-screen');
 const chatScreen = document.getElementById('chat-screen');
 const joinForm = document.getElementById('join-form');
@@ -14,7 +13,27 @@ const emojiPicker = document.getElementById('emoji-picker');
 
 // Social Elements
 const shareBtn = document.getElementById('share-btn');
+const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+const sidebar = document.querySelector('.chat-sidebar');
 const chatContainer = document.querySelector('.chat-container');
+
+// Mobile Menu Toggle
+if (mobileMenuBtn) {
+    mobileMenuBtn.onclick = () => {
+        sidebar.classList.toggle('active');
+    };
+}
+
+// Close sidebar when clicking outside on mobile
+document.addEventListener('click', (e) => {
+    if (window.innerWidth <= 768 &&
+        sidebar.classList.contains('active') &&
+        !sidebar.contains(e.target) &&
+        e.target !== mobileMenuBtn &&
+        !mobileMenuBtn.contains(e.target)) {
+        sidebar.classList.remove('active');
+    }
+});
 
 const socket = io();
 
@@ -78,7 +97,12 @@ function renderRooms(rooms) {
                     showError(`Room Locked: ${r.reason}`);
                     return;
                 }
-                if (r.name !== currentRoom) switchRoom(r.name);
+                if (r.name !== currentRoom) {
+                    switchRoom(r.name);
+                    if (window.innerWidth <= 768) {
+                        document.querySelector('.chat-sidebar').classList.remove('active');
+                    }
+                }
             };
             sidebarList.appendChild(li);
         });
@@ -133,10 +157,6 @@ function switchRoom(newRoom) {
 // Socket Events
 socket.on('rooms-updated', (rooms) => {
     if (Array.isArray(rooms)) renderRooms(rooms);
-});
-
-socket.on('roomUsers', ({ count }) => {
-    onlineCountEl.innerText = count;
 });
 
 socket.on('message', (msg) => {
