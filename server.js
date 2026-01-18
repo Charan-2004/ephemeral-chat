@@ -200,7 +200,7 @@ io.on('connection', socket => {
         const history = getRoomMessages(user.room);
         history.forEach(msg => socket.emit('message', msg));
 
-        socket.emit('message', formatMessage(botName, 'Welcome! Stay anonymous.', user.room, '#888'));
+        socket.emit('message', formatMessage(botName, 'Welcome to ChatHere! 👻 Messages here are anonymous and vanish when the server restarts. Be kind and have fun!', user.room, '#888'));
 
         socket.broadcast.to(user.room)
             .emit('message', formatMessage(botName, 'A new user joined', user.room, '#888'));

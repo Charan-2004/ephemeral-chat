@@ -212,6 +212,39 @@ body::before {
     flex-shrink: 0;
 }
 
+/* -- BRANDING & TERMS ADDITIONS -- */
+.brand-logo {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+}
+
+.header-branding {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-logo-small {
+    width: 32px;
+    height: 32px;
+}
+
+.terms-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    color: #ccc;
+    font-size: 0.9rem;
+    justify-content: center;
+}
+
+.terms-checkbox input {
+    width: auto;
+    cursor: pointer;
+}
+
 .room-list {
     list-style: none;
     padding: 0;
@@ -565,11 +598,91 @@ body::before {
     color: #aaa;
 }
 
-.export-footer {
-    margin-top: 20px;
-    text-align: right;
-    font-size: 0.8rem;
-    color: #555;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 10px;
+
+/* -- MODAL STYLES (Fixed) -- */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    /* Flex is critical for centering */
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: #1e1e1e;
+    /* Solid background */
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    text-align: left;
+    color: #fff;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid #333;
+    animation: fadeIn 0.3s ease;
+}
+
+.close-modal {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #888;
+    transition: color 0.2s;
+}
+
+.close-modal:hover {
+    color: #fff;
+}
+
+.terms-content h2 {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 15px;
+    color: #FFD700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.terms-text {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 25px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #ccc;
+    padding-right: 10px;
+}
+
+.terms-text p {
+    margin-bottom: 10px;
+}
+
+.terms-text strong {
+    color: #fff;
+}
+
+#accept-terms {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    background: #7289da;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+#accept-terms:hover {
+    background: #5b6eae;
 }

@@ -384,3 +384,24 @@ imageInput.onchange = function () {
 document.onclick = (e) => {
     if (!e.target.closest('.action-btn') && !emojiPicker.contains(e.target)) emojiPicker.style.display = 'none';
 };
+
+// Terms Modal Logic
+const termsModal = document.getElementById('terms-modal');
+const openTermsBtn = document.getElementById('open-terms');
+const closeTermsBtn = document.getElementById('close-terms');
+const acceptTermsBtn = document.getElementById('accept-terms');
+
+if (openTermsBtn) {
+    openTermsBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        termsModal.style.display = 'flex';
+    };
+}
+if (closeTermsBtn) closeTermsBtn.onclick = () => termsModal.style.display = 'none';
+if (acceptTermsBtn) acceptTermsBtn.onclick = () => termsModal.style.display = 'none';
+
+// Close modal on outside click
+window.onmousedown = (e) => {
+    if (e.target === termsModal) termsModal.style.display = 'none';
+};

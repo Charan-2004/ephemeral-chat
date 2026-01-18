@@ -26,13 +26,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
         integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
     <link rel="stylesheet" href="layout.css?v=FINAL_REV3">
-    <title>Chathere - Anonymous & Free</title>
+    <link rel="icon" href="favicon.png" type="image/x-icon">
+    <title>ChatHere - Anonymous & Free</title>
 </head>
 
 <body>
     <div class="join-container" id="join-screen">
         <header class="join-header">
-            <h1><i class="fas fa-ghost"></i> Chat here</h1>
+            <img src="logo.png" alt="ChatHere Logo" class="brand-logo">
+            <h1>ChatHere</h1>
         </header>
         <main class="join-main">
             <form id="join-form">
@@ -46,6 +48,13 @@
                         <option value="" disabled selected>Loading rooms...</option>
                     </select>
                 </div>
+
+                <div class="terms-checkbox">
+                    <input type="checkbox" id="terms-check" required>
+                    <label for="terms-check">I agree to the <a href="#" id="open-terms" class="text-link">Terms &
+                            Conditions</a></label>
+                </div>
+
                 <button type="submit" class="btn">Join Room</button>
             </form>
         </main>
@@ -53,7 +62,10 @@
 
     <div class="chat-container" id="chat-screen" style="display: none;">
         <header class="chat-header">
-            <h1><i class="fas fa-ghost"></i> <span id="room-name">Room Name</span></h1>
+            <div class="header-branding">
+                <img src="logo.png" alt="Logo" class="header-logo-small">
+                <h1><span id="room-name">Room Name</span></h1>
+            </div>
             <div class="header-right">
                 <button id="share-btn" class="btn btn-sm" title="Select messages to share"><i
                         class="fas fa-share-alt"></i></button>
@@ -124,6 +136,27 @@
             <h2>Share Conversation</h2>
             <div id="share-preview"></div>
             <a id="download-link" class="btn" download="ephemeral-chat.png">Download Image</a>
+        </div>
+    </div>
+
+    <!-- Terms Modal -->
+    <div id="terms-modal" class="modal" style="display: none;">
+        <div class="modal-content terms-content">
+            <span class="close-modal" id="close-terms">&times;</span>
+            <h2><i class="fas fa-file-contract"></i> Terms & Conditions</h2>
+            <div class="terms-text">
+                <p><strong>1. Anonymity:</strong> ChatHere is designed for anonymous communication. We do not store user
+                    accounts or personal data.</p>
+                <p><strong>2. Ephemeral Nature:</strong> Messages are stored in temporary memory. They may be deleted at
+                    any time by automated cleanup or server restarts. Do not use this service for long-term storage.</p>
+                <p><strong>3. Conduct:</strong> You agree not to use this service for illegal activities, harassment, or
+                    sharing harmful content. We reserve the right to ban users or delete messages at our discretion.</p>
+                <p><strong>4. Disclaimer:</strong> This service is provided "as is". We are not responsible for any data
+                    loss or misuse by other users.</p>
+                <br>
+                <p><em>By joining a room, you agree to these terms.</em></p>
+            </div>
+            <button class="btn" id="accept-terms">I Understand</button>
         </div>
     </div>
 
