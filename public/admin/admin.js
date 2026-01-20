@@ -75,6 +75,7 @@ async function loadStats() {
 }
 
 // Rooms
+// Rooms
 async function loadRooms() {
     const res = await fetch('/api/rooms'); // Public endpoint is fine for list
     const rooms = await res.json();
@@ -89,13 +90,16 @@ async function loadRooms() {
         li.style.display = 'flex';
         li.style.justifyContent = 'space-between';
 
+        // Encode naming for safety in data attributes
+        const safeName = encodeURIComponent(r.name);
+
         li.innerHTML = `
             <span>${r.name} ${r.locked ? '<span style="color:red">[LOCKED]</span>' : ''}</span>
             <div>
-                 <button onclick="toggleLock('${r.name}', '${r.locked ? 'unlock' : 'lock'}')">
+                 <button class="action-btn-lock" data-room="${safeName}" data-locked="${r.locked}">
                     ${r.locked ? 'Unlock' : 'Lock'}
                  </button>
-                 <button onclick="deleteRoom('${r.name}')" style="background:red; color:white;">Delete</button>
+                 <button class="action-btn-delete-room" data-room="${safeName}" style="background:red; color:white;">Delete</button>
             </div>
         `;
         list.appendChild(li);
@@ -112,6 +116,55 @@ async function loadRooms() {
     });
 }
 
+// Room Actions Delegation
+document.getElementById('admin-room-list').addEventListener('click', async (e) => {
+    // Handle Lock/Unlock
+    const lockBtn = e.target.closest('.action-btn-lock');
+    if (lockBtn) {
+        const room = decodeURIComponent(lockBtn.dataset.room);
+        const isLocked = lockBtn.dataset.locked === 'true';
+        const action = isLocked ? 'unlock' : 'lock';
+
+        const reason = action === 'lock' ? prompt('Reason?') : '';
+        if (action === 'lock' && reason === null) return; // Cancelled
+
+        await fetch('/api/admin/rooms', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': adminToken },
+            body: JSON.stringify({ action, roomName: room, reason })
+        });
+        loadRooms();
+        return;
+    }
+
+    // Handle Delete Room
+    const delBtn = e.target.closest('.action-btn-delete-room');
+    if (delBtn) {
+        const room = decodeURIComponent(delBtn.dataset.room);
+        if (!confirm(`Delete room "${room}"?`)) return;
+
+        await fetch('/api/admin/rooms', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': adminToken },
+            body: JSON.stringify({ action: 'delete', roomName: room })
+        });
+        loadRooms();
+        return;
+    }
+});
+
+// ... Monitor code ...
+
+// Unpin logic (Attached via ID now)
+document.getElementById('admin-unpin-btn').addEventListener('click', async () => {
+    try {
+        await fetch('/api/admin/messages/unpin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': adminToken }
+        });
+        alert('Unpinned!');
+    } catch (e) { console.error(e); }
+});
 // Monitor
 document.getElementById('monitor-room-select').addEventListener('change', (e) => {
     if (currentMonitorRoom) socket.emit('leaveRoom', { room: currentMonitorRoom }); // Optional if supported
@@ -211,38 +264,7 @@ socket.on('message-deleted', (id) => {
     }
 });
 
-// Global functions for inline onclick
-window.toggleLock = async (room, action) => {
-    const reason = action === 'lock' ? prompt('Reason?') : '';
-    await fetch('/api/admin/rooms', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': adminToken },
-        body: JSON.stringify({ action, roomName: room, reason })
-    });
-    loadRooms();
-};
-
-window.deleteRoom = async (room) => {
-    if (!confirm('Delete?')) return;
-    await fetch('/api/admin/rooms', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': adminToken },
-        body: JSON.stringify({ action: 'delete', roomName: room })
-    });
-    loadRooms();
-};
-
-// (Window.deleteMessage and window.pinMessage removed - replaced by Event Delegation)
-
-window.unpinMessage = async () => {
-    try {
-        await fetch('/api/admin/messages/unpin', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': adminToken }
-        });
-        alert('Unpinned!');
-    } catch (e) { console.error(e); }
-};
+// (Inline handlers replaced by event delegation)
 
 
 // Config
