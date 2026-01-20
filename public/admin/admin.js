@@ -7,6 +7,32 @@ let adminToken = localStorage.getItem('adminToken');
 let adminUsername = localStorage.getItem('adminUsername') || 'Moderator';
 let currentMonitorRoom = '';
 
+// Helper for authenticated requests
+async function authFetch(url, options = {}) {
+    options.headers = {
+        'Content-Type': 'application/json',
+        'Authorization': adminToken,
+        ...options.headers
+    };
+
+    try {
+        const res = await fetch(url, options);
+        if (res.status === 401) {
+            alert('Session Expired. Please Login Again.');
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminUsername');
+            location.reload();
+            return null;
+        }
+        if (!res.ok) throw new Error(res.statusText);
+        return res;
+    } catch (e) {
+        alert('Action Failed: ' + e.message);
+        console.error(e);
+        throw e;
+    }
+}
+
 // Auth
 if (adminToken) {
     showDashboard();
@@ -68,13 +94,15 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
 
 // Stats
 async function loadStats() {
-    const res = await fetch('/api/admin/stats', { headers: { 'Authorization': adminToken } });
-    const data = await res.json();
-    document.getElementById('stat-users').innerText = data.users;
-    document.getElementById('stat-rooms').innerText = data.activeRooms;
+    try {
+        const res = await authFetch('/api/admin/stats');
+        if (!res) return;
+        const data = await res.json();
+        document.getElementById('stat-users').innerText = data.users;
+        document.getElementById('stat-rooms').innerText = data.activeRooms;
+    } catch (e) { console.error('Stats load invalid'); }
 }
 
-// Rooms
 // Rooms
 async function loadRooms() {
     const res = await fetch('/api/rooms'); // Public endpoint is fine for list
@@ -116,6 +144,20 @@ async function loadRooms() {
     });
 }
 
+// Create Room
+document.getElementById('add-room-btn').addEventListener('click', async () => {
+    const nameInput = document.getElementById('new-room-name');
+    const roomName = nameInput.value.trim();
+    if (!roomName) return alert('Please enter a room name');
+
+    await authFetch('/api/admin/rooms', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'create', roomName })
+    });
+    nameInput.value = '';
+    loadRooms();
+});
+
 // Room Actions Delegation
 document.getElementById('admin-room-list').addEventListener('click', async (e) => {
     // Handle Lock/Unlock
@@ -128,9 +170,8 @@ document.getElementById('admin-room-list').addEventListener('click', async (e) =
         const reason = action === 'lock' ? prompt('Reason?') : '';
         if (action === 'lock' && reason === null) return; // Cancelled
 
-        await fetch('/api/admin/rooms', {
+        await authFetch('/api/admin/rooms', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': adminToken },
             body: JSON.stringify({ action, roomName: room, reason })
         });
         loadRooms();
@@ -143,9 +184,8 @@ document.getElementById('admin-room-list').addEventListener('click', async (e) =
         const room = decodeURIComponent(delBtn.dataset.room);
         if (!confirm(`Delete room "${room}"?`)) return;
 
-        await fetch('/api/admin/rooms', {
+        await authFetch('/api/admin/rooms', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': adminToken },
             body: JSON.stringify({ action: 'delete', roomName: room })
         });
         loadRooms();
@@ -153,18 +193,6 @@ document.getElementById('admin-room-list').addEventListener('click', async (e) =
     }
 });
 
-// ... Monitor code ...
-
-// Unpin logic (Attached via ID now)
-document.getElementById('admin-unpin-btn').addEventListener('click', async () => {
-    try {
-        await fetch('/api/admin/messages/unpin', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': adminToken }
-        });
-        alert('Unpinned!');
-    } catch (e) { console.error(e); }
-});
 // Monitor
 document.getElementById('monitor-room-select').addEventListener('change', (e) => {
     if (currentMonitorRoom) socket.emit('leaveRoom', { room: currentMonitorRoom }); // Optional if supported
@@ -185,6 +213,14 @@ document.getElementById('admin-chat-btn').addEventListener('click', () => {
         socket.emit('adminChat', { text: txt, room: currentMonitorRoom, username: adminUsername });
         document.getElementById('admin-chat-input').value = '';
     }
+});
+
+// Unpin logic (Attached via ID now)
+document.getElementById('admin-unpin-btn').addEventListener('click', async () => {
+    try {
+        await authFetch('/api/admin/messages/unpin', { method: 'POST' });
+        alert('Unpinned!');
+    } catch (e) { /* handled by authFetch */ }
 });
 
 socket.on('message', (msg) => {
@@ -223,13 +259,10 @@ document.getElementById('monitor-messages').addEventListener('click', async (e) 
     if (delBtn) {
         const id = delBtn.dataset.id;
         if (confirm('Confirm Delete?')) {
-            try {
-                await fetch('/api/admin/messages/delete', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': adminToken },
-                    body: JSON.stringify({ messageId: id })
-                });
-            } catch (error) { console.error('Delete failed:', error); }
+            await authFetch('/api/admin/messages/delete', {
+                method: 'POST',
+                body: JSON.stringify({ messageId: id })
+            });
         }
         return;
     }
@@ -240,14 +273,11 @@ document.getElementById('monitor-messages').addEventListener('click', async (e) 
         const id = pinBtn.dataset.id;
         const text = decodeURIComponent(pinBtn.dataset.text); // Decode safe text
 
-        try {
-            await fetch('/api/admin/messages/pin', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': adminToken },
-                body: JSON.stringify({ messageId: id, text, username: adminUsername })
-            });
-            alert('Message Pinned');
-        } catch (error) { console.error('Pin failed:', error); }
+        await authFetch('/api/admin/messages/pin', {
+            method: 'POST',
+            body: JSON.stringify({ messageId: id, text, username: adminUsername })
+        });
+        alert('Message Pinned');
         return;
     }
 });
@@ -264,17 +294,13 @@ socket.on('message-deleted', (id) => {
     }
 });
 
-// (Inline handlers replaced by event delegation)
-
-
 // Config
 document.getElementById('save-config-btn').addEventListener('click', async () => {
     const ttl = document.getElementById('config-ttl').value;
     const spam = document.getElementById('config-spam').value;
 
-    await fetch('/api/admin/config', {
+    await authFetch('/api/admin/config', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': adminToken },
         body: JSON.stringify({ ttl, spam })
     });
     alert('Config Saved');
