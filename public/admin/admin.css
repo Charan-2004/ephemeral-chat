@@ -13,25 +13,407 @@ body {
     /* Mobile fix */
 }
 
-/* ... existing styles ... */
+/* Login Screen */
+.login-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%);
+}
 
+.login-card {
+    background: rgba(26, 26, 46, 0.9);
+    padding: 40px;
+    border-radius: 12px;
+    border: 1px solid #e94560;
+    box-shadow: 0 0 30px rgba(233, 69, 96, 0.3);
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-card h1 {
+    color: #e94560;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.login-card input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    background: #0f3460;
+    border: 1px solid #16213e;
+    color: #fff;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.login-card input::placeholder {
+    color: #888;
+}
+
+.login-card .btn {
+    width: 100%;
+    padding: 12px;
+    background: #e94560;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.login-card .btn:hover {
+    background: #ff6b81;
+}
+
+.error {
+    color: #ff6b6b;
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* Dashboard Layout */
+.dashboard {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    background: #16213e;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar h2 {
+    color: #e94560;
+    margin-bottom: 30px;
+}
+
+.sidebar nav {
+    flex: 1;
+}
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    background: transparent;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.nav-btn:hover {
+    background: rgba(233, 69, 96, 0.1);
+    color: #fff;
+}
+
+.nav-btn.active {
+    background: #e94560;
+    color: #fff;
+}
+
+.btn-logout {
+    background: transparent;
+    border: 1px solid #e94560;
+    color: #e94560;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-logout:hover {
+    background: #e94560;
+    color: #fff;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 30px;
+    background: #0a0a1a;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.tab-content h2 {
+    color: #e94560;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #16213e;
+    padding-bottom: 10px;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.stat-card {
+    background: #16213e;
+    padding: 25px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.stat-card i {
+    font-size: 2rem;
+    color: #e94560;
+}
+
+.stat-info span {
+    font-size: 2rem;
+    font-weight: bold;
+    display: block;
+}
+
+.stat-info label {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+/* Room Management */
+.room-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.room-controls input {
+    flex: 1;
+    padding: 12px;
+    background: #16213e;
+    border: 1px solid #0f3460;
+    color: #fff;
+    border-radius: 6px;
+}
+
+.admin-room-list {
+    list-style: none;
+}
+
+/* Monitor */
 .monitor-layout {
-    height: auto;
-    /* On mobile, we want it to fit the screen roughly, but auto is safer for admin content usually.
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 150px);
+}
+
+.monitor-layout select {
+    padding: 10px;
+    background: #16213e;
+    border: 1px solid #0f3460;
+    color: #fff;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.chat-viewport {
+    flex: 1;
+    background: #0f3460;
+    border-radius: 8px;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.admin-msg {
+    background: #16213e;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border-left: 3px solid #e94560;
+}
+
+.admin-controls {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+}
+
+.control-btn {
+    padding: 6px 12px;
+    background: #0f3460;
+    border: none;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.control-btn:hover {
+    background: #e94560;
+}
+
+.control-btn.delete:hover {
+    background: #ff4757;
+}
+
+/* Config */
+.config-grid {
+    max-width: 500px;
+}
+
+.config-item {
+    margin-bottom: 25px;
+}
+
+.config-item label {
+    display: block;
+    margin-bottom: 10px;
+    color: #aaa;
+}
+
+.config-item input[type="range"] {
+    width: 100%;
+    accent-color: #e94560;
+}
+
+.config-item span {
+    color: #e94560;
+    font-weight: bold;
+}
+
+.btn {
+    padding: 12px 25px;
+    background: #e94560;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn:hover {
+    background: #ff6b81;
+}
+
+/* Mobile Menu Button (Hidden by default) */
+.admin-mobile-menu-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #e94560;
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+    .dashboard {
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    /* Show hamburger menu inside the sidebar isn't right if sidebar is hidden. 
+       Let's put a trigger outside, OR handle it cleanly. 
+       Actually, common pattern: Fixed button on top-left of main content to open it. 
+    */
+
+    .admin-mobile-menu-btn {
+        display: block;
+        /* Show inside sidebar for closing? No. */
+        /* Let's style an external trigger if needed, or stick to the plan. 
+           Plan said: Button inside .dashboard or sidebar. 
+           If sidebar is hidden, button inside it is hidden. 
+           Wait, I put the button INSIDE aside.SAFE CORRECTION within CSS:
+        */
+    }
+}
+
+/* Better Mobile Strategy: Fixed Toggle Button on Main Content */
+@media (max-width: 768px) {
+    .main-content {
+        padding-top: 60px;
+        /* Space for toggle */
+    }
+
+    .sidebar {
+        /* Re-assert properties */
+        transform: translateX(-100%);
+    }
+
+    /* We need a toggle visible when sidebar is closed. 
+       We will move the button out of sidebar in a sec via HTML correction if needed, 
+       BUT for now let's position the button fixed so it pops out of the sidebar container? 
+       No, cleaner to move it in HTML. I will assume I can move it or position it fixed relative to body.
+    */
+    .admin-mobile-menu-btn {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 2000;
+        display: block;
+        background: #16213e;
+        padding: 10px;
+        border-radius: 6px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Stack controls */
+    .room-controls {
+        flex-direction: column;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .monitor-layout {
+        height: auto;
+        /* On mobile, we want it to fit the screen roughly, but auto is safer for admin content usually.
            However, if they want sticky input, we need fixed height.
         */
-    height: calc(100dvh - 150px);
-    /* Try to fit viewport */
-    min-height: 0;
-    /* Allow shrinking */
-}
+        height: calc(100dvh - 150px);
+        /* Try to fit viewport with mobile fix */
+        min-height: 0;
+        /* Allow shrinking */
+    }
 
-.admin-chat-area {
-    flex-direction: column;
-    align-items: stretch !important;
-}
+    .admin-chat-area {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
 
-#admin-chat-btn {
-    width: 100%;
-}
+    #admin-chat-btn {
+        width: 100%;
+    }
 }
