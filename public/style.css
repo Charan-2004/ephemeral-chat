@@ -20,13 +20,27 @@ body {
   background-image: var(--bg-image);
   background-size: cover;
   background-position: center;
-  background-attachment: scroll;
-  min-height: 100dvh;
+  background-attachment: fixed;
+  /* Fixed prevents jumpy background on mobile */
+  margin: 0;
+  height: 100vh;
+  height: 100dvh;
+  /* Mobile fix */
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
+  /* Removed flex centering to prevent mobile jitter */
+}
+
+/* ... existing styles ... */
+
+/* Input Area */
+.chat-form-container {
+  padding: 15px;
+  background: rgba(35, 39, 42, 0.95);
+  border-top: 1px solid var(--glass-border);
+  flex-shrink: 0;
+  /* Removed sticky - Flexbox handles this better */
+  padding-bottom: calc(15px + env(safe-area-inset-bottom));
+  z-index: 10;
 }
 
 
@@ -403,10 +417,9 @@ body::before {
   background: rgba(35, 39, 42, 0.95);
   border-top: 1px solid var(--glass-border);
   flex-shrink: 0;
-  position: sticky;
-  /* Make sure it stays at bottom if content scrolls */
-  bottom: 0;
+  /* Removed sticky - Flexbox handles this better */
   padding-bottom: calc(15px + env(safe-area-inset-bottom));
+  z-index: 10;
 }
 
 #chat-form {
