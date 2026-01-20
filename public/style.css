@@ -100,7 +100,13 @@ body::before {
   overflow: hidden;
   animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
   z-index: 100;
-  position: relative;
+
+  /* Absolute Centering Fix */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
   display: flex;
   flex-direction: column;
 }
