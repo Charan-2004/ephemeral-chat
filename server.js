@@ -5,6 +5,7 @@ const express = require('express');
 const socketio = require('socket.io');
 const helmet = require('helmet');
 const compression = require('compression');
+const rateLimit = require('express-rate-limit');
 const { formatMessage, storeMessage, getMessage, getRoomMessages, addReaction, cleanExpiredMessages, deleteMessage } = require('./utils/messages');
 const { userJoin, getCurrentUser, userLeave, getRoomUsers, getRoomUserCount, updateLastMessageTime } = require('./utils/users');
 const config = require('./utils/config');
@@ -48,6 +49,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
 const botName = 'System';
+
+
+// Rate Limiter
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Apply to API routes
+app.use('/api/', apiLimiter);
 
 // Room Management
 let rooms = [
@@ -213,6 +226,17 @@ io.on('connection', socket => {
             return;
         }
 
+
+        // Input Validation
+        if (!username || typeof username !== 'string' || username.trim().length === 0 || username.length > 20) {
+            socket.emit('error-message', 'Invalid username (1-20 chars)');
+            return;
+        }
+        if (!room || typeof room !== 'string') {
+            socket.emit('error-message', 'Invalid room');
+            return;
+        }
+
         const user = userJoin(socket.id, username, room);
         socket.join(user.room);
 
@@ -232,6 +256,9 @@ io.on('connection', socket => {
     });
 
     socket.on('chatMessage', ({ text, replyTo, replyToText }) => {
+        if (!text || typeof text !== 'string' || text.trim().length === 0 || text.length > 500) {
+            return; // Ignore invalid messages
+        }
         const user = getCurrentUser(socket.id);
         if (user) {
             const roomConfig = rooms.find(r => r.name === user.room);

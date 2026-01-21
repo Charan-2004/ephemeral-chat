@@ -244,9 +244,23 @@ socket.on('message', (msg) => {
 
         const displayContent = msg.text || '<em>[Image]</em>';
         div.innerHTML = `
-            <strong>${msg.username}</strong>: ${displayContent}
-            ${controlsHtml}
-        `;
+        const strong = document.createElement('strong');
+        strong.innerText = msg.username + ': ';
+        div.appendChild(strong);
+
+        const textSpan = document.createElement('span');
+        textSpan.innerText = displayContent;
+        div.appendChild(textSpan);
+
+        // Re-append controls
+        if (controlsHtml) {
+             const controlsDiv = document.createElement('div');
+             controlsDiv.className = 'admin-controls';
+             controlsDiv.style.display = 'inline-block';
+             controlsDiv.style.marginLeft = '10px';
+             controlsDiv.innerHTML = controlsHtml; // The controls HTML itself is hardcoded safe string above
+             div.appendChild(controlsDiv);
+        }`;
         document.getElementById('monitor-messages').appendChild(div);
         document.getElementById('monitor-messages').scrollTop = document.getElementById('monitor-messages').scrollHeight;
     }

@@ -1,0 +1,21 @@
+{
+    "short_name": "ChatHere",
+    "name": "ChatHere - Anonymous Chat",
+    "icons": [
+        {
+            "src": "/favicon.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "/logo.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ],
+    "start_url": "/",
+    "background_color": "#2c2f33",
+    "display": "standalone",
+    "scope": "/",
+    "theme_color": "#2c2f33"
+}
