@@ -1,10 +1,12 @@
 :root {
-  --primary-color: #7289da;
+  --primary-color: #5865F2;
+  /* Modern Discord-like blue, punchier */
+  --primary-hover: #4752C4;
   --secondary-color: #2c2f33;
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.15);
   --success-color: #43b581;
-  --bg-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
+  --bg-image: url('bg.png');
 }
 
 * {
@@ -14,7 +16,7 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
   color: #fff;
   line-height: 1.6;
   background-image: var(--bg-image);
@@ -69,6 +71,18 @@ body::before {
   }
 }
 
+@keyframes fadeInCentered {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateY(0);
+  }
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -95,11 +109,18 @@ body::before {
   max-width: 90vw;
   border-radius: 16px;
   padding: 0;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(25px);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
-  animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  animation: fadeInCentered 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
   z-index: 100;
+  z-index: 100;
+  position: relative;
+  /* For absolute positioning of children */
 
   /* Absolute Centering Fix */
   position: absolute;
@@ -111,8 +132,92 @@ body::before {
   flex-direction: column;
 }
 
+/* Global Animated Background */
+.animated-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  background: rgba(0, 0, 0, 0.2);
+  /* Reduced opacity to let background image show through */
+}
+
+.marquee-row {
+  white-space: nowrap;
+  position: relative;
+  opacity: 0.2;
+  /* Slightly bumped up for visibility */
+  font-family: 'Inter', sans-serif;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  /* Contrast against bg image */
+  text-transform: uppercase;
+  user-select: none;
+  will-change: transform;
+  display: flex;
+  gap: 4rem;
+  padding-right: 4rem;
+  /* Match gap for seamless loop */
+}
+
+/* Different speeds and sizes per row */
+/* Different speeds and sizes per row */
+/* 0% to -50% translation creates the seamless infinite loop effect with duplicated content */
+.marquee-row:nth-child(1) {
+  animation: marqueeLeft 20s linear infinite;
+  /* Turbo Speed */
+  font-size: 6rem;
+}
+
+.marquee-row:nth-child(2) {
+  animation: marqueeLeft 15s linear infinite;
+  /* Turbo Speed */
+  font-size: 4rem;
+  opacity: 0.12;
+}
+
+.marquee-row:nth-child(3) {
+  animation: marqueeLeft 25s linear infinite;
+  /* Turbo Speed */
+  font-size: 7rem;
+  opacity: 0.08;
+}
+
+.marquee-row:nth-child(4) {
+  animation: marqueeLeft 12s linear infinite;
+  /* Turbo Speed */
+  font-size: 5rem;
+}
+
+.marquee-row:nth-child(5) {
+  animation: marqueeLeft 18s linear infinite;
+  /* Turbo Speed */
+  font-size: 4.5rem;
+  opacity: 0.1;
+}
+
+@keyframes marqueeLeft {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 .join-header {
-  background: linear-gradient(135deg, rgba(114, 137, 218, 0.2), rgba(0, 0, 0, 0));
+  background: linear-gradient(180deg, rgba(88, 101, 242, 0.15), rgba(0, 0, 0, 0));
+  position: relative;
+  z-index: 1;
   padding: 30px 20px;
   text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -128,6 +233,8 @@ body::before {
 
 .join-main {
   padding: 30px;
+  position: relative;
+  z-index: 1;
 }
 
 .form-control {
@@ -453,12 +560,38 @@ body::before {
   border: 0;
   border-radius: 5px;
   font-size: 1rem;
-  transition: all 0.3s ease;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.5px;
 }
 
 .btn:hover {
-  background-color: #5b6eae;
+  background-color: var(--primary-hover);
   transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(88, 101, 242, 0.4);
+}
+
+/* Pulsing animation for main Join button */
+.join-main .btn {
+  width: 100%;
+  /* Force full width */
+  display: block;
+  animation: pulse-glow 3s infinite;
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(88, 101, 242, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(88, 101, 242, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(88, 101, 242, 0);
+  }
 }
 
 .btn-icon {

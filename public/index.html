@@ -26,9 +26,12 @@
         content="Connect instantly with people worldwide. No login required, no logs. Free anonymous chat rooms.">
     <meta property="twitter:image" content="https://chathere.online/preview-image.png">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
         integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
-    <link rel="stylesheet" href="style.css?v=MOBILE_FIX_V3">
+    <link rel="stylesheet" href="style.css?v=PREMIUM_V1">
 
     <!-- Favicon Fixes -->
     <link rel="icon" href="/favicon.png" type="image/png">
@@ -54,6 +57,88 @@
 </head>
 
 <body>
+    <div class="animated-background">
+        <!-- Row 1 -->
+        <div class="marquee-row">
+            <span>People drop in throughout the day</span>
+            <span>Say something</span>
+            <span>Just Talk</span>
+            <span>Anonymous</span>
+            <span>No Logs</span>
+            <span>Global Chat</span>
+            <!-- Duplicate for infinite loop -->
+            <span>People drop in throughout the day</span>
+            <span>Say something</span>
+            <span>Just Talk</span>
+            <span>Anonymous</span>
+            <span>No Logs</span>
+            <span>Global Chat</span>
+        </div>
+        <!-- Row 2 -->
+        <div class="marquee-row">
+            <span>Connect instantly</span>
+            <span>Privacy First</span>
+            <span>Free Forever</span>
+            <span>New Friends</span>
+            <span>Express Yourself</span>
+            <span>Hidden Thoughts</span>
+            <!-- Duplicate for infinite loop -->
+            <span>Connect instantly</span>
+            <span>Privacy First</span>
+            <span>Free Forever</span>
+            <span>New Friends</span>
+            <span>Express Yourself</span>
+            <span>Hidden Thoughts</span>
+        </div>
+        <!-- Row 3 -->
+        <div class="marquee-row">
+            <span>Don't be shy</span>
+            <span>Hello World</span>
+            <span>Random Topics</span>
+            <span>Zero Trace</span>
+            <span>Live Now</span>
+            <span>Join the Crowd</span>
+            <!-- Duplicate for infinite loop -->
+            <span>Don't be shy</span>
+            <span>Hello World</span>
+            <span>Random Topics</span>
+            <span>Zero Trace</span>
+            <span>Live Now</span>
+            <span>Join the Crowd</span>
+        </div>
+        <!-- Row 4 -->
+        <div class="marquee-row">
+            <span>Speak Freely</span>
+            <span>Who are you?</span>
+            <span>It's a secret</span>
+            <span>Digital Shadows</span>
+            <span>Voices</span>
+            <span>Echoes</span>
+            <!-- Duplicate for infinite loop -->
+            <span>Speak Freely</span>
+            <span>Who are you?</span>
+            <span>It's a secret</span>
+            <span>Digital Shadows</span>
+            <span>Voices</span>
+            <span>Echoes</span>
+        </div>
+        <!-- Row 5 -->
+        <div class="marquee-row">
+            <span>Stay Connected</span>
+            <span>Real People</span>
+            <span>No Data Mining</span>
+            <span>Open Source</span>
+            <span>Chat Freely</span>
+            <span>Your Space</span>
+            <!-- Duplicate for infinite loop -->
+            <span>Stay Connected</span>
+            <span>Real People</span>
+            <span>No Data Mining</span>
+            <span>Open Source</span>
+            <span>Chat Freely</span>
+            <span>Your Space</span>
+        </div>
+    </div>
     <div class="join-container" id="join-screen">
         <header class="join-header">
             <img src="logo.png" alt="ChatHere Logo" class="brand-logo">
@@ -70,6 +155,11 @@
                     <select name="room" id="room">
                         <option value="" disabled selected>Loading rooms...</option>
                     </select>
+                </div>
+
+                <div class="terms-checkbox">
+                    <input type="checkbox" id="age-check" required>
+                    <label for="age-check">I confirm I am 18+ years old</label>
                 </div>
 
                 <div class="terms-checkbox">
@@ -170,18 +260,115 @@
             <span class="close-modal" id="close-terms">&times;</span>
             <h2><i class="fas fa-file-contract"></i> Terms & Conditions</h2>
             <div class="terms-text">
-                <p><strong>1, Age</strong> By Accepting Terms and Conditions U agree that you are 18 years or more of
-                    age and ok with the content which is being shared here.</p>
-                <p><strong>2. Anonymity:</strong> ChatHere is designed for anonymous communication. We do not store user
-                    accounts or personal data.</p>
-                <p><strong>3. Ephemeral Nature:</strong> Messages are stored in temporary memory. They may be deleted at
-                    any time by automated cleanup or server restarts. Do not use this service for long-term storage.</p>
-                <p><strong>4. Conduct:</strong> You agree not to use this service for illegal activities, harassment, or
-                    sharing harmful content. We reserve the right to ban users or delete messages at our discretion.</p>
-                <p><strong>5. Disclaimer:</strong> This service is provided "as is". We are not responsible for any data
-                    loss or misuse by other users.</p>
-                <br>
-                <p><em>By joining a room, you agree to these terms.</em></p>
+                <h1>Terms of Service</h1>
+                <p><strong>Last updated:</strong> January 22, 2026</p>
+                <p>By accessing or using <strong>chathere.online</strong> (the "Service"), you agree to be bound by
+                    these Terms of Service ("Terms"). If you do not agree to these Terms, you must not use the Service.
+                </p>
+                <hr>
+                <h2>1. Description of the Service</h2>
+                <p>The Service provides a real-time, anonymous, public chat platform. The Service does not require user
+                    registration, accounts, or persistent user identities.</p>
+                <p>The Service is provided on an "as-is" and "as-available" basis.</p>
+                <hr>
+                <h2>2. Eligibility</h2>
+                <p>You must be at least <strong>18 years of age</strong> to use the Service. By using the Service, you
+                    represent and warrant that you are 18 years of age or older.</p>
+                <hr>
+                <h2>3. User Conduct</h2>
+                <p>You agree that you will not use the Service to post, transmit, or share any content that:</p>
+                <ul>
+                    <li>Violates any applicable law or regulation</li>
+                    <li>Is threatening, abusive, harassing, defamatory, or hateful</li>
+                    <li>Contains sexual content involving minors</li>
+                    <li>Encourages violence or illegal activity</li>
+                    <li>Contains malware, spam, or malicious links</li>
+                    <li>Infringes the rights of others</li>
+                </ul>
+                <p>You are solely responsible for all content you submit or transmit through the Service.</p>
+                <hr>
+                <h2>4. User-Generated Content Disclaimer</h2>
+                <p>All content on the Service is generated by users. We do not endorse, verify, or guarantee the
+                    accuracy or reliability of any user-generated content.</p>
+                <p>You acknowledge that content may be offensive, misleading, or harmful, and you use the Service at
+                    your own risk.</p>
+                <hr>
+                <h2>5. Moderation</h2>
+                <p>We do not guarantee active moderation of all content. We reserve the right, but not the obligation,
+                    to remove content or restrict access to the Service at our sole discretion and without notice.</p>
+                <hr>
+                <h2>6. No Professional Advice</h2>
+                <p>The Service does not provide medical, legal, financial, or other professional advice. Any information
+                    obtained through the Service should not be relied upon as a substitute for professional advice.</p>
+                <hr>
+                <h2>7. Ephemeral Content</h2>
+                <p>Messages and content may be removed, modified, or become unavailable at any time. We do not guarantee
+                    the persistence, deletion, or availability of any content.</p>
+                <hr>
+                <h2>8. Sharing and Screenshots</h2>
+                <p>You acknowledge that other users may capture, share, or redistribute content from the Service,
+                    including through screenshots or generated images. We are not responsible for content shared outside
+                    the Service.</p>
+                <hr>
+                <h2>9. Intellectual Property</h2>
+                <p>You retain ownership of any content you submit. By using the Service, you grant us a limited,
+                    non-exclusive license to display and transmit your content solely for the purpose of operating the
+                    Service.</p>
+                <hr>
+                <h2>10. Termination</h2>
+                <p>We reserve the right to suspend or terminate access to the Service at any time, for any reason,
+                    without notice.</p>
+                <hr>
+                <h2>11. Limitation of Liability</h2>
+                <p>To the maximum extent permitted by law, the Service and its operators shall not be liable for any
+                    indirect, incidental, consequential, or punitive damages arising out of your use of the Service.</p>
+                <hr>
+                <h2>12. Indemnification</h2>
+                <p>You agree to indemnify and hold harmless the Service and its operators from any claims, damages,
+                    losses, or liabilities arising from your use of the Service or violation of these Terms.</p>
+                <hr>
+                <h2>13. Governing Law</h2>
+                <p>These Terms shall be governed by and construed in accordance with the laws of <strong>[YOUR COUNTRY /
+                        STATE]</strong>, without regard to conflict of law principles.</p>
+                <hr>
+                <h2>14. Changes to These Terms</h2>
+                <p>We may update these Terms at any time. Continued use of the Service constitutes acceptance of the
+                    revised Terms.</p>
+                <hr>
+                <h1>Privacy Policy</h1>
+                <p><strong>Last updated:</strong> January 22, 2026</p>
+                <hr>
+                <h2>1. Information We Collect</h2>
+                <p>We do not require users to create accounts or provide personal information.</p>
+                <p>We may temporarily process technical information such as IP addresses, browser type, and connection
+                    metadata for security, abuse prevention, and operational purposes.</p>
+                <hr>
+                <h2>2. Message Data</h2>
+                <p>Messages are transmitted in real time and may be temporarily stored in memory for operational
+                    purposes. We do not guarantee permanent storage or deletion of messages.</p>
+                <hr>
+                <h2>3. Cookies and Tracking</h2>
+                <p>We do not use cookies for advertising or behavioral tracking purposes. Limited technical cookies may
+                    be used for essential functionality.</p>
+                <hr>
+                <h2>4. Third-Party Services</h2>
+                <p>The Service may use third-party infrastructure or hosting providers. We are not responsible for the
+                    privacy practices of these third parties.</p>
+                <hr>
+                <h2>5. Data Security</h2>
+                <p>We take reasonable measures to protect data but cannot guarantee absolute security.</p>
+                <hr>
+                <h2>6. Children's Privacy</h2>
+                <p>The Service is intended only for users who are 18 years of age or older. We do not knowingly collect
+                    personal data from individuals under the age of 18.</p>
+                <hr>
+                <h2>7. Changes to This Privacy Policy</h2>
+                <p>We may update this Privacy Policy from time to time. Continued use of the Service constitutes
+                    acceptance of the updated policy.</p>
+                <hr>
+                <h2>8. Contact</h2>
+                <p>For legal, abuse, or privacy concerns, contact us at:</p>
+                <p><strong><a href="mailto:admin@chathere.online">admin@chathere.online</a></strong></p>
             </div>
             <button class="btn" id="accept-terms">I Understand</button>
         </div>
