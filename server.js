@@ -72,6 +72,9 @@ let rooms = [
     { name: 'Gaming', locked: false, reason: '' }
 ];
 
+// Store current pinned message state
+let pinnedMessage = null;
+
 // API: Get Rooms
 app.get('/api/rooms', (req, res) => {
     res.json(rooms);
@@ -201,11 +204,15 @@ app.post('/api/admin/messages/pin', isAdmin, (req, res) => {
     const { messageId, text, username } = req.body;
     const msg = getMessage(messageId);
     if (msg) msg.pinned = true;
+    // Store pinned message state for new users
+    pinnedMessage = { id: messageId, text, username };
     io.emit('message-pinned', { id: messageId, text, username });
     res.json({ success: true });
 });
 
 app.post('/api/admin/messages/unpin', isAdmin, (req, res) => {
+    // Clear pinned message state
+    pinnedMessage = null;
     io.emit('message-unpinned');
     res.json({ success: true });
 });
@@ -243,10 +250,12 @@ io.on('connection', socket => {
         const history = getRoomMessages(user.room);
         history.forEach(msg => socket.emit('message', msg));
 
-        socket.emit('message', formatMessage(botName, 'Welcome to ChatHere! 👻 Messages here are anonymous and vanish when the server restarts. Be kind and have fun!', user.room, '#888', null, null, null, 'system'));
+        // Send current pinned message to new user if one exists
+        if (pinnedMessage) {
+            socket.emit('message-pinned', pinnedMessage);
+        }
 
-        socket.broadcast.to(user.room)
-            .emit('message', formatMessage(botName, 'A new user joined', user.room, '#888', null, null, null, 'system'));
+        socket.emit('message', formatMessage(botName, 'Welcome to ChatHere! 👻 Messages here are anonymous and vanish when the server restarts. Be kind and have fun!', user.room, '#888', null, null, null, 'system'));
 
         io.to(user.room).emit('roomUsers', {
             room: user.room,
@@ -322,7 +331,6 @@ io.on('connection', socket => {
     socket.on('disconnect', () => {
         const user = userLeave(socket.id);
         if (user) {
-            io.to(user.room).emit('message', formatMessage(botName, 'A user left', user.room, '#888', null, null, null, 'system'));
             io.to(user.room).emit('roomUsers', {
                 room: user.room,
                 count: getRoomUserCount(user.room)
