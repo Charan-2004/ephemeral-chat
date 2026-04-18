@@ -31,6 +31,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
         integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
@@ -81,6 +82,28 @@
           "url": "https://chathere.online",
           "logo": "https://chathere.online/logo.png",
           "description": "ChatHere provides free anonymous chat rooms for instant global connections"
+        }
+      ]
+    }
+    </script>
+
+    <!-- Breadcrumb Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "ChatHere",
+          "item": "https://chathere.online/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "About ChatHere",
+          "item": "https://chathere.online/about.html"
         }
       ]
     }
@@ -249,8 +272,8 @@
     </div>
     <div class="join-container" id="join-screen">
         <header class="join-header">
-            <img src="logo.png" alt="ChatHere Logo" class="brand-logo">
-            <h1>ChatHere</h1>
+            <img src="logo.png" alt="ChatHere - Free Anonymous Chat Rooms" class="brand-logo">
+            <h1>ChatHere <span class="sr-only">- Free Anonymous Chat Rooms Online</span></h1>
         </header>
         <main class="join-main">
             <form id="join-form">
@@ -497,9 +520,20 @@
         </div>
     </div>
 
+    <!-- SEO Footer - Internal Links -->
+    <footer id="site-footer" class="site-footer">
+        <div class="footer-content">
+            <span>&copy; 2026 <a href="/">ChatHere</a></span>
+            <nav class="footer-links">
+                <a href="/about.html">About</a>
+                <a href="mailto:admin@chathere.online">Contact</a>
+            </nav>
+        </div>
+    </footer>
+
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="script.js?v=FINAL_REV4"></script>
+    <script src="script.js?v=FINAL_REV5"></script>
 </body>
 
 </html>
