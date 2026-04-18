@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Learn about ChatHere - the free anonymous chat platform. No login, no tracking, no data collection. Just real-time anonymous conversations.">
+    <meta name="keywords" content="chathere, chat here, about chathere, anonymous chat, free chat rooms, chathere.online">
+    <meta name="author" content="ChatHere">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://chathere.online/about.html" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://chathere.online/about.html">
+    <meta property="og:title" content="About ChatHere - Free Anonymous Chat Platform">
+    <meta property="og:description" content="Learn about ChatHere, the free anonymous real-time chat platform with no login required.">
+    <meta property="og:image" content="https://chathere.online/logo.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
+    <link rel="shortcut icon" href="/favicon.png">
+    <link rel="manifest" href="/manifest.json">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <title>About ChatHere - Free Anonymous Chat Rooms | chathere.online</title>
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #1a1d21;
+            color: #e0e0e0;
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        .about-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+
+        .about-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .about-header img {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+        }
+
+        .about-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #d4a127, #f0c040);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .about-header p {
+            color: #999;
+            font-size: 1.1rem;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #d4a12733;
+        }
+
+        .section p {
+            color: #bbb;
+            margin-bottom: 12px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 16px;
+        }
+
+        .feature-card {
+            background: #22252a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 24px;
+            transition: border-color 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: #d4a127;
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            color: #d4a127;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        .faq-item {
+            background: #22252a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 12px;
+        }
+
+        .faq-item h3 {
+            color: #fff;
+            font-size: 1.05rem;
+            margin-bottom: 8px;
+        }
+
+        .faq-item p {
+            color: #999;
+            font-size: 0.95rem;
+        }
+
+        .cta-section {
+            text-align: center;
+            margin-top: 48px;
+            padding: 40px;
+            background: linear-gradient(135deg, #d4a12715, #1a1d21);
+            border: 1px solid #d4a12733;
+            border-radius: 16px;
+        }
+
+        .cta-section h2 {
+            border: none;
+            padding: 0;
+            margin-bottom: 12px;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 14px 36px;
+            background: linear-gradient(135deg, #d4a127, #b8891f);
+            color: #1a1d21;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px #d4a12744;
+        }
+
+        .breadcrumb {
+            color: #666;
+            font-size: 0.85rem;
+            margin-bottom: 24px;
+        }
+
+        .breadcrumb a {
+            color: #d4a127;
+            text-decoration: none;
+        }
+
+        @media (max-width: 600px) {
+            .about-header h1 { font-size: 1.8rem; }
+            .about-container { padding: 32px 16px; }
+        }
+    </style>
+
+    <!-- Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      "name": "About ChatHere",
+      "description": "ChatHere is a free anonymous real-time chat platform with no login required",
+      "url": "https://chathere.online/about.html",
+      "mainEntity": {
+        "@type": "WebApplication",
+        "name": "ChatHere",
+        "url": "https://chathere.online",
+        "applicationCategory": "SocialNetworkingApplication"
+      }
+    }
+    </script>
+</head>
+<body>
+    <div class="about-container">
+        <nav class="breadcrumb">
+            <a href="/">ChatHere</a> &rsaquo; About
+        </nav>
+
+        <header class="about-header">
+            <img src="/logo.png" alt="ChatHere Logo - Ghost icon" width="80" height="80">
+            <h1>ChatHere</h1>
+            <p>Free Anonymous Chat Rooms — No Login, No Logs, No Limits</p>
+        </header>
+
+        <section class="section">
+            <h2>What is ChatHere?</h2>
+            <p><strong>ChatHere</strong> is a free, anonymous, real-time chat platform where you can connect with people from around the world instantly. No registration, no email, no phone number — just pick a name and start talking.</p>
+            <p>Built with privacy at its core, ChatHere doesn't store your messages permanently. Conversations are ephemeral — they exist in the moment and vanish when the server restarts. This makes ChatHere the perfect place for honest, pressure-free conversations.</p>
+        </section>
+
+        <section class="section">
+            <h2>Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>🆓 100% Free</h3>
+                    <p>No subscriptions, no premium tiers, no ads. ChatHere is completely free forever.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>👻 Anonymous</h3>
+                    <p>No accounts, no tracking, no data mining. Your identity stays yours.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>⚡ Real-Time</h3>
+                    <p>Instant messaging powered by WebSockets. Messages appear the moment they're sent.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>💨 Ephemeral</h3>
+                    <p>Messages are temporary and vanish automatically. No permanent records.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🎯 Topic Rooms</h3>
+                    <p>Join rooms for Tech, Music, Movies, Gaming, Politics, or General conversation.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🛡️ Moderated</h3>
+                    <p>Active moderation keeps conversations safe and respectful.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-item">
+                <h3>Is ChatHere completely free?</h3>
+                <p>Yes! ChatHere is 100% free to use. There are no hidden fees, premium tiers, or subscriptions. Just visit chathere.online and start chatting instantly.</p>
+            </div>
+            <div class="faq-item">
+                <h3>Do I need to create an account or login?</h3>
+                <p>No account or login is required. Simply choose a display name, pick a chat room, and you're in. Your identity stays anonymous.</p>
+            </div>
+            <div class="faq-item">
+                <h3>Are my messages private?</h3>
+                <p>ChatHere does not store message logs permanently. Messages are ephemeral and vanish when the server restarts. We don't track users or collect personal data.</p>
+            </div>
+            <div class="faq-item">
+                <h3>What chat rooms are available?</h3>
+                <p>ChatHere offers multiple topic-based rooms including General, Tech, Music, Movies, Politics, and Gaming. New rooms can be added by moderators.</p>
+            </div>
+            <div class="faq-item">
+                <h3>How is ChatHere different from other chat apps?</h3>
+                <p>ChatHere is unique because it requires zero registration, stores no data, and provides truly anonymous real-time chat. No emails, no phone numbers, no tracking — just pure anonymous conversation.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>How ChatHere Works</h2>
+            <p>ChatHere uses modern web technologies to deliver a seamless chat experience:</p>
+            <p><strong>Frontend:</strong> Built with HTML5, CSS3, and vanilla JavaScript for maximum performance and compatibility across all browsers and devices.</p>
+            <p><strong>Backend:</strong> Powered by Node.js, Express, and Socket.io for real-time WebSocket communication.</p>
+            <p><strong>Privacy:</strong> Messages are stored in-memory only and are never written to a database. When the server restarts, all messages are gone forever.</p>
+        </section>
+
+        <section class="cta-section">
+            <h2>Ready to Chat?</h2>
+            <p>Join thousands of anonymous users worldwide. No signup required.</p>
+            <a href="/" class="cta-btn">Start Chatting Now →</a>
+        </section>
+    </div>
+</body>
+</html>

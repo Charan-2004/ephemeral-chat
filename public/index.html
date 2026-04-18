@@ -9,6 +9,8 @@
         content="ChatHere is the #1 free anonymous chat platform. Connect instantly with people worldwide on ChatHere - no login, no logs. Join Tech, Music, Politics rooms and more.">
     <meta name="keywords"
         content="chathere, chat here, ChatHere, anonymous chat, real-time chat, group chat, online chat rooms, no login chat, free chat, chathere.online">
+    <meta name="author" content="ChatHere">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <link rel="canonical" href="https://chathere.online/" />
 
     <!-- Open Graph / Facebook -->
@@ -34,11 +36,11 @@
         integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
     <link rel="stylesheet" href="style.css?v=PREMIUM_V1">
 
-    <!-- Favicon - Multiple sizes for maximum compatibility -->
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <!-- Favicon - Google requires minimum 48x48px -->
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
-    <link rel="shortcut icon" type="image/png" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="shortcut icon" href="/favicon.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/logo.png">
     <link rel="manifest" href="/manifest.json">
 
@@ -83,9 +85,86 @@
       ]
     }
     </script>
+
+    <!-- FAQ Schema for Rich Results -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is ChatHere completely free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes! ChatHere is 100% free to use. There are no hidden fees, premium tiers, or subscriptions. Just visit chathere.online and start chatting instantly."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need to create an account or login?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No account or login is required. Simply choose a display name, pick a chat room, and you're in. Your identity stays anonymous."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Are my messages on ChatHere private?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "ChatHere does not store message logs permanently. Messages are ephemeral and vanish when the server restarts. We don't track users or collect personal data."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What chat rooms are available on ChatHere?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "ChatHere offers multiple topic-based rooms including General, Tech, Music, Movies, Politics, and Gaming. New rooms can be added by moderators."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How is ChatHere different from other chat apps?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "ChatHere is unique because it requires zero registration, stores no data, and provides truly anonymous real-time chat. No emails, no phone numbers, no tracking - just pure anonymous conversation."
+          }
+        }
+      ]
+    }
+    </script>
 </head>
 
 <body>
+    <!-- SEO: Visible content for crawlers that don't execute JS -->
+    <noscript>
+        <div style="max-width:800px;margin:0 auto;padding:40px 20px;font-family:sans-serif;color:#333;">
+            <h1>ChatHere - Free Anonymous Chat Rooms</h1>
+            <p>Welcome to <strong>ChatHere</strong>, the #1 free anonymous chat platform. Connect instantly with people worldwide — no login required, no logs kept, completely anonymous.</p>
+            <h2>Why Choose ChatHere?</h2>
+            <ul>
+                <li><strong>100% Free</strong> — No subscriptions, no hidden fees</li>
+                <li><strong>No Registration</strong> — Just pick a name and start chatting</li>
+                <li><strong>Anonymous</strong> — No tracking, no data collection</li>
+                <li><strong>Real-Time</strong> — Instant messaging powered by WebSockets</li>
+                <li><strong>Ephemeral</strong> — Messages vanish, leaving no trace</li>
+            </ul>
+            <h2>Available Chat Rooms</h2>
+            <p>Join topic-based rooms: <strong>General</strong>, <strong>Tech</strong>, <strong>Music</strong>, <strong>Movies</strong>, <strong>Politics</strong>, and <strong>Gaming</strong>.</p>
+            <h2>Frequently Asked Questions</h2>
+            <h3>Is ChatHere free?</h3>
+            <p>Yes! ChatHere is completely free with no premium tiers.</p>
+            <h3>Do I need an account?</h3>
+            <p>No. Just choose a display name and join any room instantly.</p>
+            <h3>Are my messages private?</h3>
+            <p>Messages are ephemeral and not stored permanently. We don't track users.</p>
+            <p>Please enable JavaScript to use ChatHere's real-time chat features.</p>
+            <p><a href="https://chathere.online/about.html">Learn more about ChatHere</a></p>
+        </div>
+    </noscript>
+
     <div class="animated-background">
         <!-- Row 1 -->
         <div class="marquee-row">

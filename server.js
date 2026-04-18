@@ -44,8 +44,20 @@ app.use((req, res, next) => {
     next();
 });
 
-// Set static folder (Cache disabled for development/debugging)
-app.use(express.static(path.join(__dirname, 'public')));
+// Set static folder with caching headers for SEO (Core Web Vitals)
+app.use(express.static(path.join(__dirname, 'public'), {
+    maxAge: '1h',
+    setHeaders: (res, filepath) => {
+        // Long cache for images, fonts, and versioned assets
+        if (filepath.match(/\.(png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+            res.setHeader('Cache-Control', 'public, max-age=2592000'); // 30 days
+        }
+        // Short cache for HTML (so updates propagate quickly)
+        if (filepath.match(/\.html$/)) {
+            res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour
+        }
+    }
+}));
 app.use(express.json());
 
 const botName = 'System';
