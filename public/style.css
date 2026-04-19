@@ -1049,3 +1049,12 @@ body::before {
 .footer-content a:hover {
   color: #fff;
 }
+
+/* SEO Tagline under login form */
+.join-tagline {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 16px;
+  line-height: 1.4;
+}
