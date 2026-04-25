@@ -223,6 +223,54 @@ socket.on('message', (msg) => {
     // This handles messages in current room - unread for other rooms handled by room-message event
 });
 
+// Unread messages for other rooms
+socket.on('room-message', ({ room }) => {
+    if (room !== currentRoom) {
+        unreadCounts[room] = (unreadCounts[room] || 0) + 1;
+        fetchRooms(); // re-render sidebar to show badge
+    }
+});
+
+// Unread messages for other rooms
+socket.on('room-message', ({ room }) => {
+    if (room !== currentRoom) {
+        unreadCounts[room] = (unreadCounts[room] || 0) + 1;
+        fetchRooms(); // re-render sidebar to show badge
+    }
+});
+
+// Unread messages for other rooms
+socket.on('room-message', ({ room }) => {
+    if (room !== currentRoom) {
+        unreadCounts[room] = (unreadCounts[room] || 0) + 1;
+        fetchRooms(); // re-render sidebar to show badge
+    }
+});
+
+// Unread messages for other rooms
+socket.on('room-message', ({ room }) => {
+    if (room !== currentRoom) {
+        unreadCounts[room] = (unreadCounts[room] || 0) + 1;
+        fetchRooms(); // re-render sidebar to show badge
+    }
+});
+
+// Unread messages for other rooms
+socket.on('room-message', ({ room }) => {
+    if (room !== currentRoom) {
+        unreadCounts[room] = (unreadCounts[room] || 0) + 1;
+        fetchRooms(); // re-render sidebar to show badge
+    }
+});
+
+// Unread messages for other rooms
+socket.on('room-message', ({ room }) => {
+    if (room !== currentRoom) {
+        unreadCounts[room] = (unreadCounts[room] || 0) + 1;
+        fetchRooms(); // re-render sidebar to show badge
+    }
+});
+
 // Room counts from server
 socket.on('room-counts', (counts) => {
     roomCounts = counts;
@@ -678,3 +726,11 @@ if (generateShareBtn) {
 window.onclick = (e) => {
     if (e.target === shareModal) shareModal.style.display = 'none';
 };
+// Unread message logic added via direct append
+socket.on('room-message', ({ room }) => {
+    if (typeof currentRoom !== 'undefined' && room !== currentRoom) {
+        unreadCounts[room] = (unreadCounts[room] || 0) + 1;
+        if (typeof fetchRooms === 'function') fetchRooms();
+    }
+});
+

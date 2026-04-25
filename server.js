@@ -331,6 +331,8 @@ io.on('connection', socket => {
             const message = formatMessage(user.username, text, user.room, user.color, replyTo, replyToText, null, user.id);
             storeMessage(message, io);
             io.to(user.room).emit('message', message);
+            // Notify all clients for unread badge tracking
+            io.emit('room-message', { room: user.room });
         }
     });
 
@@ -340,6 +342,7 @@ io.on('connection', socket => {
         message.isAdmin = true;
         storeMessage(message, io);
         io.to(room).emit('message', message);
+        io.emit('room-message', { room });
     });
 
     socket.on('chatImage', ({ imageData, replyTo, replyToText }) => {
@@ -360,6 +363,7 @@ io.on('connection', socket => {
             const message = formatMessage(user.username, '', user.room, user.color, replyTo, replyToText, imageData, user.id);
             storeMessage(message, io);
             io.to(user.room).emit('message', message);
+            io.emit('room-message', { room: user.room });
         }
     });
 
