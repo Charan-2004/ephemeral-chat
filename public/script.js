@@ -43,6 +43,43 @@ let replyToId = null;
 let replyToText = null;
 let currentMessageIdForReaction = null;
 let reactionEmojis = [];
+let isTabFocused = true;
+let typingTimeout = null;
+let unreadCounts = {};
+let roomCounts = {};
+
+// Tab focus tracking
+window.addEventListener('focus', () => { isTabFocused = true; });
+window.addEventListener('blur', () => { isTabFocused = false; });
+
+// Notification sound (generated tone)
+function playNotificationSound() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 800;
+        osc.type = 'sine';
+        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.3);
+    } catch (e) {}
+}
+
+// Fetch online count for join screen
+async function fetchOnlineCount() {
+    try {
+        const res = await fetch('/api/online-count');
+        const data = await res.json();
+        const el = document.getElementById('online-count-num');
+        if (el) el.textContent = data.count || 0;
+    } catch (e) {}
+}
+fetchOnlineCount();
+setInterval(fetchOnlineCount, 10000);
 
 // Get Config
 async function getConfig() {
@@ -90,7 +127,15 @@ function renderRooms(rooms) {
             if (r.locked) li.classList.add('locked');
 
             const icon = r.locked ? '<i class="fas fa-lock" style="color:#ff6b6b"></i>' : '<i class="fas fa-hashtag"></i>';
-            li.innerHTML = `${icon} <span>${r.name}</span>`;
+            const count = roomCounts[r.name] || 0;
+            const unread = unreadCounts[r.name] || 0;
+            let badge = '';
+            if (unread > 0 && r.name !== currentRoom) {
+                badge = `<span class="unread-badge">${unread}</span>`;
+            } else {
+                badge = `<span class="room-count">${count}</span>`;
+            }
+            li.innerHTML = `${icon} <span>${r.name}</span>${badge}`;
 
             li.onclick = () => {
                 if (r.locked && currentUsername !== 'AdminMonitor') {
@@ -148,9 +193,12 @@ joinForm.addEventListener('submit', (e) => {
 
 function switchRoom(newRoom) {
     chatMessages.innerHTML = '';
+    unreadCounts[newRoom] = 0; // Clear unread for room we're entering
     currentRoom = newRoom;
     roomNameEl.innerText = newRoom;
     socket.emit('joinRoom', { username: currentUsername, room: newRoom });
+    typingUsers.clear();
+    if (typingIndicator) typingIndicator.style.display = 'none';
     fetchRooms(); // Refresh UI state
 }
 
@@ -162,7 +210,56 @@ socket.on('rooms-updated', (rooms) => {
 socket.on('message', (msg) => {
     outputMessage(msg);
     chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Sound + browser notification when tab not focused
+    if (!isTabFocused && msg.senderId !== socket.id && msg.senderId !== 'system') {
+        playNotificationSound();
+        if (Notification.permission === 'granted') {
+            new Notification(`${msg.username} in ${currentRoom}`, { body: msg.text || '[Image]', icon: '/favicon.png' });
+        }
+    }
+
+    // Track unread for other rooms (messages from server relay)
+    // This handles messages in current room - unread for other rooms handled by room-message event
 });
+
+// Room counts from server
+socket.on('room-counts', (counts) => {
+    roomCounts = counts;
+    fetchRooms(); // re-render sidebar with updated counts
+});
+
+// Online count update
+socket.on('online-count', (count) => {
+    const el = document.getElementById('online-count-num');
+    if (el) el.textContent = count;
+});
+
+// Typing indicator
+const typingIndicator = document.getElementById('typing-indicator');
+const typingUser = document.getElementById('typing-user');
+let typingUsers = new Set();
+let typingHideTimeout = null;
+
+socket.on('user-typing', ({ username }) => {
+    typingUsers.add(username);
+    updateTypingDisplay();
+});
+
+socket.on('user-stop-typing', ({ username }) => {
+    typingUsers.delete(username);
+    updateTypingDisplay();
+});
+
+function updateTypingDisplay() {
+    if (typingUsers.size > 0) {
+        typingIndicator.style.display = 'flex';
+        const names = Array.from(typingUsers);
+        typingUser.textContent = names.length > 2 ? `${names[0]} and ${names.length - 1} others` : names.join(' and ');
+    } else {
+        typingIndicator.style.display = 'none';
+    }
+}
 
 socket.on('message-pinned', ({ text, username }) => {
     document.getElementById('pinned-bar').style.display = 'flex';
@@ -211,6 +308,7 @@ chatForm.addEventListener('submit', (e) => {
     msgInput.value = '';
     msgInput.focus();
     clearReply();
+    socket.emit('stop-typing');
 });
 
 // Output Message
@@ -269,11 +367,11 @@ function outputMessage(msg) {
         div.appendChild(img);
     }
 
-    // Text
+    // Text with clickable links
     if (msg.text) {
         const p = document.createElement('p');
         p.className = 'text';
-        p.innerText = msg.text;
+        p.innerHTML = linkify(msg.text);
         div.appendChild(p);
     }
 
@@ -399,6 +497,31 @@ imageInput.onchange = function () {
     }
     this.value = '';
 };
+
+// Typing emit on keypress
+msgInput.addEventListener('input', () => {
+    socket.emit('typing');
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => socket.emit('stop-typing'), 2000);
+});
+
+// URL detection - make links clickable
+function linkify(text) {
+    const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return escaped.replace(
+        /(https?:\/\/[^\s<]+)/g,
+        '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:#7289da;text-decoration:underline;">$1</a>'
+    );
+}
+
+// Request notification permission
+if ('Notification' in window && Notification.permission === 'default') {
+    // Ask after first interaction
+    document.addEventListener('click', function askNotif() {
+        Notification.requestPermission();
+        document.removeEventListener('click', askNotif);
+    }, { once: true });
+}
 
 // Close emoji
 document.onclick = (e) => {

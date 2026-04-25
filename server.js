@@ -92,6 +92,11 @@ app.get('/api/rooms', (req, res) => {
     res.json(rooms);
 });
 
+// API: Get Online Count
+app.get('/api/online-count', (req, res) => {
+    res.json({ count: io.engine.clientsCount });
+});
+
 // API: Get Config
 app.get('/api/config', (req, res) => {
     res.json({
@@ -99,6 +104,15 @@ app.get('/api/config', (req, res) => {
         reactionEmojis: config.reactionEmojis
     });
 });
+
+// Broadcast room user counts to all clients
+function broadcastRoomCounts() {
+    const counts = {};
+    rooms.forEach(r => {
+        counts[r.name] = getRoomUserCount(r.name);
+    });
+    io.emit('room-counts', counts);
+}
 
 // --- Admin API ---
 
@@ -274,6 +288,25 @@ io.on('connection', socket => {
             count: getRoomUserCount(user.room),
             userColor: user.color
         });
+
+        // Broadcast updated counts to all clients
+        broadcastRoomCounts();
+        io.emit('online-count', io.engine.clientsCount);
+    });
+
+    // Typing Indicator
+    socket.on('typing', () => {
+        const user = getCurrentUser(socket.id);
+        if (user) {
+            socket.to(user.room).emit('user-typing', { username: user.username });
+        }
+    });
+
+    socket.on('stop-typing', () => {
+        const user = getCurrentUser(socket.id);
+        if (user) {
+            socket.to(user.room).emit('user-stop-typing', { username: user.username });
+        }
     });
 
     socket.on('chatMessage', ({ text, replyTo, replyToText }) => {
@@ -347,7 +380,9 @@ io.on('connection', socket => {
                 room: user.room,
                 count: getRoomUserCount(user.room)
             });
+            broadcastRoomCounts();
         }
+        io.emit('online-count', io.engine.clientsCount);
     });
 });
 

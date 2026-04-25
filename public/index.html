@@ -301,6 +301,9 @@
 
                 <button type="submit" class="btn">Join Room</button>
             </form>
+            <div id="online-counter" class="online-counter">
+                <span class="online-dot"></span> <span id="online-count-num">0</span> people chatting now
+            </div>
             <p class="join-tagline">Chat here anonymously — free online chat rooms, no login required. Connect with strangers worldwide on ChatHere.</p>
         </main>
     </div>
@@ -341,6 +344,10 @@
                 <main class="chat-main">
                     <div class="chat-messages" id="chat-messages">
                         <!-- Messages will be injected here -->
+                    </div>
+                    <div id="typing-indicator" class="typing-indicator" style="display: none;">
+                        <div class="typing-dots"><span></span><span></span><span></span></div>
+                        <span id="typing-user"></span> is typing...
                     </div>
                 </main>
 
