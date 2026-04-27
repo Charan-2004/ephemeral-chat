@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatHere | Links</title>
+    <meta name="description" content="ChatHere Official Links - Free Anonymous Chat Rooms">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root { --bg: #121417; --text: #f0f0f0; --primary: #5865F2; --card: #1e2126; --accent: #d4a127; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: 50px 20px; text-align: center; margin: 0; min-height: 100vh; }
+        .logo { width: 100px; height: 100px; border-radius: 20px; margin-bottom: 20px; animation: float 3s ease-in-out infinite; }
+        h1 { margin: 0 0 10px; font-weight: 800; color: var(--accent); }
+        p { color: #aaa; margin-bottom: 40px; font-size: 1.1rem; }
+        .link-container { display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 400px; }
+        .link-btn { background: var(--card); color: var(--text); text-decoration: none; padding: 18px; border-radius: 12px; font-weight: 700; font-size: 1.1rem; border: 1px solid rgba(255,255,255,0.05); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .link-btn:hover { transform: translateY(-3px); border-color: var(--primary); background: rgba(88, 101, 242, 0.1); }
+        .link-btn.featured { background: var(--primary); color: white; border-color: var(--primary); }
+        .link-btn.featured:hover { background: #4752C4; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    </style>
+</head>
+<body>
+
+    <img src="/logo.png" alt="ChatHere Logo" class="logo">
+    <h1>@ChatHere</h1>
+    <p>Free. Anonymous. Instant.</p>
+
+    <div class="link-container">
+        <a href="/" class="link-btn featured">
+            <i class="fas fa-comment-dots"></i> Start Chatting Now
+        </a>
+        <a href="/marketing.html" class="link-btn">
+            <i class="fas fa-rocket"></i> Why ChatHere?
+        </a>
+        <a href="/blog.html" class="link-btn">
+            <i class="fas fa-newspaper"></i> Read Our Blog
+        </a>
+        <a href="/about.html" class="link-btn">
+            <i class="fas fa-info-circle"></i> About Us
+        </a>
+        <a href="mailto:admin@chathere.online" class="link-btn">
+            <i class="fas fa-envelope"></i> Contact Support
+        </a>
+    </div>
+
+</body>
+</html>

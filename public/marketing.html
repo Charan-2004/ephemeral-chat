@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="ChatHere is the ultimate anonymous chat platform. No login, no logs, totally free. Connect with people across the US and worldwide instantly.">
+    <meta name="keywords" content="anonymous chat, free chat rooms, chat online without registration, usa chat rooms, ephemeral messaging">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://chathere.online/marketing.html" />
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://chathere.online/marketing.html">
+    <meta property="og:title" content="ChatHere - Connect Instantly. No Strings Attached.">
+    <meta property="og:description" content="Join thousands of users on ChatHere. Free, anonymous, real-time chat rooms with zero data collection.">
+    <meta property="og:image" content="https://chathere.online/preview-image.png">
+
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="shortcut icon" href="/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/logo.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <title>ChatHere | Free Anonymous Chat Rooms</title>
+
+    <style>
+        :root {
+            --primary-color: #5865F2;
+            --primary-hover: #4752C4;
+            --accent-color: #d4a127;
+            --bg-dark: #121417;
+            --bg-card: #1e2126;
+            --text-light: #f0f0f0;
+            --text-muted: #a0a0a0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-light); line-height: 1.6; }
+        
+        header.nav { padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; position: absolute; width: 100%; }
+        .nav-logo { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.5rem; text-decoration: none; color: white; }
+        .nav-logo img { width: 40px; }
+        .nav-cta { background: rgba(255, 255, 255, 0.1); color: white; text-decoration: none; padding: 10px 24px; border-radius: 8px; font-weight: 600; }
+        
+        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 100px 20px 40px; background: radial-gradient(circle at center, rgba(88, 101, 242, 0.15) 0%, transparent 70%); }
+        .hero-ghost { width: 120px; margin-bottom: 24px; animation: float 4s ease-in-out infinite; }
+        .hero h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 900; margin-bottom: 24px; max-width: 800px; }
+        .tagline { font-size: clamp(1.2rem, 3vw, 1.5rem); color: var(--accent-color); font-weight: 600; margin-bottom: 40px; }
+        .hero-btn { background: var(--primary-color); color: white; text-decoration: none; padding: 18px 48px; border-radius: 12px; font-size: 1.25rem; font-weight: 700; display: inline-flex; align-items: center; gap: 12px; transition: transform 0.2s; }
+        .hero-btn:hover { transform: translateY(-3px); background: var(--primary-hover); }
+
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+
+        .section { padding: 100px 5%; max-width: 1200px; margin: 0 auto; }
+        .section-title { text-align: center; font-size: 2.5rem; margin-bottom: 60px; font-weight: 800; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .feature-card { background: var(--bg-card); padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .feature-icon { font-size: 2.5rem; color: var(--accent-color); margin-bottom: 20px; }
+        .feature-card h3 { font-size: 1.5rem; margin-bottom: 12px; }
+        .feature-card p { color: var(--text-muted); }
+
+        .steps { display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
+        .step { flex: 1; min-width: 250px; text-align: center; }
+        .step-number { width: 60px; height: 60px; background: rgba(88, 101, 242, 0.1); color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; margin: 0 auto 20px; border: 2px solid var(--primary-color); }
+
+        .stats-container { background: linear-gradient(135deg, var(--bg-card), #15171a); padding: 80px 5%; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; max-width: 1000px; margin: 0 auto; }
+        .stat-item h4 { font-size: 3.5rem; font-weight: 900; color: var(--accent-color); margin-bottom: 10px; }
+        .stat-item p { font-size: 1.1rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+
+        footer { text-align: center; padding: 40px 20px; background: var(--bg-dark); color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.05); }
+        footer a { color: var(--text-muted); text-decoration: none; margin: 0 10px; }
+        footer a:hover { color: white; }
+
+        /* Scroll Animations */
+        .fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+    <header class="nav">
+        <a href="/" class="nav-logo">
+            <img src="/logo.png" alt="ChatHere Logo">
+            ChatHere
+        </a>
+        <a href="/" class="nav-cta">Join a Room</a>
+    </header>
+
+    <main>
+        <section class="hero">
+            <img src="/logo.png" alt="Ghost Logo" class="hero-ghost">
+            <h1>Talk Freely. Stay Anonymous.</h1>
+            <p class="tagline">Connect instantly. No strings attached.</p>
+            <a href="/" class="hero-btn">
+                Start Chatting Now <i class="fas fa-arrow-right"></i>
+            </a>
+            <p style="margin-top: 20px; color: #666; font-size: 0.9rem;">No login • No downloads • 100% Free</p>
+        </section>
+
+        <section class="section stats-container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h4>0</h4>
+                    <p>Logs Kept</p>
+                </div>
+                <div class="stat-item">
+                    <h4>100%</h4>
+                    <p>Free Forever</p>
+                </div>
+                <div class="stat-item">
+                    <h4>6+</h4>
+                    <p>Topic Rooms</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Why ChatHere?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-user-secret"></i></div>
+                    <h3>Total Anonymity</h3>
+                    <p>No email, no phone number, no tracking. Your identity is completely hidden. Pick a display name and you're in.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-wind"></i></div>
+                    <h3>Ephemeral Messages</h3>
+                    <p>Conversations exist in the moment. When the server restarts, everything vanishes without a trace. Pure freedom.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+                    <h3>Lightning Fast</h3>
+                    <p>Powered by real-time WebSockets. Messages appear instantly. No refreshing, no waiting, just smooth chatting.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" style="background: rgba(255,255,255,0.02); border-radius: 30px; padding-top: 80px; padding-bottom: 80px;">
+            <h2 class="section-title">How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Pick a Name</h3>
+                    <p style="color: var(--text-muted); margin-top: 10px;">Choose any alias you want. It changes every time you visit.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Select a Room</h3>
+                    <p style="color: var(--text-muted); margin-top: 10px;">Tech, Music, Movies, or General. Find your crowd.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Start Talking</h3>
+                    <p style="color: var(--text-muted); margin-top: 10px;">Join the conversation instantly. It's that simple.</p>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 60px;">
+                <a href="/" class="hero-btn" style="padding: 14px 36px; font-size: 1.1rem;">Try It Out</a>
+            </div>
+        </section>
+
+        <section class="section" style="padding-top: 40px;">
+            <h2 class="section-title">Explore Chat Rooms</h2>
+            <div class="features-grid">
+                <div class="feature-card" style="text-align: center; border-top: 3px solid #5865F2;">
+                    <i class="fas fa-globe feature-icon" style="color: #5865F2;"></i>
+                    <h3>General</h3>
+                    <p>Talk about anything and everything.</p>
+                </div>
+                <div class="feature-card" style="text-align: center; border-top: 3px solid #2ecc71;">
+                    <i class="fas fa-laptop-code feature-icon" style="color: #2ecc71;"></i>
+                    <h3>Tech</h3>
+                    <p>Programming, gadgets, and the future.</p>
+                </div>
+                <div class="feature-card" style="text-align: center; border-top: 3px solid #e74c3c;">
+                    <i class="fas fa-music feature-icon" style="color: #e74c3c;"></i>
+                    <h3>Music</h3>
+                    <p>Share tracks, discuss artists, and jam.</p>
+                </div>
+                <div class="feature-card" style="text-align: center; border-top: 3px solid #9b59b6;">
+                    <i class="fas fa-film feature-icon" style="color: #9b59b6;"></i>
+                    <h3>Movies</h3>
+                    <p>Cinema, TV shows, and entertainment.</p>
+                </div>
+                <div class="feature-card" style="text-align: center; border-top: 3px solid #f1c40f;">
+                    <i class="fas fa-gamepad feature-icon" style="color: #f1c40f;"></i>
+                    <h3>Gaming</h3>
+                    <p>PC, console, tabletop, and esports.</p>
+                </div>
+                <div class="feature-card" style="text-align: center; border-top: 3px solid #34495e;">
+                    <i class="fas fa-landmark feature-icon" style="color: #34495e;"></i>
+                    <h3>Politics</h3>
+                    <p>Current events and global news.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" style="max-width: 800px;">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <details style="background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer;">
+                    <summary style="font-size: 1.2rem; font-weight: 600; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                        Is ChatHere completely free?
+                        <i class="fas fa-chevron-down" style="color: var(--primary-color);"></i>
+                    </summary>
+                    <p style="margin-top: 15px; color: var(--text-muted); line-height: 1.6;">Yes! ChatHere is 100% free to use. There are no hidden fees, premium tiers, or subscriptions. Just visit the site and start chatting instantly.</p>
+                </details>
+                <details style="background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer;">
+                    <summary style="font-size: 1.2rem; font-weight: 600; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                        Do I need to create an account or login?
+                        <i class="fas fa-chevron-down" style="color: var(--primary-color);"></i>
+                    </summary>
+                    <p style="margin-top: 15px; color: var(--text-muted); line-height: 1.6;">No account or login is required. Simply choose a display name, pick a chat room, and you're in. Your identity stays completely anonymous.</p>
+                </details>
+                <details style="background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer;">
+                    <summary style="font-size: 1.2rem; font-weight: 600; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                        Are my messages on ChatHere private?
+                        <i class="fas fa-chevron-down" style="color: var(--primary-color);"></i>
+                    </summary>
+                    <p style="margin-top: 15px; color: var(--text-muted); line-height: 1.6;">ChatHere does not store message logs permanently. Messages are ephemeral and vanish when the server restarts. We don't track users or collect personal data.</p>
+                </details>
+                <details style="background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer;">
+                    <summary style="font-size: 1.2rem; font-weight: 600; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                        How is ChatHere different from other apps?
+                        <i class="fas fa-chevron-down" style="color: var(--primary-color);"></i>
+                    </summary>
+                    <p style="margin-top: 15px; color: var(--text-muted); line-height: 1.6;">ChatHere is unique because it requires zero registration, stores no data, and provides truly anonymous real-time chat. No emails, no phone numbers, no tracking - just pure anonymous conversation.</p>
+                </details>
+            </div>
+            <style>
+                details[open] summary .fa-chevron-down { transform: rotate(180deg); }
+                details summary .fa-chevron-down { transition: transform 0.3s; }
+            </style>
+        </section>
+
+        <section class="section" style="text-align: center; padding-top: 60px; padding-bottom: 120px;">
+            <h2 style="font-size: 3rem; margin-bottom: 20px;">Ready to Chat?</h2>
+            <p style="color: var(--text-muted); font-size: 1.2rem; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto;">Join thousands of others in our anonymous chat rooms. No commitments, just conversation.</p>
+            <a href="/" class="hero-btn" style="padding: 20px 60px; font-size: 1.4rem;">
+                Enter ChatHere <i class="fas fa-sign-in-alt"></i>
+            </a>
+        </section>
+
+        <section class="section" style="padding-top: 40px;">
+            <h2 class="section-title">Explore Chat Rooms</h2>
+            <div class="features-grid">
+                <div class="feature-card" style="text-align: center; border-top: 3px solid #5865F2;">
+                    <i class="fas fa-globe feature-icon" style="color: #5865F2;"></i>
+                    <h3>General</h3>
+                    <p>Talk about anything and everything.</p>
+                </div>
+                <div class="feature-card" style="text-align: center; border-top: 3px solid #2ecc71;">
+                    <i class="fas fa-laptop-code feature-icon" style="color: #2ecc71;"></i>
+                    <h3>Tech</h3>
+                    <p>Programming, gadgets, and the future.</p>
+                </div>
+                <div class="feature-card" style="text-align: center; border-top: 3px solid #e74c3c;">
+                    <i class="fas fa-music feature-icon" style="color: #e74c3c;"></i>
+                    <h3>Music</h3>
+                    <p>Share tracks, discuss artists, and jam.</p>
+                </div>
+                <div class="feature-card" style="text-align: center; border-top: 3px solid #9b59b6;">
+                    <i class="fas fa-film feature-icon" style="color: #9b59b6;"></i>
+                    <h3>Movies</h3>
+                    <p>Cinema, TV shows, and entertainment.</p>
+                </div>
+                <div class="feature-card" style="text-align: center; border-top: 3px solid #f1c40f;">
+                    <i class="fas fa-gamepad feature-icon" style="color: #f1c40f;"></i>
+                    <h3>Gaming</h3>
+                    <p>PC, console, tabletop, and esports.</p>
+                </div>
+                <div class="feature-card" style="text-align: center; border-top: 3px solid #34495e;">
+                    <i class="fas fa-landmark feature-icon" style="color: #34495e;"></i>
+                    <h3>Politics</h3>
+                    <p>Current events and global news.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" style="max-width: 800px;">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <details style="background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer;">
+                    <summary style="font-size: 1.2rem; font-weight: 600; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                        Is ChatHere completely free?
+                        <i class="fas fa-chevron-down" style="color: var(--primary-color);"></i>
+                    </summary>
+                    <p style="margin-top: 15px; color: var(--text-muted); line-height: 1.6;">Yes! ChatHere is 100% free to use. There are no hidden fees, premium tiers, or subscriptions. Just visit the site and start chatting instantly.</p>
+                </details>
+                <details style="background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer;">
+                    <summary style="font-size: 1.2rem; font-weight: 600; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                        Do I need to create an account or login?
+                        <i class="fas fa-chevron-down" style="color: var(--primary-color);"></i>
+                    </summary>
+                    <p style="margin-top: 15px; color: var(--text-muted); line-height: 1.6;">No account or login is required. Simply choose a display name, pick a chat room, and you're in. Your identity stays completely anonymous.</p>
+                </details>
+                <details style="background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer;">
+                    <summary style="font-size: 1.2rem; font-weight: 600; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                        Are my messages on ChatHere private?
+                        <i class="fas fa-chevron-down" style="color: var(--primary-color);"></i>
+                    </summary>
+                    <p style="margin-top: 15px; color: var(--text-muted); line-height: 1.6;">ChatHere does not store message logs permanently. Messages are ephemeral and vanish when the server restarts. We don't track users or collect personal data.</p>
+                </details>
+                <details style="background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer;">
+                    <summary style="font-size: 1.2rem; font-weight: 600; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                        How is ChatHere different from other apps?
+                        <i class="fas fa-chevron-down" style="color: var(--primary-color);"></i>
+                    </summary>
+                    <p style="margin-top: 15px; color: var(--text-muted); line-height: 1.6;">ChatHere is unique because it requires zero registration, stores no data, and provides truly anonymous real-time chat. No emails, no phone numbers, no tracking - just pure anonymous conversation.</p>
+                </details>
+            </div>
+            <style>
+                details[open] summary .fa-chevron-down { transform: rotate(180deg); }
+                details summary .fa-chevron-down { transition: transform 0.3s; }
+            </style>
+        </section>
+
+        <section class="section" style="text-align: center; padding-top: 60px; padding-bottom: 120px;">
+            <h2 style="font-size: 3rem; margin-bottom: 20px;">Ready to Chat?</h2>
+            <p style="color: var(--text-muted); font-size: 1.2rem; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto;">Join thousands of others in our anonymous chat rooms. No commitments, just conversation.</p>
+            <a href="/" class="hero-btn" style="padding: 20px 60px; font-size: 1.4rem;">
+                Enter ChatHere <i class="fas fa-sign-in-alt"></i>
+            </a>
+        </section>
+    </main>
+
+    <footer>
+        <div style="margin-bottom: 20px;">
+            <img src="/logo.png" alt="ChatHere" style="width: 30px; opacity: 0.5;">
+        </div>
+        <div style="margin-bottom: 20px;">
+            <a href="/about.html">About</a>
+            <a href="/blog.html">Blog</a>
+            <a href="mailto:admin@chathere.online">Contact</a>
+        </div>
+        <p>&copy; 2026 ChatHere. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const animateElements = document.querySelectorAll('.section, .feature-card, .step');
+            
+            animateElements.forEach(el => {
+                el.classList.add('fade-in');
+            });
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            animateElements.forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>
