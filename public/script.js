@@ -715,3 +715,22 @@ window.onclick = (e) => {
     if (e.target === shareModal) shareModal.style.display = 'none';
 };
 
+
+// Share Room Button (P2)
+const shareRoomBtn = document.getElementById('share-room-btn');
+if (shareRoomBtn) {
+    shareRoomBtn.onclick = async () => {
+        const url = 'https://chathere.online/?room=' + encodeURIComponent(currentRoom);
+        if (navigator.share) {
+            try { await navigator.share({ title: 'Join me on ChatHere - ' + currentRoom, text: 'Chat anonymously in the ' + currentRoom + ' room!', url }); } catch(e) {}
+        } else {
+            navigator.clipboard.writeText(url).then(() => {
+                const d = document.createElement('div');
+                d.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#43b581;color:#fff;padding:10px 20px;border-radius:8px;z-index:10000;font-weight:600;';
+                d.textContent = 'Room link copied!';
+                document.body.appendChild(d);
+                setTimeout(() => d.remove(), 2000);
+            });
+        }
+    };
+}
