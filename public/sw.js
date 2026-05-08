@@ -47,6 +47,7 @@ self.addEventListener('fetch', (event) => {
 
   // Static assets (images, fonts, CSS, JS): cache-first
   if (request.url.match(/\.(png|jpg|jpeg|gif|ico|svg|woff|woff2|css|js)(\?.*)?$/)) {
+    if (!request.url.startsWith(self.location.origin)) return;
     event.respondWith(
       caches.match(request).then((cached) => {
         return cached || fetch(request).then((response) => {
