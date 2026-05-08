@@ -48,6 +48,20 @@ let typingTimeout = null;
 let unreadCounts = {};
 let roomCounts = {};
 
+// Restore saved username from localStorage
+(function restoreSavedState() {
+    const savedName = localStorage.getItem('chathere_username');
+    const usernameInput = document.getElementById('username');
+    if (savedName && usernameInput) usernameInput.value = savedName;
+
+    // Deep link: auto-select room from URL param ?room=Gaming
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomParam = urlParams.get('room');
+    if (roomParam) {
+        localStorage.setItem('chathere_room', roomParam);
+    }
+})();
+
 // Tab focus tracking
 window.addEventListener('focus', () => { isTabFocused = true; });
 window.addEventListener('blur', () => { isTabFocused = false; });
@@ -165,7 +179,15 @@ function renderRooms(rooms) {
             if (r.locked) opt.disabled = true;
             select.appendChild(opt);
         });
-        if (saved) select.value = saved;
+        // Priority: URL param > localStorage > first available
+        const urlRoom = new URLSearchParams(window.location.search).get('room');
+        const savedRoom = localStorage.getItem('chathere_room');
+        const targetRoom = urlRoom || savedRoom || saved;
+        if (targetRoom && select.querySelector(`option[value="${targetRoom}"]`)) {
+            select.value = targetRoom;
+        } else if (saved) {
+            select.value = saved;
+        }
     }
 }
 
@@ -176,6 +198,10 @@ joinForm.addEventListener('submit', (e) => {
     const room = e.target.elements.room.value;
 
     if (!room) return showError('Select a room');
+
+    // Save to localStorage for returning users
+    localStorage.setItem('chathere_username', user);
+    localStorage.setItem('chathere_room', room);
 
     currentUsername = user;
     currentRoom = room;
@@ -231,45 +257,7 @@ socket.on('room-message', ({ room }) => {
     }
 });
 
-// Unread messages for other rooms
-socket.on('room-message', ({ room }) => {
-    if (room !== currentRoom) {
-        unreadCounts[room] = (unreadCounts[room] || 0) + 1;
-        fetchRooms(); // re-render sidebar to show badge
-    }
-});
 
-// Unread messages for other rooms
-socket.on('room-message', ({ room }) => {
-    if (room !== currentRoom) {
-        unreadCounts[room] = (unreadCounts[room] || 0) + 1;
-        fetchRooms(); // re-render sidebar to show badge
-    }
-});
-
-// Unread messages for other rooms
-socket.on('room-message', ({ room }) => {
-    if (room !== currentRoom) {
-        unreadCounts[room] = (unreadCounts[room] || 0) + 1;
-        fetchRooms(); // re-render sidebar to show badge
-    }
-});
-
-// Unread messages for other rooms
-socket.on('room-message', ({ room }) => {
-    if (room !== currentRoom) {
-        unreadCounts[room] = (unreadCounts[room] || 0) + 1;
-        fetchRooms(); // re-render sidebar to show badge
-    }
-});
-
-// Unread messages for other rooms
-socket.on('room-message', ({ room }) => {
-    if (room !== currentRoom) {
-        unreadCounts[room] = (unreadCounts[room] || 0) + 1;
-        fetchRooms(); // re-render sidebar to show badge
-    }
-});
 
 // Room counts from server
 socket.on('room-counts', (counts) => {
@@ -726,11 +714,4 @@ if (generateShareBtn) {
 window.onclick = (e) => {
     if (e.target === shareModal) shareModal.style.display = 'none';
 };
-// Unread message logic added via direct append
-socket.on('room-message', ({ room }) => {
-    if (typeof currentRoom !== 'undefined' && room !== currentRoom) {
-        unreadCounts[room] = (unreadCounts[room] || 0) + 1;
-        if (typeof fetchRooms === 'function') fetchRooms();
-    }
-});
 

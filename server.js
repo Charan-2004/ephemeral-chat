@@ -283,6 +283,22 @@ io.on('connection', socket => {
 
         socket.emit('message', formatMessage(botName, 'Welcome to ChatHere! 👻 Messages here are anonymous and vanish when the server restarts. Be kind and have fun!', user.room, '#888', null, null, null, 'system'));
 
+        // Empty room experience: show conversation starters when user is alone
+        const roomUserCount = getRoomUserCount(user.room);
+        if (roomUserCount <= 1 && history.length === 0) {
+            const starters = {
+                'General': '💬 You\'re the first one here! Drop a message — people check in throughout the day. Try: "What\'s everyone up to today?"',
+                'Tech': '💻 Quiet in here — be the spark! Try: "What tech are you most excited about in 2026?"',
+                'Music': '🎵 Empty stage, your moment! Try: "Drop your current favorite song — go!"',
+                'Movies': '🎬 No spoilers yet! Try: "What\'s the last movie that blew your mind?"',
+                'Gaming': '🎮 Waiting for players... Try: "What are you playing right now?"',
+                'Politics': '🗳️ The floor is yours! Try: "What issue do you think doesn\'t get enough attention?"'
+            };
+            const starter = starters[user.room] || '👋 You\'re the first one here! Say something — others will join soon.';
+            socket.emit('message', formatMessage(botName, starter, user.room, '#888', null, null, null, 'system'));
+            socket.emit('message', formatMessage(botName, '📲 Share this room: chathere.online/?room=' + user.room + ' — invite a friend!', user.room, '#888', null, null, null, 'system'));
+        }
+
         io.to(user.room).emit('roomUsers', {
             room: user.room,
             count: getRoomUserCount(user.room),

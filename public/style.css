@@ -1143,23 +1143,3 @@ body::before {
   text-align: center;
   animation: fadeIn 0.3s ease;
 }
-.unread-badge {
-  background: #f04747;
-  color: white;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 800;
-  margin-left: auto;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-  animation: fadeIn 0.3s ease;
-}
-.room-count {
-  background: rgba(255, 255, 255, 0.1);
-  color: #8e9297;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  margin-left: auto;
-}
-
