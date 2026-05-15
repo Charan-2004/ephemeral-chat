@@ -363,3 +363,67 @@ document.addEventListener('click', (e) => {
         icon.classList.add('fa-bars');
     }
 });
+
+// ── Bot Management ──
+async function loadBotStatus() {
+    try {
+        const res = await authFetch('/api/admin/bots', {
+            method: 'POST',
+            body: JSON.stringify({ action: 'status' })
+        });
+        if (!res) return;
+        const data = await res.json();
+
+        const dot = document.getElementById('bot-status-dot');
+        const text = document.getElementById('bot-status-text');
+        const btn = document.getElementById('bot-toggle-btn');
+        const gemini = document.getElementById('bot-gemini-status');
+        const list = document.getElementById('bot-list');
+
+        dot.className = 'status-dot ' + (data.enabled ? 'online' : 'offline');
+        text.innerText = data.enabled ? `Active (${data.botCount} bots)` : 'Disabled';
+        btn.innerText = data.enabled ? 'Disable Bots' : 'Enable Bots';
+        btn.style.background = data.enabled ? '#ff4757' : '#e94560';
+        gemini.innerText = data.hasGemini ? '🟢 Gemini AI connected' : '🟡 Scripted mode (no API key)';
+
+        list.innerHTML = '';
+        if (data.bots && data.bots.length > 0) {
+            data.bots.forEach(b => {
+                const li = document.createElement('li');
+                li.style.cssText = 'background:#222;padding:10px;margin-bottom:5px;display:flex;justify-content:space-between;border-radius:6px;';
+                li.innerHTML = `<span><i class="fas fa-robot" style="color:#e94560;margin-right:8px;"></i>${b.name}</span><span style="color:#888;font-size:0.85rem;">${b.rooms.join(', ')}</span>`;
+                list.appendChild(li);
+            });
+        } else {
+            list.innerHTML = '<li style="color:#666;padding:10px;">No active bots</li>';
+        }
+    } catch (e) { console.error('Bot status error:', e); }
+}
+
+document.getElementById('bot-toggle-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('bot-toggle-btn');
+    const isEnabled = btn.innerText.includes('Disable');
+    const action = isEnabled ? 'disable' : 'enable';
+
+    btn.disabled = true;
+    btn.innerText = 'Working...';
+    try {
+        await authFetch('/api/admin/bots', {
+            method: 'POST',
+            body: JSON.stringify({ action })
+        });
+        await loadBotStatus();
+    } catch (e) { /* handled */ }
+    btn.disabled = false;
+});
+
+// Load bot status when Bots tab is clicked
+document.querySelector('[data-tab="bots"]').addEventListener('click', loadBotStatus);
+
+// Auto-refresh bot status every 30s if on bots tab
+setInterval(() => {
+    if (document.getElementById('tab-bots').classList.contains('active')) {
+        loadBotStatus();
+    }
+}, 30000);
+

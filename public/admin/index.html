@@ -34,6 +34,7 @@
                 <button class="nav-btn" data-tab="rooms"><i class="fas fa-door-open"></i> Rooms</button>
                 <button class="nav-btn" data-tab="monitor"><i class="fas fa-eye"></i> Monitor</button>
                 <button class="nav-btn" data-tab="config"><i class="fas fa-cog"></i> Config</button>
+                <button class="nav-btn" data-tab="bots"><i class="fas fa-robot"></i> Bots</button>
             </nav>
             <button id="logout-btn" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </aside>
@@ -109,6 +110,25 @@
                     </div>
                     <button id="save-config-btn" class="btn"><i class="fas fa-save"></i> Save Changes</button>
                 </div>
+            </section>
+
+            <!-- Bots Tab -->
+            <section id="tab-bots" class="tab-content">
+                <h2>Bot Management</h2>
+                <div class="bot-control-card">
+                    <div class="bot-status-row">
+                        <div class="bot-status-indicator">
+                            <span id="bot-status-dot" class="status-dot offline"></span>
+                            <span id="bot-status-text">Checking...</span>
+                        </div>
+                        <button id="bot-toggle-btn" class="btn">Enable Bots</button>
+                    </div>
+                    <div class="bot-info-row">
+                        <span id="bot-gemini-status" style="color:#888; font-size:0.85rem;"></span>
+                    </div>
+                </div>
+                <h3 style="color:#e94560; margin:20px 0 10px;">Active Bots</h3>
+                <ul id="bot-list" class="admin-room-list"></ul>
             </section>
         </main>
     </div>

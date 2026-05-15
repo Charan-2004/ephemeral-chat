@@ -29,13 +29,14 @@ function generateColor() {
 }
 
 // Join user to chat
-function userJoin(id, username, room) {
+function userJoin(id, username, room, isBot = false) {
     const user = {
         id,
         username,
         room,
         color: generateColor(),
-        lastMessageTime: 0
+        lastMessageTime: 0,
+        isBot
     };
     users.push(user);
     return user;

@@ -9,6 +9,7 @@ const rateLimit = require('express-rate-limit');
 const { formatMessage, storeMessage, getMessage, getRoomMessages, addReaction, cleanExpiredMessages, deleteMessage } = require('./utils/messages');
 const { userJoin, getCurrentUser, userLeave, getRoomUsers, getRoomUserCount, updateLastMessageTime } = require('./utils/users');
 const config = require('./utils/config');
+const { initBots, enableBots, disableBots, getBotStatus, handleRealUserMessage, isBot } = require('./utils/botEngine');
 
 const app = express();
 const server = http.createServer(app);
@@ -243,6 +244,21 @@ app.post('/api/admin/messages/unpin', isAdmin, (req, res) => {
     res.json({ success: true });
 });
 
+// Bot Management
+app.post('/api/admin/bots', isAdmin, (req, res) => {
+    const { action } = req.body;
+    if (action === 'enable') {
+        const result = enableBots(rooms);
+        return res.json(result);
+    } else if (action === 'disable') {
+        const result = disableBots(rooms);
+        return res.json(result);
+    } else if (action === 'status') {
+        return res.json(getBotStatus());
+    }
+    res.status(400).json({ error: 'Invalid action' });
+});
+
 // --- End Admin API ---
 
 // Cleanup Loop (every 5 seconds)
@@ -307,7 +323,7 @@ io.on('connection', socket => {
 
         // Broadcast updated counts to all clients
         broadcastRoomCounts();
-        io.emit('online-count', io.engine.clientsCount);
+        io.emit('online-count', io.engine.clientsCount + getBotStatus().botCount);
     });
 
     // Typing Indicator
@@ -349,6 +365,8 @@ io.on('connection', socket => {
             io.to(user.room).emit('message', message);
             // Notify all clients for unread badge tracking
             io.emit('room-message', { room: user.room });
+            // Let bots potentially respond
+            handleRealUserMessage(user.room, message);
         }
     });
 
@@ -402,9 +420,12 @@ io.on('connection', socket => {
             });
             broadcastRoomCounts();
         }
-        io.emit('online-count', io.engine.clientsCount);
+        io.emit('online-count', io.engine.clientsCount + getBotStatus().botCount);
     });
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    initBots(io, rooms);
+});

@@ -417,3 +417,45 @@ body {
         width: 100%;
     }
 }
+
+/* Bot Management */
+.bot-control-card {
+    background: #16213e;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+.bot-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.bot-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+}
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-dot.online {
+    background: #2ed573;
+    box-shadow: 0 0 8px #2ed573;
+}
+
+.status-dot.offline {
+    background: #666;
+}
+
+.bot-info-row {
+    margin-top: 12px;
+}
