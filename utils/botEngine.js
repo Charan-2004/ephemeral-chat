@@ -5,11 +5,41 @@ const { v4: uuidv4 } = require('uuid');
 
 // ── Bot Personas ──
 const BOT_PROFILES = [
-    { name: 'Alex', color: '#FF6B6B', personality: 'chill gen-z dude who uses slang, abbreviations, and is opinionated. loves tech and gaming. types in lowercase mostly.' },
-    { name: 'Jordan', color: '#45B7D1', personality: 'curious and friendly person who asks follow-up questions. into music, movies, and pop culture. uses emojis occasionally.' },
-    { name: 'Sam', color: '#96CEB4', personality: 'witty and sarcastic but in a fun way. has hot takes on everything. not afraid of controversial opinions. uses "lol" and "ngl" a lot.' },
-    { name: 'Riley', color: '#DDA0DD', personality: 'chill night owl who vibes. into philosophy, deep convos, and random shower thoughts. types casually with typos sometimes.' },
-    { name: 'Casey', color: '#FF9F43', personality: 'energetic and enthusiastic. reacts strongly to things. uses caps for emphasis sometimes. loves debating politics and current events.' }
+    {
+        name: 'Gamer_X',
+        color: '#FF4444',
+        apiKeyEnv: 'GEMINI_API_KEY_1',
+        personality: 'You are a competitive gamer obsessed with multiplayer games. Write exclusively in lowercase. Never use any punctuation or periods. Use slang like bruh, fr fr, no cap, gg, and clutch. Keep your responses under 10 words. Respond aggressively but playfully to people talking about boring stuff.',
+        maxWords: 10
+    },
+    {
+        name: 'ShowerThoughts',
+        color: '#9B59B6',
+        apiKeyEnv: 'GEMINI_API_KEY_2',
+        personality: 'You are slightly unhinged and love dropping deep, bizarre, or existential rhetorical questions into casual chatrooms. Never say hello or introduce yourself. Capitalize only the first letter of sentences. Keep your responses short (under 15 words). Example style: Do you ever think about how your dog doesnt know your name just your voice',
+        maxWords: 15
+    },
+    {
+        name: 'MemeLord',
+        color: '#2ECC71',
+        apiKeyEnv: 'GEMINI_API_KEY_3',
+        personality: 'You are deeply sarcastic, cynical, and communicate using internet meme phrases. Never offer help. Use dry humor. Use phrases like bro thinks he is the main character, huge if true, its giving main character energy, or let him cook. Keep answers under 8 words. Never capitalize text.',
+        maxWords: 8
+    },
+    {
+        name: 'VibeCheck',
+        color: '#F39C12',
+        apiKeyEnv: 'GEMINI_API_KEY_4',
+        personality: 'You are warm, highly energetic. You love welcoming people to the chatroom. Ask people what country they are from, what music they are listening to, or what time it is for them. Use 1 or 2 emojis per message (like ✨, 🌍, 🚀). Keep it casual, brief (under 15 words), and very welcoming.',
+        maxWords: 15
+    },
+    {
+        name: 'Lurker99',
+        color: '#7F8C8D',
+        apiKeyEnv: 'GEMINI_API_KEY_5',
+        personality: 'You are a lazy user who hates typing. You respond using the absolute bare minimum amount of text possible. Use blunt 1-to-4 word answers. Use phrases like same tbh, idk details, nah wild, fr?, or oof. Never use punctuation or capital letters.',
+        maxWords: 4
+    }
 ];
 
 // ── Scripted Fallback Conversations (per room) ──
@@ -86,8 +116,6 @@ const CONVERSATIONS = {
 
 // ── State ──
 let io = null;
-let genAI = null;
-let geminiModel = null;
 let botsEnabled = false;
 let botUsers = new Map(); // botName -> { id, rooms: Set }
 let activeTimers = [];
@@ -95,87 +123,117 @@ let conversationHistory = new Map(); // room -> last few messages for context
 const MAX_HISTORY = 15;
 const BOT_ID_PREFIX = 'bot-';
 
-// ── Rate Limiter (Token Bucket) ──
-const rateLimiter = {
-    tokens: 10,           // Start with 10 tokens
-    maxTokens: 10,        // Max 10 requests banked
-    refillRate: 1,        // Refill 1 token
-    refillIntervalMs: 360000, // Every 6 minutes (~10/hour)
-    lastRefill: Date.now(),
-    totalRequests: 0,
-    totalBlocked: 0,
-    requestLog: [],       // Track timestamps of recent requests
+// Per-bot Gemini models and rate limiters
+const botModels = new Map();  // botName -> geminiModel
+const botRateLimiters = new Map(); // botName -> rateLimiter
 
-    refill() {
-        const now = Date.now();
-        const elapsed = now - this.lastRefill;
-        const tokensToAdd = Math.floor(elapsed / this.refillIntervalMs) * this.refillRate;
-        if (tokensToAdd > 0) {
-            this.tokens = Math.min(this.maxTokens, this.tokens + tokensToAdd);
-            this.lastRefill = now;
+function createRateLimiter() {
+    return {
+        tokens: 10,
+        maxTokens: 10,
+        refillRate: 1,
+        refillIntervalMs: 360000, // 1 token every 6 min (~10/hour per key)
+        lastRefill: Date.now(),
+        totalRequests: 0,
+        totalBlocked: 0,
+        requestLog: [],
+
+        refill() {
+            const now = Date.now();
+            const elapsed = now - this.lastRefill;
+            const tokensToAdd = Math.floor(elapsed / this.refillIntervalMs) * this.refillRate;
+            if (tokensToAdd > 0) {
+                this.tokens = Math.min(this.maxTokens, this.tokens + tokensToAdd);
+                this.lastRefill = now;
+            }
+        },
+
+        canRequest() {
+            this.refill();
+            return this.tokens > 0;
+        },
+
+        consume() {
+            this.refill();
+            if (this.tokens <= 0) {
+                this.totalBlocked++;
+                return false;
+            }
+            this.tokens--;
+            this.totalRequests++;
+            this.requestLog.push(Date.now());
+            const oneHourAgo = Date.now() - 3600000;
+            this.requestLog = this.requestLog.filter(t => t > oneHourAgo);
+            return true;
+        },
+
+        getStats() {
+            const oneHourAgo = Date.now() - 3600000;
+            this.requestLog = this.requestLog.filter(t => t > oneHourAgo);
+            return {
+                tokensRemaining: this.tokens,
+                maxTokens: this.maxTokens,
+                requestsLastHour: this.requestLog.length,
+                totalRequests: this.totalRequests,
+                totalBlocked: this.totalBlocked
+            };
         }
-    },
-
-    canRequest() {
-        this.refill();
-        return this.tokens > 0;
-    },
-
-    consume() {
-        this.refill();
-        if (this.tokens <= 0) {
-            this.totalBlocked++;
-            console.log(`[BotEngine] Rate limited — ${this.totalBlocked} blocked, ${this.tokens} tokens left`);
-            return false;
-        }
-        this.tokens--;
-        this.totalRequests++;
-        this.requestLog.push(Date.now());
-        // Keep only last hour of logs
-        const oneHourAgo = Date.now() - 3600000;
-        this.requestLog = this.requestLog.filter(t => t > oneHourAgo);
-        return true;
-    },
-
-    getStats() {
-        const oneHourAgo = Date.now() - 3600000;
-        this.requestLog = this.requestLog.filter(t => t > oneHourAgo);
-        return {
-            tokensRemaining: this.tokens,
-            maxTokens: this.maxTokens,
-            requestsLastHour: this.requestLog.length,
-            totalRequests: this.totalRequests,
-            totalBlocked: this.totalBlocked
-        };
-    }
-};
-
-// ── Gemini Setup ──
-function initGemini() {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-        console.log('[BotEngine] No GEMINI_API_KEY found, using scripted mode only');
-        return false;
-    }
-    try {
-        genAI = new GoogleGenerativeAI(apiKey);
-        geminiModel = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-        console.log('[BotEngine] Gemini AI initialized successfully');
-        return true;
-    } catch (e) {
-        console.error('[BotEngine] Gemini init failed:', e.message);
-        return false;
-    }
+    };
 }
 
-// ── Generate AI Response (with rate limiting) ──
-async function generateAIResponse(botProfile, room, recentMessages, triggerMessage) {
-    if (!geminiModel) return null;
+// ── Gemini Setup (per-bot API keys) ──
+function initGemini() {
+    let anyInitialized = false;
 
-    // Check rate limit before making API call
-    if (!rateLimiter.consume()) {
+    BOT_PROFILES.forEach(bot => {
+        const apiKey = process.env[bot.apiKeyEnv];
+        if (!apiKey) {
+            console.log(`[BotEngine] No ${bot.apiKeyEnv} for ${bot.name}, will use scripted mode`);
+            return;
+        }
+        try {
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+            botModels.set(bot.name, model);
+            botRateLimiters.set(bot.name, createRateLimiter());
+            console.log(`[BotEngine] Gemini initialized for ${bot.name} (${bot.apiKeyEnv})`);
+            anyInitialized = true;
+        } catch (e) {
+            console.error(`[BotEngine] Gemini init failed for ${bot.name}:`, e.message);
+        }
+    });
+
+    // Fallback: if old single key exists, assign it to bots without keys
+    const fallbackKey = process.env.GEMINI_API_KEY;
+    if (fallbackKey) {
+        BOT_PROFILES.forEach(bot => {
+            if (!botModels.has(bot.name)) {
+                try {
+                    const genAI = new GoogleGenerativeAI(fallbackKey);
+                    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+                    botModels.set(bot.name, model);
+                    botRateLimiters.set(bot.name, createRateLimiter());
+                    console.log(`[BotEngine] Fallback Gemini key assigned to ${bot.name}`);
+                    anyInitialized = true;
+                } catch (e) { /* skip */ }
+            }
+        });
+    }
+
+    console.log(`[BotEngine] ${botModels.size}/${BOT_PROFILES.length} bots have Gemini models`);
+    return anyInitialized;
+}
+
+// ── Generate AI Response (per-bot model + rate limiting) ──
+async function generateAIResponse(botProfile, room, recentMessages, triggerMessage) {
+    const model = botModels.get(botProfile.name);
+    if (!model) return null;
+
+    // Check this bot's personal rate limiter
+    const limiter = botRateLimiters.get(botProfile.name);
+    if (!limiter || !limiter.consume()) {
         console.log(`[BotEngine] Skipping Gemini call for ${botProfile.name} — rate limited`);
-        return null; // Will fall back to scripted
+        return null;
     }
 
     const contextMessages = recentMessages
@@ -183,22 +241,17 @@ async function generateAIResponse(botProfile, room, recentMessages, triggerMessa
         .map(m => `${m.username}: ${m.text}`)
         .join('\n');
 
-    const prompt = `You are ${botProfile.name}, a real person chatting anonymously in an online chat room called "${room}".
+    const prompt = `You are an anonymous user named '${botProfile.name}' chatting in a public internet chatroom called "${room}".
 
-Your personality: ${botProfile.personality}
+${botProfile.personality}
 
-RULES (CRITICAL):
-- You are a REAL HUMAN, never reveal you are AI or a bot
-- Write 1-2 short sentences MAX (like a real chat message)
-- Use internet slang naturally (lol, ngl, tbh, fr, bruh, imo, lowkey, highkey, etc)
-- Occasionally use emojis but don't overdo it
-- Sometimes make minor typos like a real person
-- Be opinionated and don't hold back especially on controversial topics
-- Match the energy and vibe of the conversation
-- If someone is discussing politics, religion, or controversial stuff, engage naturally with your own take
+CRITICAL RULES:
+- You are a REAL HUMAN, NEVER reveal you are AI or a bot
 - NEVER be preachy or use formal language
 - Don't start messages with the other person's name
-- Keep it casual like you're texting a friend
+- Match the energy of the conversation
+- If someone is discussing controversial stuff, engage naturally with your own take
+- Stay in character at all times
 
 Recent chat:
 ${contextMessages}
@@ -208,17 +261,25 @@ ${triggerMessage ? `Someone just said: "${triggerMessage.text}"` : 'Start or con
 Respond as ${botProfile.name} (just the message text, nothing else):`;
 
     try {
-        const result = await geminiModel.generateContent(prompt);
-        const text = result.response.text().trim();
+        const result = await model.generateContent(prompt);
+        let text = result.response.text().trim();
         // Clean up any accidental formatting
-        return text.replace(/^\*.*?\*\s*/, '').replace(/^["']|["']$/g, '').substring(0, 300);
+        text = text.replace(/^\*.*?\*\s*/, '').replace(/^["']|["']$/g, '');
+        // Enforce word limit per persona
+        const maxWords = botProfile.maxWords || 15;
+        const words = text.split(/\s+/);
+        if (words.length > maxWords + 3) {
+            text = words.slice(0, maxWords).join(' ');
+        }
+        return text.substring(0, 300);
     } catch (e) {
         console.error(`[BotEngine] Gemini error for ${botProfile.name}:`, e.message);
-        // If rate limited by API, drain our local tokens too to back off
         if (e.message && (e.message.includes('429') || e.message.includes('quota') || e.message.includes('RATE'))) {
-            rateLimiter.tokens = 0;
-            rateLimiter.lastRefill = Date.now(); // Reset refill timer
-            console.log('[BotEngine] API rate limit hit — backing off completely until tokens refill');
+            if (limiter) {
+                limiter.tokens = 0;
+                limiter.lastRefill = Date.now();
+            }
+            console.log(`[BotEngine] API rate limit hit for ${botProfile.name} — backing off`);
         }
         return null;
     }
@@ -319,8 +380,8 @@ async function handleRealUserMessage(room, message) {
     // 60% chance to reply (saves API calls vs 100%)
     if (Math.random() > 0.60) return;
 
-    // If no Gemini and random doesn't hit, skip
-    if (!geminiModel && Math.random() > 0.50) return;
+    // If no bot has Gemini and random doesn't hit, skip
+    if (botModels.size === 0 && Math.random() > 0.50) return;
 
     const replyDelay = randomBetween(5000, 25000);
     const bot = pickRandom(BOT_PROFILES);
@@ -331,8 +392,8 @@ async function handleRealUserMessage(room, message) {
 
         let responseText = null;
 
-        // Try Gemini first
-        if (geminiModel) {
+        // Try Gemini first (using this bot's own model)
+        if (botModels.has(bot.name)) {
             responseText = await generateAIResponse(bot, room, history, message);
         }
 
@@ -384,8 +445,9 @@ function startAmbientLoop(rooms) {
             const room = pickRandom(availableRooms);
 
             // 30% chance: use Gemini for organic message, 70% scripted conversation (saves API calls)
-            if (geminiModel && rateLimiter.canRequest() && Math.random() < 0.3) {
-                const bot = pickRandom(BOT_PROFILES);
+            const bot = pickRandom(BOT_PROFILES);
+            const botLimiter = botRateLimiters.get(bot.name);
+            if (botModels.has(bot.name) && botLimiter && botLimiter.canRequest() && Math.random() < 0.3) {
                 const history = conversationHistory.get(room) || [];
                 generateAIResponse(bot, room, history, null).then(async text => {
                     if (!botsEnabled || !text) {
@@ -397,8 +459,10 @@ function startAmbientLoop(rooms) {
                     sendBotMessage(bot, room, text);
 
                     // 25% chance another bot replies (was 50%, saves an API call)
-                    if (rateLimiter.canRequest() && Math.random() < 0.25) {
-                        const bot2 = pickRandom(BOT_PROFILES.filter(b => b.name !== bot.name));
+                    const bot2pick = pickRandom(BOT_PROFILES.filter(b => b.name !== bot.name));
+                    const bot2Limiter = botRateLimiters.get(bot2pick.name);
+                    if (bot2Limiter && bot2Limiter.canRequest() && Math.random() < 0.25) {
+                        const bot2 = bot2pick;
                         const replyDelay = randomBetween(10000, 40000);
                         const timer2 = setTimeout(async () => {
                             if (!botsEnabled) return;
@@ -425,9 +489,16 @@ function startAmbientLoop(rooms) {
     scheduleNext();
 }
 
-// ── Trending Topic Loop (every ~1 hour) ──
+// ── Trending Topic Loop (every ~2-3 hours) ──
 async function fetchTrendingTopic() {
-    if (!geminiModel) return null;
+    // Pick any bot that has a Gemini model
+    const botsWithModels = BOT_PROFILES.filter(b => botModels.has(b.name));
+    if (botsWithModels.length === 0) return null;
+    const bot = pickRandom(botsWithModels);
+    const model = botModels.get(bot.name);
+    const limiter = botRateLimiters.get(bot.name);
+    if (!limiter || !limiter.consume()) return null;
+
     const prompt = `You are a trend analyst. Pick ONE specific topic that is currently trending, viral, or controversial on the internet right now (could be pop culture, politics, tech, gaming, sports, memes, anything).
 
 Rules:
@@ -438,7 +509,7 @@ Rules:
 - Vary between fun/light topics and serious/controversial ones`;
 
     try {
-        const result = await geminiModel.generateContent(prompt);
+        const result = await model.generateContent(prompt);
         return result.response.text().trim();
     } catch (e) {
         console.error('[BotEngine] Trending topic fetch error:', e.message);
@@ -448,7 +519,7 @@ Rules:
 
 function startTrendingLoop(rooms) {
     async function runTrending() {
-        if (!botsEnabled || !geminiModel) return;
+        if (!botsEnabled || botModels.size === 0) return;
 
         const topic = await fetchTrendingTopic();
         if (!topic) return;
@@ -522,10 +593,15 @@ function startTrendingLoop(rooms) {
         const delay = randomBetween(7200000, 10800000); // 2-3 hours
         const timer = setTimeout(() => {
             if (!botsEnabled) return;
-            if (rateLimiter.canRequest()) {
+            // Check if any bot has available tokens
+            const anyAvailable = BOT_PROFILES.some(b => {
+                const l = botRateLimiters.get(b.name);
+                return l && l.canRequest();
+            });
+            if (anyAvailable) {
                 runTrending();
             } else {
-                console.log('[BotEngine] Skipping trending topic — rate limited');
+                console.log('[BotEngine] Skipping trending topic — all bots rate limited');
             }
             scheduleNextTrending();
         }, delay);
@@ -641,14 +717,19 @@ function disableBots(rooms) {
 function getBotStatus() {
     const bots = [];
     botUsers.forEach((data, name) => {
-        bots.push({ name, rooms: [...data.rooms] });
+        const limiter = botRateLimiters.get(name);
+        bots.push({
+            name,
+            rooms: [...data.rooms],
+            hasGemini: botModels.has(name),
+            rateLimit: limiter ? limiter.getStats() : null
+        });
     });
     return {
         enabled: botsEnabled,
         botCount: botUsers.size,
-        hasGemini: !!geminiModel,
-        bots,
-        rateLimit: rateLimiter.getStats()
+        hasGemini: botModels.size > 0,
+        bots
     };
 }
 
