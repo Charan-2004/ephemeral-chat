@@ -95,6 +95,61 @@ let conversationHistory = new Map(); // room -> last few messages for context
 const MAX_HISTORY = 15;
 const BOT_ID_PREFIX = 'bot-';
 
+// ── Rate Limiter (Token Bucket) ──
+const rateLimiter = {
+    tokens: 10,           // Start with 10 tokens
+    maxTokens: 10,        // Max 10 requests banked
+    refillRate: 1,        // Refill 1 token
+    refillIntervalMs: 360000, // Every 6 minutes (~10/hour)
+    lastRefill: Date.now(),
+    totalRequests: 0,
+    totalBlocked: 0,
+    requestLog: [],       // Track timestamps of recent requests
+
+    refill() {
+        const now = Date.now();
+        const elapsed = now - this.lastRefill;
+        const tokensToAdd = Math.floor(elapsed / this.refillIntervalMs) * this.refillRate;
+        if (tokensToAdd > 0) {
+            this.tokens = Math.min(this.maxTokens, this.tokens + tokensToAdd);
+            this.lastRefill = now;
+        }
+    },
+
+    canRequest() {
+        this.refill();
+        return this.tokens > 0;
+    },
+
+    consume() {
+        this.refill();
+        if (this.tokens <= 0) {
+            this.totalBlocked++;
+            console.log(`[BotEngine] Rate limited — ${this.totalBlocked} blocked, ${this.tokens} tokens left`);
+            return false;
+        }
+        this.tokens--;
+        this.totalRequests++;
+        this.requestLog.push(Date.now());
+        // Keep only last hour of logs
+        const oneHourAgo = Date.now() - 3600000;
+        this.requestLog = this.requestLog.filter(t => t > oneHourAgo);
+        return true;
+    },
+
+    getStats() {
+        const oneHourAgo = Date.now() - 3600000;
+        this.requestLog = this.requestLog.filter(t => t > oneHourAgo);
+        return {
+            tokensRemaining: this.tokens,
+            maxTokens: this.maxTokens,
+            requestsLastHour: this.requestLog.length,
+            totalRequests: this.totalRequests,
+            totalBlocked: this.totalBlocked
+        };
+    }
+};
+
 // ── Gemini Setup ──
 function initGemini() {
     const apiKey = process.env.GEMINI_API_KEY;
@@ -113,9 +168,15 @@ function initGemini() {
     }
 }
 
-// ── Generate AI Response ──
+// ── Generate AI Response (with rate limiting) ──
 async function generateAIResponse(botProfile, room, recentMessages, triggerMessage) {
     if (!geminiModel) return null;
+
+    // Check rate limit before making API call
+    if (!rateLimiter.consume()) {
+        console.log(`[BotEngine] Skipping Gemini call for ${botProfile.name} — rate limited`);
+        return null; // Will fall back to scripted
+    }
 
     const contextMessages = recentMessages
         .slice(-8)
@@ -153,6 +214,12 @@ Respond as ${botProfile.name} (just the message text, nothing else):`;
         return text.replace(/^\*.*?\*\s*/, '').replace(/^["']|["']$/g, '').substring(0, 300);
     } catch (e) {
         console.error(`[BotEngine] Gemini error for ${botProfile.name}:`, e.message);
+        // If rate limited by API, drain our local tokens too to back off
+        if (e.message && (e.message.includes('429') || e.message.includes('quota') || e.message.includes('RATE'))) {
+            rateLimiter.tokens = 0;
+            rateLimiter.lastRefill = Date.now(); // Reset refill timer
+            console.log('[BotEngine] API rate limit hit — backing off completely until tokens refill');
+        }
         return null;
     }
 }
@@ -249,7 +316,10 @@ async function handleRealUserMessage(room, message) {
 
     addToHistory(room, message);
 
-    // Always reply to real users when Gemini is available, 50% with scripted fallback
+    // 60% chance to reply (saves API calls vs 100%)
+    if (Math.random() > 0.60) return;
+
+    // If no Gemini and random doesn't hit, skip
     if (!geminiModel && Math.random() > 0.50) return;
 
     const replyDelay = randomBetween(5000, 25000);
@@ -303,7 +373,7 @@ function startAmbientLoop(rooms) {
     function scheduleNext() {
         if (!botsEnabled) return;
 
-        const delay = randomBetween(60000, 300000); // 1-5 minutes
+        const delay = randomBetween(300000, 900000); // 5-15 minutes (was 1-5 min, way too fast)
         const timer = setTimeout(() => {
             if (!botsEnabled) return;
 
@@ -313,8 +383,8 @@ function startAmbientLoop(rooms) {
 
             const room = pickRandom(availableRooms);
 
-            // 60% chance: use Gemini for organic message, 40% scripted conversation
-            if (geminiModel && Math.random() < 0.6) {
+            // 30% chance: use Gemini for organic message, 70% scripted conversation (saves API calls)
+            if (geminiModel && rateLimiter.canRequest() && Math.random() < 0.3) {
                 const bot = pickRandom(BOT_PROFILES);
                 const history = conversationHistory.get(room) || [];
                 generateAIResponse(bot, room, history, null).then(async text => {
@@ -326,8 +396,8 @@ function startAmbientLoop(rooms) {
                     await emitTyping(bot, room, typingDuration);
                     sendBotMessage(bot, room, text);
 
-                    // Sometimes another bot replies to the first one
-                    if (Math.random() < 0.5) {
+                    // 25% chance another bot replies (was 50%, saves an API call)
+                    if (rateLimiter.canRequest() && Math.random() < 0.25) {
                         const bot2 = pickRandom(BOT_PROFILES.filter(b => b.name !== bot.name));
                         const replyDelay = randomBetween(10000, 40000);
                         const timer2 = setTimeout(async () => {
@@ -440,19 +510,23 @@ function startTrendingLoop(rooms) {
         activeTimers.push(timer1);
     }
 
-    // First trending topic after 5-15 min
+    // First trending topic after 30-60 min (was 5-15 min)
     const firstTimer = setTimeout(() => {
         if (botsEnabled) runTrending();
-    }, randomBetween(300000, 900000));
+    }, randomBetween(1800000, 3600000));
     activeTimers.push(firstTimer);
 
-    // Then every 45-75 min
+    // Then every 2-3 hours (was 45-75 min — that's way too frequent)
     function scheduleNextTrending() {
         if (!botsEnabled) return;
-        const delay = randomBetween(2700000, 4500000); // 45-75 min
+        const delay = randomBetween(7200000, 10800000); // 2-3 hours
         const timer = setTimeout(() => {
             if (!botsEnabled) return;
-            runTrending();
+            if (rateLimiter.canRequest()) {
+                runTrending();
+            } else {
+                console.log('[BotEngine] Skipping trending topic — rate limited');
+            }
             scheduleNextTrending();
         }, delay);
         activeTimers.push(timer);
@@ -573,7 +647,8 @@ function getBotStatus() {
         enabled: botsEnabled,
         botCount: botUsers.size,
         hasGemini: !!geminiModel,
-        bots
+        bots,
+        rateLimit: rateLimiter.getStats()
     };
 }
 
