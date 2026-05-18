@@ -187,7 +187,7 @@ function initGemini() {
         if (!apiKey) return;
         try {
             const genAI = new GoogleGenerativeAI(apiKey);
-            botModels.set(bot.name, genAI.getGenerativeModel({ model: 'gemini-2.0-flash' }));
+            botModels.set(bot.name, genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' }));
             console.log(`[BotEngine] Gemini initialized for ${bot.name}`);
             count++;
         } catch (e) { console.error(`[BotEngine] Init failed for ${bot.name}:`, e.message); }
@@ -199,7 +199,7 @@ function initGemini() {
             if (!botModels.has(bot.name)) {
                 try {
                     const genAI = new GoogleGenerativeAI(fallback);
-                    botModels.set(bot.name, genAI.getGenerativeModel({ model: 'gemini-2.0-flash' }));
+                    botModels.set(bot.name, genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' }));
                     count++;
                 } catch (e) { /* skip */ }
             }
