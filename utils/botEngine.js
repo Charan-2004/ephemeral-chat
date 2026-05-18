@@ -86,10 +86,10 @@ const apiQueue = {
     queue: [],
     processing: false,
     lastCallTime: 0,
-    MIN_GAP_MS: 5000,           // 5 seconds between any two API calls (faster response)
+    MIN_GAP_MS: 3000,           // 3 seconds between API calls (20 RPM max)
     callsThisHour: 0,
     hourStart: Date.now(),
-    MAX_PER_HOUR: 40,           // Hard cap: 40 calls/hour across ALL bots
+    MAX_PER_HOUR: 250,          // 5 keys = huge quota. Safe to raise to 250/hr.
     totalCalls: 0,
     totalBlocked: 0,
     backoffUntil: 0,            // If 429 hit, don't call until this timestamp
@@ -284,12 +284,12 @@ async function handleRealUserMessage(room, message) {
     if (!botsEnabled || isBotUser(message.username)) return;
     addToHistory(room, message);
 
-    // 25% chance to ignore (75% chance to reply)
-    if (Math.random() > 0.75) return;
+    // 100% chance to reply to real users! Don't ignore them anymore.
+    // (We removed the Math.random check)
 
     const bot = pickRandom(BOT_PROFILES);
     const history = conversationHistory.get(room) || [];
-    const delay = randomBetween(4000, 15000); // Faster responses (4 to 15s)
+    const delay = randomBetween(2000, 8000); // Super fast responses (2 to 8s)
 
     const timer = setTimeout(async () => {
         if (!botsEnabled) return;
@@ -318,7 +318,7 @@ async function handleRealUserMessage(room, message) {
 function startAmbientLoop(rooms) {
     function scheduleNext() {
         if (!botsEnabled) return;
-        const delay = randomBetween(600000, 1800000); // 10-30 minutes
+        const delay = randomBetween(60000, 180000); // 1 to 3 minutes (very active)
         const timer = setTimeout(() => {
             if (!botsEnabled) return;
             const available = rooms.filter(r => CONVERSATIONS[r]);
@@ -381,21 +381,21 @@ function startTrendingLoop(rooms) {
             const h = conversationHistory.get(targetRoom) || [];
             const reply = await generateAIResponse(bot2, targetRoom, h, { text: opener });
             if (reply) { await emitTyping(bot2, targetRoom, randomBetween(1000, 3000)); sendBotMessage(bot2, targetRoom, reply); }
-        }, randomBetween(60000, 120000)); // 1-2 min later
+        }, randomBetween(15000, 30000)); // 15-30s later
         activeTimers.push(t);
     }
 
-    // First trending after 1-2 hours
-    const first = setTimeout(() => { if (botsEnabled) runTrending(); }, randomBetween(3600000, 7200000));
+    // First trending after 30 to 60 seconds of server boot!
+    const first = setTimeout(() => { if (botsEnabled) runTrending(); }, randomBetween(30000, 60000));
     activeTimers.push(first);
 
-    // Then every 3-5 hours
+    // Then every 5 to 10 minutes (highly active discussions)
     function scheduleNext() {
         if (!botsEnabled) return;
         const t = setTimeout(() => {
             if (botsEnabled) runTrending();
             scheduleNext();
-        }, randomBetween(10800000, 18000000)); // 3-5 hours
+        }, randomBetween(300000, 600000)); // 5-10 minutes
         activeTimers.push(t);
     }
     scheduleNext();
