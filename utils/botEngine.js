@@ -30,39 +30,38 @@ const BOT_PROFILES = [
 // ── Scripted Fallback Conversations ──
 const CONVERSATIONS = {
     General: [
-        ["yo anyone here?", "heyyy", "what's good?", "not much just bored af", "same lol"],
-        ["what's everyone up to today?", "just procrastinating as usual \ud83d\ude02", "felt that", "aren't we all tbh"],
-        ["hot take: pineapple on pizza is elite", "BRO NO \ud83d\udc80", "ngl i actually agree", "this chat is wild already lmao"],
-        ["can't sleep anyone up?", "yeah same \ud83d\ude29", "what time is it there?", "3am lol", "bro go to sleep \ud83d\ude2d"],
-        ["unpopular opinion thread go", "cereal is better with water", "bro WHAT \ud83d\udc80", "that's not unpopular that's just wrong"],
-        ["anyone watching anything good?", "just finished severance s2", "oh no spoilers pls", "it's so good you gotta watch it"],
-        ["drop your hot take and leave", "water is overrated", "you need help", "LMAOOO what did i just read"]
+        ["Hey everyone, how's it going?", "Hey! Doing alright, just finishing up work.", "Good here! How about you?", "Just relaxing at home.", "Yeah, same here honestly."],
+        ["What is everyone doing this weekend?", "Probably just catching up on chores.", "Going out to dinner with some friends.", "I need a long nap tbh."],
+        ["I am so tired today.", "I feel you, it's been a long week.", "Get some coffee! It helps.", "Haha I am literally falling asleep too."],
+        ["Anyone here?", "Yep, just reading through.", "I'm around. What's up?", "Hey there!"],
+        ["It is way too hot outside today.", "Tell me about it. I am staying indoors.", "I actually love the warm weather.", "Make sure to stay hydrated!"],
+        ["Anyone watching any good shows lately?", "Just started the new season of Severance.", "Oh nice, I need to check that out.", "I am looking for recommendations too!"],
+        ["I can't wait for Friday.", "Same, this week dragged on forever.", "Agreed. I need a break.", "You guys always complain about work haha"]
     ],
     Tech: [
-        ["anyone tried the new react 20?", "yeah the compiler is insane", "wait it's out already??", "bro where have you been lol"],
-        ["what IDE do you use?", "vscode obviously", "neovim gang \ud83e\udd1d", "here we go again with this debate \ud83d\ude02"],
-        ["AI is gonna take all our jobs fr", "nah it's a tool not a replacement", "that's what they said about calculators", "fair point actually"],
-        ["tabs or spaces?", "tabs obviously", "spaces are objectively better", "oh god not this again \ud83d\ude02"]
+        ["Has anyone tried the new AI tools?", "Yeah, they are getting surprisingly good.", "I use them for coding daily now.", "I still prefer doing things manually sometimes."],
+        ["What IDE are you guys using these days?", "VS Code all the way.", "I'm still a loyal IntelliJ user.", "Whatever gets the job done!"],
+        ["The tech industry is changing so fast.", "It really is. Hard to keep up.", "You just have to keep learning.", "Yeah it's exciting but exhausting."]
     ],
     Music: [
-        ["drop your current favorite song GO", "blinding lights still hits", "bro that's like 6 years old \ud83d\ude02", "good music is timeless fight me"],
-        ["hot take: taylor swift is overrated", "oh you did NOT just say that", "ngl her songwriting is actually insane", "here come the swifties \ud83d\udc80"],
-        ["vinyl or streaming?", "streaming is just more convenient", "vinyl sounds better tho no cap", "who has money for vinyl in this economy"]
+        ["What is everyone listening to right now?", "I've had the new pop hits on repeat.", "Mostly just lo-fi beats while I work.", "I'm going through a classic rock phase."],
+        ["Do you guys prefer playlists or full albums?", "Playlists for sure. Good mix.", "I like listening to an album front to back.", "Depends on my mood honestly."],
+        ["Live concerts are getting so expensive.", "Yeah, ticket prices are insane now.", "I only go if it's my absolute favorite artist.", "I miss the cheap local shows."]
     ],
     Movies: [
-        ["marvel or dc?", "marvel used to be goated but they fell off", "the batman was insane tho", "ngl both are mid now \ud83d\udc80"],
-        ["what movie can you watch over and over?", "interstellar every single time", "the dark knight for me", "shrek unironically \ud83d\udc10"],
-        ["best animated movie ever?", "spider-verse no debate", "into the spider-verse changed animation fr", "spirited away tho \ud83d\udc40"]
+        ["What's the best movie you've seen recently?", "I finally watched Interstellar again.", "Oh I love that one! Such a classic.", "I need to go to the theater more often."],
+        ["Do you prefer theaters or watching at home?", "Home for sure. So much more comfortable.", "There's something special about the big screen though.", "Yeah but snacks at home are cheaper haha"],
+        ["I wish they made more original movies.", "Everything is a sequel or reboot now.", "True, but some of the reboots are decent.", "I just want good storytelling."]
     ],
     Politics: [
-        ["do you think voting actually matters?", "yes. every vote counts period", "idk the system feels rigged sometimes ngl", "even if it feels that way, not voting guarantees nothing changes"],
-        ["should billionaires exist?", "no. that's my hot take.", "i mean some of them earned it tho", "nobody earns a billion dollars, they exploit for it"],
-        ["thoughts on universal basic income?", "it's inevitable with AI taking jobs", "who's paying for it tho", "we literally print money for wars so \ud83e\udd37"]
+        ["Did anyone see the news this morning?", "Yeah, it's a lot to process.", "I try to limit how much news I read honestly.", "It's important to stay informed though."],
+        ["Local elections are coming up soon.", "Make sure you guys are registered.", "I feel like local politics matter more anyway.", "Yeah they definitely impact daily life more."],
+        ["The economy has been so unpredictable.", "Everything is just getting more expensive.", "Yeah, inflation is hitting everyone hard.", "I'm just trying to budget better."]
     ],
     Gaming: [
-        ["what are you playing right now?", "elden ring still lol", "bg3 has consumed my life", "i keep going back to minecraft ngl"],
-        ["PC or console?", "PC master race obviously", "ps5 exclusives tho", "here we go with this debate again \ud83d\ude02"],
-        ["most overrated game ever?", "fortnite no question", "nah fortnite was peak in 2018", "gta 6 is gonna be overrated watch"]
+        ["What is everyone playing this week?", "Still stuck on Elden Ring.", "I've been playing some indie games.", "Mostly just multiplayer with friends."],
+        ["PC or Console?", "PC for the mods.", "Console is just easier. Plug and play.", "Both have their perks honestly."],
+        ["Games take so long to develop now.", "Yeah, 5 to 6 years is the standard.", "I'd rather wait for a finished game than a rushed one.", "True, but the wait is brutal."]
     ]
 };
 
@@ -72,6 +71,7 @@ let botsEnabled = false;
 let botUsers = new Map();
 let activeTimers = [];
 let conversationHistory = new Map();
+let globalRoomsRef = []; // We will store the full rooms array here to check lock status
 const MAX_HISTORY = 15;
 const BOT_ID_PREFIX = 'bot-';
 const botModels = new Map();
@@ -235,6 +235,9 @@ function isBotUser(username) { return BOT_PROFILES.some(b => b.name === username
 // ── Send Bot Message ──
 function sendBotMessage(bot, room, text, replyTo, replyToText) {
     if (!botsEnabled || !io) return;
+    const roomConfig = globalRoomsRef.find(r => r.name === room);
+    if (roomConfig && roomConfig.locked) return; // Prevent bots from posting in locked rooms
+    
     const botId = BOT_ID_PREFIX + bot.name.toLowerCase();
     const message = formatMessage(bot.name, text, room, bot.color, replyTo || null, replyToText || null, null, botId);
     storeMessage(message, io);
@@ -245,6 +248,9 @@ function sendBotMessage(bot, room, text, replyTo, replyToText) {
 
 function emitTyping(bot, room, ms) {
     if (!botsEnabled || !io) return Promise.resolve();
+    const roomConfig = globalRoomsRef.find(r => r.name === room);
+    if (roomConfig && roomConfig.locked) return Promise.resolve();
+
     io.to(room).emit('user-typing', { username: bot.name });
     return new Promise(resolve => {
         const t = setTimeout(() => { io.to(room).emit('user-stop-typing', { username: bot.name }); resolve(); }, ms);
@@ -297,7 +303,7 @@ async function handleRealUserMessage(room, message) {
         let text = null;
         if (botModels.has(bot.name)) text = await generateAIResponse(bot, room, history, message);
         if (!text) {
-            const fallbacks = ["fr fr", "lol", "no way \ud83d\udc80", "bruh", "mood", "felt that", "same tbh", "nah wild", "oof", "this ^^"];
+            const fallbacks = ["Haha yeah", "I know right?", "That makes sense", "Yeah completely agree", "Hmm interesting point", "Oh wow", "Gotcha", "For sure", "Yeah exactly"];
             text = pickRandom(fallbacks);
         }
         await emitTyping(bot, room, randomBetween(1000, 3000));
@@ -322,7 +328,12 @@ function startAmbientLoop(rooms) {
         const delay = randomBetween(60000, 180000); // 1 to 3 minutes (very active)
         const timer = setTimeout(() => {
             if (!botsEnabled) return;
-            const available = rooms.filter(r => CONVERSATIONS[r]);
+            // Only allow unlocked rooms for ambient chats
+            const available = rooms.filter(r => {
+                if (!CONVERSATIONS[r]) return false;
+                const rc = globalRoomsRef.find(gr => gr.name === r);
+                return !rc || !rc.locked;
+            });
             if (available.length === 0) return;
             const room = pickRandom(available);
 
@@ -367,6 +378,9 @@ function startTrendingLoop(rooms) {
             if (topic.toLowerCase().includes(kw) && rooms.includes(rm)) { targetRoom = rm; break; }
         }
 
+        const roomConfig = globalRoomsRef.find(r => r.name === targetRoom);
+        if (roomConfig && roomConfig.locked) return; // Prevent trending loops in locked rooms
+
         console.log(`[BotEngine] Trending: "${topic}" -> #${targetRoom}`);
         const bot1 = pickRandom(BOT_PROFILES);
         const history = conversationHistory.get(targetRoom) || [];
@@ -405,6 +419,7 @@ function startTrendingLoop(rooms) {
 // ── Public API ──
 function initBots(socketIo, rooms) {
     io = socketIo;
+    globalRoomsRef = rooms; // Store the full room objects to track locked state
     initGemini();
     if (process.env.BOTS_ENABLED === 'true') enableBots(rooms);
     console.log('[BotEngine] Bot engine initialized');
