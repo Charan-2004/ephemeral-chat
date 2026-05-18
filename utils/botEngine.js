@@ -302,10 +302,7 @@ async function handleRealUserMessage(room, message) {
         if (!botsEnabled) return;
         let text = null;
         if (botModels.has(bot.name)) text = await generateAIResponse(bot, room, history, message);
-        if (!text) {
-            const fallbacks = ["Haha yeah", "I know right?", "That makes sense", "Yeah completely agree", "Hmm interesting point", "Oh wow", "Gotcha", "For sure", "Yeah exactly"];
-            text = pickRandom(fallbacks);
-        }
+        if (!text) return; // Just stop texting if there is an API error
         await emitTyping(bot, room, randomBetween(1000, 3000));
         sendBotMessage(bot, room, text, message.id, message.text?.substring(0, 50));
     }, delay);
@@ -337,17 +334,15 @@ function startAmbientLoop(rooms) {
             if (available.length === 0) return;
             const room = pickRandom(available);
 
-            // 75% chance AI, 25% scripted
-            if (botModels.size > 0 && Math.random() < 0.75) {
+            // 100% AI, no scripted fallback conversations
+            if (botModels.size > 0) {
                 const bot = pickRandom(BOT_PROFILES);
                 const history = conversationHistory.get(room) || [];
                 generateAIResponse(bot, room, history, null).then(async text => {
-                    if (!botsEnabled || !text) { runScriptedConversation(room); return; }
+                    if (!botsEnabled || !text) return; // Just stop texting if there is an API error
                     await emitTyping(bot, room, randomBetween(1000, 3000));
                     sendBotMessage(bot, room, text);
                 });
-            } else {
-                runScriptedConversation(room);
             }
             scheduleNext();
         }, delay);
