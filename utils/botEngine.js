@@ -215,7 +215,8 @@ async function generateAIResponse(botProfile, room, recentMessages, triggerMessa
     if (!model) return null;
 
     const context = recentMessages.slice(-6).map(m => `${m.username}: ${m.text}`).join('\n');
-    const prompt = `You are '${botProfile.name}' in a chatroom "${room}".\n\n${botProfile.personality}\n\nRULES: You are a REAL HUMAN. NEVER reveal you are AI. Stay in character. No formal language.\n\nRecent chat:\n${context}\n\n${triggerMessage ? `Someone said: "${triggerMessage.text}"` : 'Say something natural.'}\n\nRespond (just message text):`;
+    const roomContext = room === 'General' ? 'Talk about anything naturally.' : `The topic of this room is ${room}. Make sure your message is highly relevant to ${room}.`;
+    const prompt = `You are '${botProfile.name}' in a chatroom "${room}".\n\n${botProfile.personality}\n\n${roomContext}\n\nRULES: You are a REAL HUMAN. NEVER reveal you are AI. Stay in character. No formal language.\n\nRecent chat:\n${context}\n\n${triggerMessage ? `Someone said: "${triggerMessage.text}"` : 'Say something natural.'}\n\nRespond (just message text):`;
 
     return apiQueue.enqueue(botProfile, model, prompt);
 }

@@ -286,6 +286,13 @@ io.on('connection', socket => {
             return;
         }
 
+        // Leave previous room to prevent cross-room message leakage
+        const existingUser = getCurrentUser(socket.id);
+        if (existingUser) {
+            socket.leave(existingUser.room);
+            userLeave(socket.id);
+        }
+
         const user = userJoin(socket.id, username, room);
         socket.join(user.room);
 

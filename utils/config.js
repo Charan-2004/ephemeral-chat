@@ -1,7 +1,7 @@
 // Centralized configuration for moderator-controlled settings
 module.exports = {
-    // Message auto-delete time in milliseconds (default: 2 minutes for demo)
-    messageTTL: 2 * 60 * 1000,
+    // Message auto-delete time in milliseconds (default: 0 for never delete)
+    messageTTL: 0,
 
     // Rate limit: minimum seconds between messages per user
     rateLimitSeconds: 3,
