@@ -381,7 +381,12 @@ function outputMessage(msg) {
 
     const time = document.createElement('span');
     time.className = 'time';
-    time.innerText = msg.time;
+    // Format timestamp locally so users see their own time zone
+    if (msg.createdAt) {
+        time.innerText = new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else {
+        time.innerText = msg.time;
+    }
     meta.appendChild(time);
 
     div.appendChild(meta);
@@ -697,6 +702,7 @@ if (generateShareBtn) {
             sharePreview.appendChild(img);
 
             downloadLink.href = canvas.toDataURL('image/png');
+            downloadLink.download = `chathere_${Date.now()}.png`;
             shareModal.style.display = 'flex';
 
             toggleSelectionMode(false); // Exit mode
