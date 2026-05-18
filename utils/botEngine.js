@@ -86,10 +86,10 @@ const apiQueue = {
     queue: [],
     processing: false,
     lastCallTime: 0,
-    MIN_GAP_MS: 30000,          // 30 seconds between any two API calls
+    MIN_GAP_MS: 5000,           // 5 seconds between any two API calls (faster response)
     callsThisHour: 0,
     hourStart: Date.now(),
-    MAX_PER_HOUR: 15,           // Hard cap: 15 calls/hour across ALL bots
+    MAX_PER_HOUR: 40,           // Hard cap: 40 calls/hour across ALL bots
     totalCalls: 0,
     totalBlocked: 0,
     backoffUntil: 0,            // If 429 hit, don't call until this timestamp
@@ -284,12 +284,12 @@ async function handleRealUserMessage(room, message) {
     if (!botsEnabled || isBotUser(message.username)) return;
     addToHistory(room, message);
 
-    // 40% chance to reply at all
-    if (Math.random() > 0.40) return;
+    // 25% chance to ignore (75% chance to reply)
+    if (Math.random() > 0.75) return;
 
     const bot = pickRandom(BOT_PROFILES);
     const history = conversationHistory.get(room) || [];
-    const delay = randomBetween(8000, 35000);
+    const delay = randomBetween(4000, 15000); // Faster responses (4 to 15s)
 
     const timer = setTimeout(async () => {
         if (!botsEnabled) return;
@@ -325,8 +325,8 @@ function startAmbientLoop(rooms) {
             if (available.length === 0) return;
             const room = pickRandom(available);
 
-            // 15% chance AI, 85% scripted
-            if (botModels.size > 0 && Math.random() < 0.15) {
+            // 75% chance AI, 25% scripted
+            if (botModels.size > 0 && Math.random() < 0.75) {
                 const bot = pickRandom(BOT_PROFILES);
                 const history = conversationHistory.get(room) || [];
                 generateAIResponse(bot, room, history, null).then(async text => {
@@ -436,7 +436,20 @@ function enableBots(rooms) {
 
     startAmbientLoop(roomNames);
     startTrendingLoop(roomNames);
-    const initTimer = setTimeout(() => { if (botsEnabled) runScriptedConversation('General'); }, randomBetween(15000, 45000));
+    
+    // Start with an organic AI trending topic right away instead of a hardcoded script
+    const initTimer = setTimeout(() => { 
+        if (botsEnabled && botModels.size > 0) {
+            // Force the trending loop to trigger immediately
+            const { startTrendingLoop } = module.exports; // we can just call it locally by extracting the logic?
+            // Actually, just calling the internal runTrending wasn't exported easily. 
+            // I'll emit a fake message to trigger handleRealUserMessage instead.
+            const fakeMessage = { username: 'System', text: 'who is ready to chat?', id: 'system-init' };
+            handleRealUserMessage('General', fakeMessage);
+        } else {
+            runScriptedConversation('General'); 
+        }
+    }, randomBetween(5000, 15000));
     activeTimers.push(initTimer);
 
     console.log('[BotEngine] Bots ENABLED');
