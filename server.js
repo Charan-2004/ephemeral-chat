@@ -291,7 +291,13 @@ io.on('connection', socket => {
         const existingUser = getCurrentUser(socket.id);
         if (existingUser) {
             socket.leave(existingUser.room);
+            const prevRoom = existingUser.room;
             userLeave(socket.id);
+            io.to(prevRoom).emit('roomUsers', {
+                room: prevRoom,
+                count: getRoomUserCount(prevRoom),
+                users: getRoomUsers(prevRoom).map(u => ({ username: u.username, id: u.id, isBot: u.isBot, color: u.color }))
+            });
         }
 
         const user = userJoin(socket.id, username, room);
@@ -326,6 +332,7 @@ io.on('connection', socket => {
         io.to(user.room).emit('roomUsers', {
             room: user.room,
             count: getRoomUserCount(user.room),
+            users: getRoomUsers(user.room).map(u => ({ username: u.username, id: u.id, isBot: u.isBot, color: u.color })),
             userColor: user.color
         });
 
@@ -429,7 +436,8 @@ io.on('connection', socket => {
         if (user) {
             io.to(user.room).emit('roomUsers', {
                 room: user.room,
-                count: getRoomUserCount(user.room)
+                count: getRoomUserCount(user.room),
+                users: getRoomUsers(user.room).map(u => ({ username: u.username, id: u.id, isBot: u.isBot, color: u.color }))
             });
             broadcastRoomCounts();
         }

@@ -1,6 +1,6 @@
 ﻿const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { formatMessage, storeMessage } = require('./messages');
-const { userJoin, userLeave, getRoomUserCount } = require('./users');
+const { userJoin, userLeave, getRoomUserCount, getRoomUsers } = require('./users');
 const { v4: uuidv4 } = require('uuid');
 
 // Bot Personas
@@ -381,7 +381,7 @@ function enableBots(rooms) {
         });
         botRooms.forEach(room => {
             userJoin(botId + '-' + room, bot.name, room, true);
-            if (io) io.to(room).emit('roomUsers', { room, count: getRoomUserCount(room) });
+            if (io) io.to(room).emit('roomUsers', { room, count: getRoomUserCount(room), users: getRoomUsers(room).map(u => ({ username: u.username, id: u.id, isBot: u.isBot, color: u.color })) });
         });
         botUsers.set(bot.name, { id: botId, rooms: botRooms });
     });
@@ -408,7 +408,7 @@ function disableBots(rooms) {
         const d = botUsers.get(bot.name);
         if (d) d.rooms.forEach(room => {
             userLeave(d.id + '-' + room);
-            if (io) io.to(room).emit('roomUsers', { room, count: getRoomUserCount(room) });
+            if (io) io.to(room).emit('roomUsers', { room, count: getRoomUserCount(room), users: getRoomUsers(room).map(u => ({ username: u.username, id: u.id, isBot: u.isBot, color: u.color })) });
         });
     });
     botUsers.clear();

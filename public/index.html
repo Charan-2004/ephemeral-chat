@@ -278,8 +278,14 @@
         <main class="join-main">
             <form id="join-form">
                 <div class="form-control">
-                    <label for="username">Display Name (Different everytime u login)</label>
-                    <input type="text" name="username" id="username" placeholder="Enter anonymous name..." required />
+                    <label for="username">Your Assigned Alias</label>
+                    <div class="username-display-wrapper">
+                        <div class="username-display" id="username-display">Generating...</div>
+                        <button type="button" class="btn-regenerate" id="regenerate-username-btn" title="Generate another name">
+                            <i class="fas fa-redo-alt"></i>
+                        </button>
+                    </div>
+                    <input type="hidden" name="username" id="username" required />
                 </div>
                 <div class="form-control">
                     <label for="room">Topic Room</label>
@@ -355,6 +361,7 @@
                 </div>
 
                 <div class="chat-form-container">
+                    <div id="mention-autocomplete" class="mention-autocomplete" style="display: none;"></div>
                     <form id="chat-form">
                         <label for="image-input" class="btn btn-icon" title="Upload Image">
                             <i class="fas fa-image"></i>
@@ -538,7 +545,7 @@
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="script.js?v=FINAL_REV6"></script>
+    <script src="script.js?v=FINAL_REV7"></script>
     <script>
     // PWA Service Worker + Install
     if ('serviceWorker' in navigator) {

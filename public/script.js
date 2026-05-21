@@ -48,11 +48,40 @@ let typingTimeout = null;
 let unreadCounts = {};
 let roomCounts = {};
 
-// Restore saved username from localStorage
-(function restoreSavedState() {
-    const savedName = localStorage.getItem('chathere_username');
-    const usernameInput = document.getElementById('username');
-    if (savedName && usernameInput) usernameInput.value = savedName;
+// Mentions and Autocomplete State
+let activeUsers = [];
+let filteredMentionUsers = [];
+let selectedMentionIndex = -1;
+let isMentionActive = false;
+let mentionSearchQuery = '';
+let mentionStartIdx = -1;
+
+const usernameDisplay = document.getElementById('username-display');
+const usernameInput = document.getElementById('username');
+const regenerateBtn = document.getElementById('regenerate-username-btn');
+
+const ADJECTIVES = ['Silent', 'Mystic', 'Crimson', 'Golden', 'Shadow', 'Radiant', 'Frosty', 'Wild', 'Cosmic', 'Swift', 'Lone', 'Vibrant', 'Serene', 'Ember', 'Stealthy', 'Noble', 'Ancient', 'Wandering', 'Bold', 'Chilled'];
+const NOUNS = ['Wolf', 'Falcon', 'Tiger', 'Panda', 'Eagle', 'Fox', 'Dragon', 'Phoenix', 'Raven', 'Lion', 'Leopard', 'Hawk', 'Badger', 'Coyote', 'Bear', 'Jaguar', 'Viper', 'Owl', 'Dolphin', 'Stag'];
+
+function generateRandomUsername() {
+    const adj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+    const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+    const num = Math.floor(Math.random() * 900) + 100;
+    return `${adj}${noun}${num}`;
+}
+
+function setUsername(name) {
+    if (usernameDisplay) usernameDisplay.textContent = name;
+    if (usernameInput) usernameInput.value = name;
+    localStorage.setItem('chathere_username', name);
+}
+
+(function initUsername() {
+    let savedName = localStorage.getItem('chathere_username');
+    if (!savedName) {
+        savedName = generateRandomUsername();
+    }
+    setUsername(savedName);
 
     // Deep link: auto-select room from URL param ?room=Gaming
     const urlParams = new URLSearchParams(window.location.search);
@@ -61,6 +90,12 @@ let roomCounts = {};
         localStorage.setItem('chathere_room', roomParam);
     }
 })();
+
+if (regenerateBtn) {
+    regenerateBtn.onclick = () => {
+        setUsername(generateRandomUsername());
+    };
+}
 
 // Tab focus tracking
 window.addEventListener('focus', () => { isTabFocused = true; });
@@ -80,6 +115,29 @@ function playNotificationSound() {
         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
         osc.start(ctx.currentTime);
         osc.stop(ctx.currentTime + 0.3);
+    } catch (e) {}
+}
+
+// Premium synthesizer double beep sound for mentions
+function playMentionSound() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const playBeep = (freq, startTime, duration) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.frequency.value = freq;
+            osc.type = 'sine';
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(0.12, startTime + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+        };
+        const now = ctx.currentTime;
+        playBeep(987.77, now, 0.08); // First beep (B5)
+        playBeep(1318.51, now + 0.1, 0.15); // Second beep (E6) - 100ms later
     } catch (e) {}
 }
 
@@ -194,6 +252,11 @@ function renderRooms(rooms) {
 // Join Room
 joinForm.addEventListener('submit', (e) => {
     e.preventDefault();
+    const termsCheck = document.getElementById('terms-check');
+    if (termsCheck && !termsCheck.checked) {
+        return showError('You must agree to the Terms & Conditions to join');
+    }
+
     const user = e.target.elements.username.value;
     const room = e.target.elements.room.value;
 
@@ -233,15 +296,32 @@ socket.on('rooms-updated', (rooms) => {
     if (Array.isArray(rooms)) renderRooms(rooms);
 });
 
+socket.on('roomUsers', ({ users }) => {
+    if (Array.isArray(users)) {
+        activeUsers = users;
+    }
+});
+
 socket.on('message', (msg) => {
     outputMessage(msg);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
-    // Sound + browser notification when tab not focused
-    if (!isTabFocused && msg.senderId !== socket.id && msg.senderId !== 'system') {
-        playNotificationSound();
-        if (Notification.permission === 'granted') {
-            new Notification(`${msg.username} in ${currentRoom}`, { body: msg.text || '[Image]', icon: '/favicon.png' });
+    // Check if the current user is mentioned by someone else in the room
+    const isMentioned = msg.text && msg.senderId !== socket.id && msg.senderId !== 'system' &&
+                        currentUsername && msg.text.includes(`@${currentUsername}`);
+
+    if (isMentioned) {
+        playMentionSound();
+        if (!isTabFocused && Notification.permission === 'granted') {
+            new Notification(`Mentioned by ${msg.username} in ${currentRoom}`, { body: msg.text, icon: '/favicon.png' });
+        }
+    } else {
+        // Sound + browser notification when tab not focused
+        if (!isTabFocused && msg.senderId !== socket.id && msg.senderId !== 'system') {
+            playNotificationSound();
+            if (Notification.permission === 'granted') {
+                new Notification(`${msg.username} in ${currentRoom}`, { body: msg.text || '[Image]', icon: '/favicon.png' });
+            }
         }
     }
 
@@ -356,6 +436,11 @@ function outputMessage(msg) {
     // Classes
     if (msg.senderId === socket.id) div.classList.add('my-message');
     if (msg.isAdmin) div.classList.add('admin-message');
+    
+    // Highlight if current user is mentioned in the text
+    if (msg.text && currentUsername && msg.text.includes(`@${currentUsername}`)) {
+        div.classList.add('mention-highlight');
+    }
 
     // Meta
     const meta = document.createElement('div');
@@ -539,20 +624,75 @@ imageInput.onchange = function () {
     this.value = '';
 };
 
-// Typing emit on keypress
+// Typing emit + autocomplete check on input
 msgInput.addEventListener('input', () => {
     socket.emit('typing');
     clearTimeout(typingTimeout);
     typingTimeout = setTimeout(() => socket.emit('stop-typing'), 2000);
+
+    // Check for active autocomplete state
+    const value = msgInput.value;
+    const selectionEnd = msgInput.selectionEnd;
+    const textBeforeCursor = value.slice(0, selectionEnd);
+    const lastAtIdx = textBeforeCursor.lastIndexOf('@');
+
+    if (lastAtIdx !== -1) {
+        const charBeforeAt = lastAtIdx > 0 ? textBeforeCursor[lastAtIdx - 1] : '';
+        if (charBeforeAt === '' || /\s/.test(charBeforeAt)) {
+            const query = textBeforeCursor.slice(lastAtIdx + 1);
+            if (!/\s/.test(query)) {
+                isMentionActive = true;
+                mentionStartIdx = lastAtIdx;
+                mentionSearchQuery = query;
+                filterAndShowAutocomplete(query);
+                return;
+            }
+        }
+    }
+    hideAutocomplete();
 });
 
-// URL detection - make links clickable
+// Keydown listener for autocomplete navigation
+msgInput.addEventListener('keydown', (e) => {
+    if (!isMentionActive) return;
+
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedMentionIndex = (selectedMentionIndex + 1) % filteredMentionUsers.length;
+        updateActiveAutocompleteItem();
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedMentionIndex = (selectedMentionIndex - 1 + filteredMentionUsers.length) % filteredMentionUsers.length;
+        updateActiveAutocompleteItem();
+    } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (selectedMentionIndex >= 0 && selectedMentionIndex < filteredMentionUsers.length) {
+            selectAutocompleteUser(filteredMentionUsers[selectedMentionIndex].username);
+        }
+    } else if (e.key === 'Escape') {
+        e.preventDefault();
+        hideAutocomplete();
+    }
+});
+
+// URL detection - make links clickable and format @mentions
 function linkify(text) {
-    const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    return escaped.replace(
+    let escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    
+    // Replace URL links first
+    escaped = escaped.replace(
         /(https?:\/\/[^\s<]+)/g,
         '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:#7289da;text-decoration:underline;">$1</a>'
     );
+
+    // Replace @mentions with pill badges (case-insensitive username check)
+    escaped = escaped.replace(/@([a-zA-Z0-9_]+)/g, (match, username) => {
+        const isMe = currentUsername && username.toLowerCase() === currentUsername.toLowerCase();
+        const badgeClass = isMe ? 'mention-tag me' : 'mention-tag';
+        return `<span class="${badgeClass}">@${username}</span>`;
+    });
+
+    return escaped;
 }
 
 // Request notification permission
@@ -564,9 +704,12 @@ if ('Notification' in window && Notification.permission === 'default') {
     }, { once: true });
 }
 
-// Close emoji
+// Close emoji & autocomplete on outside click
 document.onclick = (e) => {
     if (!e.target.closest('.action-btn') && !emojiPicker.contains(e.target)) emojiPicker.style.display = 'none';
+    if (!e.target.closest('#mention-autocomplete') && e.target !== msgInput) {
+        hideAutocomplete();
+    }
 };
 
 // Terms Modal Logic
@@ -739,4 +882,117 @@ if (shareRoomBtn) {
             });
         }
     };
+}
+
+// ============================================
+// @MENTION AUTOCOMPLETE UTILITIES
+// ============================================
+function filterAndShowAutocomplete(query) {
+    // Filter activeUsers by matching the query (case insensitive)
+    // Exclude the current user to prevent mentioning yourself
+    filteredMentionUsers = activeUsers.filter(u => {
+        if (currentUsername && u.username.toLowerCase() === currentUsername.toLowerCase()) {
+            return false;
+        }
+        return u.username.toLowerCase().includes(query.toLowerCase());
+    });
+
+    if (filteredMentionUsers.length === 0) {
+        hideAutocomplete();
+        return;
+    }
+
+    // Limit to 8 results for a clean UI
+    filteredMentionUsers = filteredMentionUsers.slice(0, 8);
+    
+    const autocompleteEl = document.getElementById('mention-autocomplete');
+    if (!autocompleteEl) return;
+
+    autocompleteEl.innerHTML = '';
+    autocompleteEl.style.display = 'block';
+
+    selectedMentionIndex = 0; // Default select first item
+
+    filteredMentionUsers.forEach((user, index) => {
+        const item = document.createElement('div');
+        item.className = 'mention-item';
+        if (index === selectedMentionIndex) {
+            item.classList.add('active');
+        }
+
+        // Color dot
+        const dot = document.createElement('span');
+        dot.className = 'mention-dot';
+        dot.style.background = user.color || '#a5b4fc';
+
+        // Name
+        const name = document.createElement('span');
+        name.className = 'mention-name';
+        name.textContent = user.username;
+
+        // Badge
+        const badge = document.createElement('span');
+        badge.className = 'badge-role'; // Let's use standard class
+        badge.classList.add('mention-badge');
+        if (user.isBot) {
+            badge.classList.add('bot');
+            badge.textContent = 'Bot';
+        } else {
+            badge.textContent = 'User';
+        }
+
+        item.appendChild(dot);
+        item.appendChild(name);
+        item.appendChild(badge);
+
+        // Click selection
+        item.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            selectAutocompleteUser(user.username);
+        };
+
+        autocompleteEl.appendChild(item);
+    });
+}
+
+function selectAutocompleteUser(username) {
+    const value = msgInput.value;
+    const beforeMention = value.slice(0, mentionStartIdx);
+    const afterMention = value.slice(msgInput.selectionEnd);
+    
+    // Insert autocomplete mention with a trailing space
+    msgInput.value = beforeMention + `@${username} ` + afterMention;
+    
+    // Reset selection/cursor position right after inserted name and space
+    const newCursorPos = mentionStartIdx + username.length + 2; // @ + name + space
+    msgInput.setSelectionRange(newCursorPos, newCursorPos);
+    
+    hideAutocomplete();
+    msgInput.focus();
+}
+
+function hideAutocomplete() {
+    isMentionActive = false;
+    selectedMentionIndex = -1;
+    filteredMentionUsers = [];
+    const autocompleteEl = document.getElementById('mention-autocomplete');
+    if (autocompleteEl) {
+        autocompleteEl.style.display = 'none';
+    }
+}
+
+function updateActiveAutocompleteItem() {
+    const autocompleteEl = document.getElementById('mention-autocomplete');
+    if (!autocompleteEl) return;
+    
+    const items = autocompleteEl.querySelectorAll('.mention-item');
+    items.forEach((item, index) => {
+        if (index === selectedMentionIndex) {
+            item.classList.add('active');
+            item.scrollIntoView({ block: 'nearest' });
+        } else {
+            item.classList.remove('active');
+        }
+    });
 }
