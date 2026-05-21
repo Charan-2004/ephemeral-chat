@@ -10,6 +10,7 @@ const { formatMessage, storeMessage, getMessage, getRoomMessages, addReaction, c
 const { userJoin, getCurrentUser, userLeave, getRoomUsers, getRoomUserCount, updateLastMessageTime } = require('./utils/users');
 const config = require('./utils/config');
 const { initBots, enableBots, disableBots, getBotStatus, handleRealUserMessage, isBot } = require('./utils/botEngine');
+const { isMessageSafe } = require('./utils/moderation');
 
 const app = express();
 const server = http.createServer(app);
@@ -351,6 +352,11 @@ io.on('connection', socket => {
     socket.on('chatMessage', ({ text, replyTo, replyToText }) => {
         if (!text || typeof text !== 'string' || text.trim().length === 0 || text.length > 500) {
             return; // Ignore invalid messages
+        }
+        // Safety moderation: block racism, child abuse, terrorism
+        if (!isMessageSafe(text)) {
+            socket.emit('error-message', 'Your message was blocked for violating community guidelines.');
+            return;
         }
         const user = getCurrentUser(socket.id);
         if (user) {
