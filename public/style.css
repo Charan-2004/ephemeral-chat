@@ -197,10 +197,6 @@ body::before {
   }
 }
 
-/* (Removed old join-header - replaced by immersive hero) */
-
-/* (Removed old join-main - replaced by immersive form-side) */
-
 .form-control {
   margin-bottom: 20px;
 }
@@ -601,9 +597,7 @@ body::before {
 }
 
 /* Pulsing animation for main Join button */
-.join-main .btn {
-  width: 100%;
-  display: block;
+.form-side .btn {
   animation: pulse-glow 3s infinite;
 }
 
@@ -1434,7 +1428,7 @@ body::before {
   left: 0;
   right: 0;
   padding: 24px 40px;
-  z-index: 50;
+  z-index: 200;
   background: linear-gradient(180deg, rgba(10, 10, 12, 0.5) 0%, rgba(10, 10, 12, 0) 100%);
 }
 
@@ -1490,106 +1484,8 @@ body::before {
   transform: translateY(-1px);
 }
 
-.onboarding-side-panels {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 90;
-}
 
-.side-panel {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 290px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  pointer-events: auto;
-}
-
-.left-panel {
-  left: calc(50% - 550px);
-  animation: floatPanelLeft 6s ease-in-out infinite alternate;
-}
-
-.right-panel {
-  right: calc(50% - 550px);
-  animation: floatPanelRight 6s ease-in-out infinite alternate;
-}
-
-.panel-card {
-  background: rgba(18, 20, 24, 0.45);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 18px;
-  padding: 22px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(88, 101, 242, 0.03);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.panel-card:hover {
-  transform: translateY(-5px) scale(1.02);
-  background: rgba(18, 20, 24, 0.6);
-  border-color: rgba(88, 101, 242, 0.25);
-  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.6), 0 0 30px rgba(88, 101, 242, 0.15);
-}
-
-.panel-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: rgba(88, 101, 242, 0.1);
-  border: 1px solid rgba(88, 101, 242, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  color: #a5b4fc;
-  margin-bottom: 16px;
-  transition: all 0.3s ease;
-}
-
-.panel-card:hover .panel-icon {
-  background: rgba(88, 101, 242, 0.2);
-  color: #fff;
-  box-shadow: 0 0 12px rgba(88, 101, 242, 0.4);
-}
-
-.panel-card h3 {
-  font-size: 1.05rem;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-  color: #fff;
-  letter-spacing: 0.3px;
-}
-
-.panel-card p {
-  font-size: 0.85rem;
-  line-height: 1.5;
-  margin: 0;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.panel-card p strong {
-  color: #a5b4fc;
-}
-
-@keyframes floatPanelLeft {
-  0% { transform: translateY(-50%) translateY(0); }
-  100% { transform: translateY(-50%) translateY(-10px); }
-}
-
-@keyframes floatPanelRight {
-  0% { transform: translateY(-50%) translateY(-10px); }
-  100% { transform: translateY(-50%) translateY(0); }
-}
-
-/* (Removed old side panels - now integrated into hero-side) */
+.panel-card:hover 
 
 
 /* =========================================

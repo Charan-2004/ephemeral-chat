@@ -46,17 +46,23 @@ app.use((req, res, next) => {
     next();
 });
 
-// Set static folder with caching headers for SEO (Core Web Vitals)
+// Static folder with conservative caching (updates propagate fast)
 app.use(express.static(path.join(__dirname, 'public'), {
-    maxAge: '1h',
+    maxAge: '5m',
+    etag: true,
+    lastModified: true,
     setHeaders: (res, filepath) => {
-        // Long cache for images, fonts, and versioned assets
+        // Images/fonts: moderate cache with revalidation
         if (filepath.match(/\.(png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
-            res.setHeader('Cache-Control', 'public, max-age=2592000'); // 30 days
+            res.setHeader('Cache-Control', 'public, max-age=86400, must-revalidate'); // 1 day
         }
-        // Short cache for HTML (so updates propagate quickly)
+        // HTML: always revalidate
         if (filepath.match(/\.html$/)) {
-            res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour
+            res.setHeader('Cache-Control', 'no-cache');
+        }
+        // CSS/JS: short cache
+        if (filepath.match(/\.(css|js)$/)) {
+            res.setHeader('Cache-Control', 'public, max-age=300, must-revalidate'); // 5 min
         }
     }
 }));

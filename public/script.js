@@ -273,6 +273,8 @@ joinForm.addEventListener('submit', (e) => {
 
     joinScreen.style.display = 'none';
     chatScreen.style.display = 'flex';
+    const siteFooter = document.getElementById('site-footer');
+    if (siteFooter) siteFooter.style.display = 'none';
     roomNameEl.innerText = room;
 
     document.querySelectorAll('.room-item').forEach(li => {

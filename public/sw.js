@@ -1,67 +1,51 @@
-const CACHE_NAME = 'chathere-v1';
+const CACHE_NAME = 'chathere-v3';
 const OFFLINE_URL = '/';
 
-// Assets to cache for fast loading
+// Minimal precache - just the offline fallback
 const PRECACHE_ASSETS = [
   '/',
-  '/style.css?v=PREMIUM_V1',
-  '/script.js?v=FINAL_REV5',
   '/logo.png',
   '/favicon.png',
-  '/favicon-32x32.png',
-  '/favicon-16x16.png',
   '/manifest.json'
 ];
 
-// Install: cache core assets
+// Install: cache minimal assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_ASSETS);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS))
   );
   self.skipWaiting();
 });
 
-// Activate: clean old caches
+// Activate: delete ALL old caches immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
-      );
-    })
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+    )
   );
   self.clients.claim();
 });
 
-// Fetch: network-first for HTML/API, cache-first for static assets
+// Fetch: network-first for everything, cache fallback only for offline
 self.addEventListener('fetch', (event) => {
   const { request } = event;
 
-  // Skip non-GET and socket.io requests
-  if (request.method !== 'GET' || request.url.includes('/socket.io/')) return;
-
-  // API calls: network only
+  // Skip non-GET, socket.io, and API requests
+  if (request.method !== 'GET') return;
+  if (request.url.includes('/socket.io/')) return;
   if (request.url.includes('/api/')) return;
 
-  // Static assets (images, fonts, CSS, JS): cache-first
-  if (request.url.match(/\.(png|jpg|jpeg|gif|ico|svg|woff|woff2|css|js)(\?.*)?$/)) {
-    if (!request.url.startsWith(self.location.origin)) return;
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        return cached || fetch(request).then((response) => {
+  event.respondWith(
+    fetch(request)
+      .then((response) => {
+        // Cache successful responses for offline fallback
+        if (response.ok && request.url.startsWith(self.location.origin)) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          return response;
-        });
+        }
+        return response;
       })
-    );
-    return;
-  }
-
-  // HTML: network-first with cache fallback
-  event.respondWith(
-    fetch(request).catch(() => caches.match(request) || caches.match(OFFLINE_URL))
+      .catch(() => caches.match(request).then((cached) => cached || caches.match(OFFLINE_URL)))
   );
 });
