@@ -103,33 +103,30 @@ body::before {
    (Preserved from layout.css)
    ========================================= */
 .join-container {
-  background: rgba(20, 20, 20, 0.85);
-  /* Very dark glass */
-  width: 420px;
+  background: rgba(18, 20, 24, 0.75);
+  /* Modern deep dark translucent glass */
+  width: 440px;
   max-width: 90vw;
-  border-radius: 16px;
+  border-radius: 24px;
   padding: 0;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(88, 101, 242, 0.15);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  overflow: hidden;
-  animation: fadeInCentered 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: fadeInCentered 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 100;
-  z-index: 100;
-  position: relative;
-  /* For absolute positioning of children */
-
-  /* Absolute Centering Fix */
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-
   display: flex;
   flex-direction: column;
+  transition: box-shadow 0.3s ease;
+}
+
+.join-container:hover {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 50px rgba(88, 101, 242, 0.25);
 }
 
 /* Global Animated Background */
@@ -215,20 +212,32 @@ body::before {
 }
 
 .join-header {
-  background: linear-gradient(180deg, rgba(88, 101, 242, 0.15), rgba(0, 0, 0, 0));
+  background: linear-gradient(180deg, rgba(88, 101, 242, 0.12), rgba(0, 0, 0, 0));
   position: relative;
   z-index: 1;
-  padding: 30px 20px;
+  padding: 35px 25px 25px 25px;
   text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .join-header h1 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-shadow: 0 2px 10px rgba(114, 137, 218, 0.5);
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #fff 30%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 20px rgba(88, 101, 242, 0.2);
   margin: 0;
+}
+
+.join-subtitle {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 8px;
+  font-weight: 600;
 }
 
 .join-main {
@@ -247,36 +256,87 @@ body::before {
   font-weight: 500;
 }
 
+.form-control label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.5px;
+}
+
 .form-control input,
 .form-control select {
   width: 100%;
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #444;
-  background: rgba(0, 0, 0, 0.2);
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
   color: #fff;
   font-size: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.form-control input:focus,
+.form-control select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 14px rgba(88, 101, 242, 0.25);
+}
+
+.form-control select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a5b4fc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 40px;
+  cursor: pointer;
 }
 
 .brand-logo {
-  width: 80px;
-  height: 80px;
-  margin-bottom: 10px;
+  width: 85px;
+  height: 85px;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 4px 15px rgba(88, 101, 242, 0.3));
+  animation: floatLogo 4s ease-in-out infinite;
+}
+
+@keyframes floatLogo {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
 
 .terms-checkbox {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
-  color: #ccc;
-  font-size: 0.9rem;
+  margin-bottom: 24px;
   justify-content: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.88rem;
 }
 
-.terms-checkbox input {
-  width: auto;
+.terms-checkbox label {
   cursor: pointer;
+  user-select: none;
+  transition: color 0.2s ease;
+}
+
+.terms-checkbox label:hover {
+  color: #fff;
+}
+
+.terms-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  accent-color: var(--primary-color);
+  cursor: pointer;
+  margin: 0;
 }
 
 
@@ -566,31 +626,43 @@ body::before {
   letter-spacing: 0.5px;
 }
 
+.btn {
+  cursor: pointer;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #5865F2 0%, #8547C4 100%);
+  color: #fff;
+  border: 0;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 15px rgba(88, 101, 242, 0.2), 0 0 10px rgba(133, 71, 196, 0.15);
+}
+
 .btn:hover {
-  background-color: var(--primary-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(88, 101, 242, 0.4);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(88, 101, 242, 0.45), 0 0 15px rgba(133, 71, 196, 0.35);
 }
 
 /* Pulsing animation for main Join button */
 .join-main .btn {
   width: 100%;
-  /* Force full width */
   display: block;
   animation: pulse-glow 3s infinite;
 }
 
 @keyframes pulse-glow {
   0% {
-    box-shadow: 0 0 0 0 rgba(88, 101, 242, 0.4);
+    box-shadow: 0 0 0 0 rgba(88, 101, 242, 0.4), 0 0 0 0 rgba(133, 71, 196, 0.3);
   }
 
   70% {
-    box-shadow: 0 0 0 10px rgba(88, 101, 242, 0);
+    box-shadow: 0 0 0 12px rgba(88, 101, 242, 0), 0 0 0 12px rgba(133, 71, 196, 0);
   }
 
   100% {
-    box-shadow: 0 0 0 0 rgba(88, 101, 242, 0);
+    box-shadow: 0 0 0 0 rgba(88, 101, 242, 0), 0 0 0 0 rgba(133, 71, 196, 0);
   }
 }
 
@@ -1054,21 +1126,28 @@ body::before {
 .join-tagline {
   text-align: center;
   font-size: 0.75rem;
-  color: #666;
-  margin-top: 16px;
-  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.35);
+  margin-top: 24px;
+  line-height: 1.5;
+  padding: 0 10px;
 }
 
 /* Online Counter on Join Screen */
 .online-counter {
-  text-align: center;
-  margin-top: 14px;
+  margin: 20px auto 0 auto;
+  padding: 8px 16px;
+  background: rgba(67, 181, 129, 0.08);
+  border: 1px solid rgba(67, 181, 129, 0.15);
+  border-radius: 50px;
+  width: fit-content;
   font-size: 0.85rem;
+  font-weight: 600;
   color: #43b581;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(67, 181, 129, 0.05);
   animation: fadeIn 0.5s ease;
 }
 
@@ -1152,21 +1231,23 @@ body::before {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 10px 14px;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 11px 15px;
+  border-radius: 12px;
   margin-top: 5px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .username-display {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #fff 40%, #ffd700 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   letter-spacing: 0.5px;
   flex-grow: 1;
-  text-shadow: 0 2px 10px rgba(88, 101, 242, 0.3);
+  text-shadow: 0 2px 15px rgba(255, 215, 0, 0.15);
   font-family: 'Inter', system-ui, sans-serif;
   user-select: none;
 }
@@ -1324,4 +1405,56 @@ body::before {
   color: #fff;
   border-color: #faa61a;
   box-shadow: 0 2px 8px rgba(250, 166, 26, 0.4);
+}
+
+
+/* =========================================
+   AMBIENT GLOWING ORBS
+   ========================================= */
+.glow-orbs {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: -2;
+  pointer-events: none;
+}
+
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+  mix-blend-mode: screen;
+  animation: floatOrb 12s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.glow-orb-1 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, #5865F2 0%, rgba(88, 101, 242, 0) 70%);
+  top: 15%;
+  left: 15%;
+}
+
+.glow-orb-2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, #d4a127 0%, rgba(212, 161, 39, 0) 70%);
+  bottom: 15%;
+  right: 15%;
+  animation-delay: -6s;
+  animation-duration: 16s;
+}
+
+@keyframes floatOrb {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(60px, 40px) scale(1.15);
+  }
 }
