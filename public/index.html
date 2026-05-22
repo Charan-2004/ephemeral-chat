@@ -290,76 +290,90 @@
         </div>
     </header>
 
-    <!-- Onboarding Side Panels (Desktop Feature Highlights) -->
-    <div class="onboarding-side-panels">
-        <!-- Left Panel -->
-        <div class="side-panel left-panel">
-            <div class="panel-card">
-                <div class="panel-icon"><i class="fas fa-ghost"></i></div>
-                <h3>100% Ephemeral</h3>
-                <p>No registration, no tracking. Messages disappear forever the moment you close the tab.</p>
-            </div>
-            <div class="panel-card">
-                <div class="panel-icon"><i class="fas fa-user-shield"></i></div>
-                <h3>Secure & Moderate</h3>
-                <p>Advanced real-time filters and smart bot tools keep discussions clean and welcoming.</p>
-            </div>
-        </div>
 
-        <!-- Right Panel -->
-        <div class="side-panel right-panel">
-            <div class="panel-card">
-                <div class="panel-icon"><i class="fas fa-robot"></i></div>
-                <h3>AI Companions</h3>
-                <p>Friendly bots like Alex, Sarah, and Mike are online and ready to keep you company.</p>
-            </div>
-            <div class="panel-card">
-                <div class="panel-icon"><i class="fas fa-bell"></i></div>
-                <h3>Mention Tags</h3>
-                <p>Mention users with <strong>@username</strong> to trigger localized chime alerts and text highlights.</p>
-            </div>
-        </div>
-    </div>
+    <div class="join-screen-immersive" id="join-screen">
 
-    <div class="join-container" id="join-screen">
-        <header class="join-header">
-            <img src="logo.png" alt="ChatHere - Free Anonymous Chat Rooms" class="brand-logo">
-            <h1>ChatHere <span class="sr-only">- Free Anonymous Chat Rooms Online</span></h1>
-            <p class="join-subtitle">Frictionless • Ephemeral • Secure</p>
-        </header>
-        <main class="join-main">
-            <form id="join-form">
-                <div class="form-control">
-                    <label for="username">Your Assigned Alias</label>
-                    <div class="username-display-wrapper">
-                        <div class="username-display" id="username-display">Generating...</div>
-                        <button type="button" class="btn-regenerate" id="regenerate-username-btn" title="Generate another name">
-                            <i class="fas fa-redo-alt"></i>
-                        </button>
+        <!-- Left: Hero Content -->
+        <div class="hero-side">
+            <div class="hero-content">
+                <img src="logo.png" alt="ChatHere" class="hero-logo">
+                <h1 class="hero-title">Chat<span class="hero-accent">Here</span></h1>
+                <p class="hero-tagline">Drop in. Speak freely. Disappear.</p>
+
+                <div class="hero-features">
+                    <div class="hero-feature">
+                        <div class="feature-icon"><i class="fas fa-ghost"></i></div>
+                        <div class="feature-text">
+                            <strong>Ephemeral</strong>
+                            <span>Messages vanish when you leave</span>
+                        </div>
                     </div>
-                    <input type="hidden" name="username" id="username" required />
-                </div>
-                <div class="form-control">
-                    <label for="room">Topic Room</label>
-                    <select name="room" id="room">
-                        <option value="" disabled selected>Loading rooms...</option>
-                    </select>
+                    <div class="hero-feature">
+                        <div class="feature-icon"><i class="fas fa-user-shield"></i></div>
+                        <div class="feature-text">
+                            <strong>Anonymous</strong>
+                            <span>No signup, no tracking, ever</span>
+                        </div>
+                    </div>
+                    <div class="hero-feature">
+                        <div class="feature-icon"><i class="fas fa-robot"></i></div>
+                        <div class="feature-text">
+                            <strong>AI Friends</strong>
+                            <span>Smart bots keep the vibe alive</span>
+                        </div>
+                    </div>
+                    <div class="hero-feature">
+                        <div class="feature-icon"><i class="fas fa-bell"></i></div>
+                        <div class="feature-text">
+                            <strong>@Mentions</strong>
+                            <span>Tag anyone with sound alerts</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="terms-checkbox">
-                    <input type="checkbox" id="terms-check" required>
-                    <label for="terms-check">I agree to the <a href="#" id="open-terms" class="text-link">Terms &
-                            Conditions</a></label>
+                <div id="online-counter" class="online-counter">
+                    <span class="online-dot"></span> <span id="online-count-num">0</span> people chatting now
                 </div>
-
-                <button type="submit" class="btn">Join Room</button>
-            </form>
-            <div id="online-counter" class="online-counter">
-                <span class="online-dot"></span> <span id="online-count-num">0</span> people chatting now
             </div>
-            <button id="install-btn" class="btn" style="display:none; width:100%; margin-top:12px; background:linear-gradient(135deg,#d4a127,#b8891f); color:#1a1d21;"><i class="fas fa-download"></i> Install ChatHere App</button>
-            <p class="join-tagline">Chat here anonymously — free online chat rooms, no login required. Connect with strangers worldwide on ChatHere.</p>
-        </main>
+        </div>
+
+        <!-- Right: Join Form -->
+        <div class="form-side">
+            <div class="form-wrapper">
+                <h2 class="form-heading">Jump In</h2>
+                <p class="form-subheading">No account needed. You're in within seconds.</p>
+
+                <form id="join-form">
+                    <div class="form-control">
+                        <label for="username">Your Alias</label>
+                        <div class="username-display-wrapper">
+                            <div class="username-display" id="username-display">Generating...</div>
+                            <button type="button" class="btn-regenerate" id="regenerate-username-btn" title="Generate another name">
+                                <i class="fas fa-redo-alt"></i>
+                            </button>
+                        </div>
+                        <input type="hidden" name="username" id="username" required />
+                    </div>
+                    <div class="form-control">
+                        <label for="room">Topic Room</label>
+                        <select name="room" id="room">
+                            <option value="" disabled selected>Loading rooms...</option>
+                        </select>
+                    </div>
+
+                    <div class="terms-checkbox">
+                        <input type="checkbox" id="terms-check" required>
+                        <label for="terms-check">I agree to the <a href="#" id="open-terms" class="text-link">Terms &
+                                Conditions</a></label>
+                    </div>
+
+                    <button type="submit" class="btn">Join Room</button>
+                </form>
+
+                <button id="install-btn" class="btn" style="display:none; width:100%; margin-top:12px; background:linear-gradient(135deg,#d4a127,#b8891f); color:#1a1d21;"><i class="fas fa-download"></i> Install ChatHere App</button>
+                <p class="join-tagline">Chat here anonymously &mdash; free online chat rooms, no login required. Connect with strangers worldwide on ChatHere.</p>
+            </div>
+        </div>
     </div>
 
     <div class="chat-container" id="chat-screen" style="display: none;">
@@ -584,14 +598,10 @@
         </div>
     </div>
 
-    <!-- SEO Footer - Internal Links -->
+    <!-- SEO Footer - Minimal -->
     <footer id="site-footer" class="site-footer">
         <div class="footer-content">
-            <span>&copy; 2026 <a href="/">ChatHere</a></span>
-            <nav class="footer-links">
-                <a href="/about.html">About</a>
-                <a href="mailto:admin@chathere.online">Contact</a>
-            </nav>
+            <span>&copy; 2026 ChatHere</span>
         </div>
     </footer>
 
