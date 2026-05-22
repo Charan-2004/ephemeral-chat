@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   --primary-color: #5865F2;
   /* Modern Discord-like blue, punchier */
   --primary-hover: #4752C4;
@@ -1040,26 +1040,17 @@ body::before {
 
 /* SEO Footer */
 .site-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: transparent;
-  padding: 16px 40px;
+  margin-top: 16px;
+  padding: 12px 0 0 0;
   font-size: 0.78rem;
   color: rgba(255, 255, 255, 0.25);
-  z-index: 200;
   text-align: center;
-  pointer-events: none;
-}
-
-.site-footer * {
-  pointer-events: auto;
+  width: 100%;
 }
 
 .footer-content {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   max-width: 1400px;
   margin: 0 auto;
