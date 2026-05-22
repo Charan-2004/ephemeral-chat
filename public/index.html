@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -165,14 +165,14 @@
     <noscript>
         <div style="max-width:800px;margin:0 auto;padding:40px 20px;font-family:sans-serif;color:#333;">
             <h1>ChatHere - Free Anonymous Chat Rooms</h1>
-            <p>Welcome to <strong>ChatHere</strong>, the #1 free anonymous chat platform. Connect instantly with people worldwide — no login required, no logs kept, completely anonymous.</p>
+            <p>Welcome to <strong>ChatHere</strong>, the #1 free anonymous chat platform. Connect instantly with people worldwide â€” no login required, no logs kept, completely anonymous.</p>
             <h2>Why Choose ChatHere?</h2>
             <ul>
-                <li><strong>100% Free</strong> — No subscriptions, no hidden fees</li>
-                <li><strong>No Registration</strong> — Just pick a name and start chatting</li>
-                <li><strong>Anonymous</strong> — No tracking, no data collection</li>
-                <li><strong>Real-Time</strong> — Instant messaging powered by WebSockets</li>
-                <li><strong>Ephemeral</strong> — Messages vanish, leaving no trace</li>
+                <li><strong>100% Free</strong> â€” No subscriptions, no hidden fees</li>
+                <li><strong>No Registration</strong> â€” Just pick a name and start chatting</li>
+                <li><strong>Anonymous</strong> â€” No tracking, no data collection</li>
+                <li><strong>Real-Time</strong> â€” Instant messaging powered by WebSockets</li>
+                <li><strong>Ephemeral</strong> â€” Messages vanish, leaving no trace</li>
             </ul>
             <h2>Available Chat Rooms</h2>
             <p>Join topic-based rooms: <strong>General</strong>, <strong>Tech</strong>, <strong>Music</strong>, <strong>Movies</strong>, <strong>Politics</strong>, and <strong>Gaming</strong>.</p>
@@ -276,106 +276,109 @@
         </div>
     </div>
 
+    <!-- Pinned Site Header -->
+    <header class="site-header" id="main-site-header">
+        <div class="header-content">
+            <div class="header-brand">
+                <img src="logo.png" alt="Logo" class="header-logo">
+                <span class="header-title">ChatHere</span>
+            </div>
+            <nav class="header-nav">
+                <a href="/about.html" class="nav-link"><i class="fas fa-info-circle"></i> About</a>
+                <a href="mailto:admin@chathere.online" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+            </nav>
+        </div>
+    </header>
 
     <div class="join-screen-immersive" id="join-screen">
-
-        <!-- Pinned Site Header -->
-        <header class="site-header">
-            <div class="header-content">
-                <div class="header-brand">
-                    <img src="logo.png" alt="Logo" class="header-logo">
-                    <span class="header-title">ChatHere</span>
-                </div>
-                <nav class="header-nav">
-                    <a href="/about.html" class="nav-link"><i class="fas fa-info-circle"></i> About</a>
-                    <a href="mailto:admin@chathere.online" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
-                </nav>
+        <div class="join-container-centered">
+            
+            <!-- Hero Header Segment -->
+            <div class="hero-header-segment">
+                <span class="badge-pill"><i class="fas fa-ghost"></i> 100% Free &bull; Anonymous &bull; Ephemeral</span>
+                <h1 class="hero-main-title">Drop in. Speak freely. <span class="text-gradient">Disappear.</span></h1>
+                <p class="hero-subtagline">No registration, no tracking, no data collection. Just instant real-time conversations that vanish leaving zero trace.</p>
             </div>
-        </header>
 
-        <!-- Left: Hero Content -->
-        <div class="hero-side">
-            <div class="hero-content">
-                <img src="logo.png" alt="ChatHere" class="hero-logo">
-                <h1 class="hero-title">Chat<span class="hero-accent">Here</span></h1>
-                <p class="hero-tagline">Drop in. Speak freely. Disappear.</p>
-
-                <div class="hero-features">
-                    <div class="hero-feature">
-                        <div class="feature-icon"><i class="fas fa-ghost"></i></div>
-                        <div class="feature-text">
-                            <strong>Ephemeral</strong>
-                            <span>Messages vanish when you leave</span>
-                        </div>
-                    </div>
-                    <div class="hero-feature">
-                        <div class="feature-icon"><i class="fas fa-user-shield"></i></div>
-                        <div class="feature-text">
-                            <strong>Anonymous</strong>
-                            <span>No signup, no tracking, ever</span>
-                        </div>
-                    </div>
-                    <div class="hero-feature">
-                        <div class="feature-icon"><i class="fas fa-robot"></i></div>
-                        <div class="feature-text">
-                            <strong>AI Friends</strong>
-                            <span>Smart bots keep the vibe alive</span>
-                        </div>
-                    </div>
-                    <div class="hero-feature">
-                        <div class="feature-icon"><i class="fas fa-bell"></i></div>
-                        <div class="feature-text">
-                            <strong>@Mentions</strong>
-                            <span>Tag anyone with sound alerts</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="online-counter" class="online-counter">
-                    <span class="online-dot"></span> <span id="online-count-num">0</span> people chatting now
-                </div>
-            </div>
-        </div>
-
-        <!-- Right: Join Form -->
-        <div class="form-side">
-            <div class="form-wrapper">
-                <h2 class="form-heading">Jump In</h2>
-                <p class="form-subheading">No account needed. You're in within seconds.</p>
-
+            <!-- Join Form Section (No containers/boxes!) -->
+            <div class="join-form-wrapper">
                 <form id="join-form">
-                    <div class="form-control">
-                        <label for="username">Your Alias</label>
-                        <div class="username-display-wrapper">
-                            <div class="username-display" id="username-display">Generating...</div>
-                            <button type="button" class="btn-regenerate" id="regenerate-username-btn" title="Generate another name">
-                                <i class="fas fa-redo-alt"></i>
-                            </button>
+                    <div class="form-row-group">
+                        <div class="form-control">
+                            <label for="username">Your Alias</label>
+                            <div class="username-display-wrapper">
+                                <div class="username-display" id="username-display">Generating...</div>
+                                <button type="button" class="btn-regenerate" id="regenerate-username-btn" title="Generate another name">
+                                    <i class="fas fa-redo-alt"></i>
+                                </button>
+                            </div>
+                            <input type="hidden" name="username" id="username" required />
                         </div>
-                        <input type="hidden" name="username" id="username" required />
-                    </div>
-                    <div class="form-control">
-                        <label for="room">Topic Room</label>
-                        <select name="room" id="room">
-                            <option value="" disabled selected>Loading rooms...</option>
-                        </select>
+
+                        <div class="form-control">
+                            <label for="room">Topic Room</label>
+                            <div class="select-wrapper">
+                                <select name="room" id="room">
+                                    <option value="" disabled selected>Loading rooms...</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="terms-checkbox">
                         <input type="checkbox" id="terms-check" required>
-                        <label for="terms-check">I agree to the <a href="#" id="open-terms" class="text-link">Terms &
-                                Conditions</a></label>
+                        <label for="terms-check">I agree to the <a href="#" id="open-terms" class="text-link">Terms &amp; Conditions</a></label>
                     </div>
 
-                    <button type="submit" class="btn">Join Room</button>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary btn-glow">Join Room</button>
+                        <button id="install-btn" class="btn-secondary" style="display:none;"><i class="fas fa-download"></i> Install ChatHere App</button>
+                    </div>
                 </form>
-
-                <button id="install-btn" class="btn" style="display:none; width:100%; margin-top:12px; background:linear-gradient(135deg,#d4a127,#b8891f); color:#1a1d21;"><i class="fas fa-download"></i> Install ChatHere App</button>
+                
                 <p class="join-tagline">Chat here anonymously &mdash; free online chat rooms, no login required. Connect with strangers worldwide on ChatHere.</p>
             </div>
+
+            <!-- Integrated Features Grid -->
+            <div class="features-integrated-grid">
+                <div class="feature-card-flat">
+                    <div class="feature-icon"><i class="fas fa-ghost"></i></div>
+                    <div class="feature-text">
+                        <h3>Ephemeral</h3>
+                        <p>Messages vanish completely when you leave.</p>
+                    </div>
+                </div>
+                <div class="feature-card-flat">
+                    <div class="feature-icon"><i class="fas fa-user-shield"></i></div>
+                    <div class="feature-text">
+                        <h3>Anonymous</h3>
+                        <p>No signup, no tracking, ever.</p>
+                    </div>
+                </div>
+                <div class="feature-card-flat">
+                    <div class="feature-icon"><i class="fas fa-robot"></i></div>
+                    <div class="feature-text">
+                        <h3>AI Friends</h3>
+                        <p>Smart bots keep the vibe alive.</p>
+                    </div>
+                </div>
+                <div class="feature-card-flat">
+                    <div class="feature-icon"><i class="fas fa-bell"></i></div>
+                    <div class="feature-text">
+                        <h3>@Mentions</h3>
+                        <p>Tag anyone with sound alerts.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Counter -->
+            <div id="online-counter" class="online-counter-badge">
+                <span class="online-pulse-dot"></span>
+                <span class="counter-text"><span id="online-count-num" class="count-highlight">0</span> active chatters online now</span>
+            </div>
+
         </div>
     </div>
-
     <div class="chat-container" id="chat-screen" style="display: none;">
         <header class="chat-header">
             <div class="header-branding">
@@ -590,7 +593,7 @@
                 <img src="logo.png" alt="Logo" style="height: 40px; width: 40px;">
                 <span>ChatHere</span>
             </div>
-            <div class="export-tagline">Anonymous • Encrypted • Vanishing</div>
+            <div class="export-tagline">Anonymous â€¢ Encrypted â€¢ Vanishing</div>
         </div>
         <div id="export-messages" class="export-messages"></div>
         <div class="export-footer">

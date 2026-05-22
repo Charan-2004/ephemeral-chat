@@ -1,7 +1,6 @@
-const CACHE_NAME = 'chathere-v3';
+﻿const CACHE_NAME = 'chathere-v4';
 const OFFLINE_URL = '/';
 
-// Minimal precache - just the offline fallback
 const PRECACHE_ASSETS = [
   '/',
   '/logo.png',
@@ -9,7 +8,6 @@ const PRECACHE_ASSETS = [
   '/manifest.json'
 ];
 
-// Install: cache minimal assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS))
@@ -17,7 +15,6 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate: delete ALL old caches immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -27,25 +24,26 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch: network-first for everything, cache fallback only for offline
+// Cache bypass for dynamic assets to ensure instant updates and no lag
 self.addEventListener('fetch', (event) => {
   const { request } = event;
-
+  
   // Skip non-GET, socket.io, and API requests
   if (request.method !== 'GET') return;
   if (request.url.includes('/socket.io/')) return;
   if (request.url.includes('/api/')) return;
 
-  event.respondWith(
-    fetch(request)
-      .then((response) => {
-        // Cache successful responses for offline fallback
-        if (response.ok && request.url.startsWith(self.location.origin)) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-        }
-        return response;
-      })
-      .catch(() => caches.match(request).then((cached) => cached || caches.match(OFFLINE_URL)))
-  );
+  const url = new URL(request.url);
+
+  // If it's a precached static branding asset, serve from cache with network fallback
+  if (PRECACHE_ASSETS.includes(url.pathname)) {
+    event.respondWith(
+      caches.match(request).then((cached) => cached || fetch(request))
+    );
+    return;
+  }
+
+  // Otherwise, bypass the Service Worker entirely to leverage standard HTTP caching.
+  // This completely resolves reload lag and prevents obsolete cache version bugs!
+  return;
 });

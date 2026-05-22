@@ -275,6 +275,8 @@ joinForm.addEventListener('submit', (e) => {
     chatScreen.style.display = 'flex';
     const siteFooter = document.getElementById('site-footer');
     if (siteFooter) siteFooter.style.display = 'none';
+    const siteHeader = document.getElementById('main-site-header');
+    if (siteHeader) siteHeader.style.display = 'none';
     roomNameEl.innerText = room;
 
     document.querySelectorAll('.room-item').forEach(li => {
