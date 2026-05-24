@@ -353,6 +353,18 @@ body::before {
   gap: 10px;
 }
 
+.header-branding h1 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
 .header-logo-small {
   width: 32px;
   height: 32px;
@@ -1175,6 +1187,11 @@ body::before {
     gap: 8px !important;
   }
 
+  .header-branding h1 {
+    font-size: 1.05rem !important;
+    max-width: 130px !important;
+  }
+
   .header-right {
     flex: 0 0 auto;
     gap: 6px !important;
@@ -1674,7 +1691,7 @@ body::before {
   z-index: 100;
   animation: fadeInCentered 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   overflow-y: auto;
-  padding: 120px 24px 40px 24px;
+  padding: 140px 24px 60px 24px;
 }
 
 /* Dim the animated background in the center for pristine readability */
@@ -1700,7 +1717,7 @@ body::before {
   gap: 24px;
   position: relative;
   z-index: 10;
-  margin: auto auto;
+  margin: 0 auto;
 }
 
 /* Floating Site Header - Floating at the top of the viewport */
