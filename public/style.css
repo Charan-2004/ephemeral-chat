@@ -1767,6 +1767,8 @@ body::before {
   color: rgba(255, 255, 255, 0.75);
   letter-spacing: 0.5px;
   text-transform: uppercase;
+  width: 100%;
+  text-align: center;
 }
 
 .username-display-wrapper,
@@ -1799,6 +1801,8 @@ body::before {
   color: #fff;
   letter-spacing: 0.5px;
   flex: 1;
+  text-align: center;
+  padding-left: 32px;
 }
 
 .btn-regenerate {
@@ -1839,6 +1843,9 @@ body::before {
   font-size: 0.95rem;
   font-weight: 500;
   padding-right: 24px;
+  padding-left: 24px;
+  text-align: center;
+  text-align-last: center;
 }
 
 .select-wrapper::after {
@@ -1849,6 +1856,8 @@ body::before {
   color: rgba(255, 255, 255, 0.4);
   position: absolute;
   right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
   pointer-events: none;
   transition: all 0.3s ease;
 }
@@ -1943,7 +1952,7 @@ body::before {
 /* Integrated Features Grid */
 .features-integrated-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   width: 100%;
   margin-top: 4px;
