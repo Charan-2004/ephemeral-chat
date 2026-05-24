@@ -183,14 +183,20 @@ function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function isBotUser(username) { return BOT_PROFILES.some(b => b.name === username); }
 
 function isRoomLocked(room) {
-    const rc = globalRoomsRef.find(r => r.name === room);
+    const rc = globalRoomsRef.find(r => r.name === room || r.id === room);
     return rc && rc.locked;
+}
+
+function isRoomCustom(room) {
+    const rc = globalRoomsRef.find(r => r.id === room || r.name === room);
+    return rc && rc.isCustom;
 }
 
 // Send Bot Message
 function sendBotMessage(bot, room, text, replyTo, replyToText) {
     if (!botsEnabled || !io) return;
     if (isRoomLocked(room)) return;
+    if (isRoomCustom(room)) return; // Completely block bots from custom user rooms
     const botId = BOT_ID_PREFIX + bot.name.toLowerCase();
     const message = formatMessage(bot.name, text, room, bot.color, replyTo || null, replyToText || null, null, botId);
     storeMessage(message, io);
@@ -221,6 +227,7 @@ function botReact(room, messageId, emoji) {
 async function handleRealUserMessage(room, message) {
     if (!botsEnabled || isBotUser(message.username)) return;
     if (isRoomLocked(room)) return;
+    if (isRoomCustom(room)) return; // Completely block bots from custom user rooms
     addToHistory(room, message);
 
     // Pick 1-3 bots to reply

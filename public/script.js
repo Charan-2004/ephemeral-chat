@@ -327,11 +327,11 @@ joinForm.addEventListener('submit', (e) => {
         
         currentRoom = roomId;
         socket.emit('joinRoom', { username: user, room: roomId, password });
-        enterChatRoom(roomId);
+        enterChatRoom(roomId, roomId, password);
     }
 });
 
-function enterChatRoom(roomName) {
+function enterChatRoom(roomName, roomId, password) {
     joinScreen.style.display = 'none';
     chatScreen.style.display = 'flex';
     const siteFooter = document.getElementById('site-footer');
@@ -339,6 +339,26 @@ function enterChatRoom(roomName) {
     const siteHeader = document.getElementById('main-site-header');
     if (siteHeader) siteHeader.style.display = 'none';
     roomNameEl.innerText = roomName;
+
+    // Handle room info badge (Room ID & Password) display
+    const infoBadge = document.getElementById('room-info-badge');
+    if (infoBadge) {
+        if (roomId) {
+            infoBadge.style.display = 'inline-flex';
+            document.getElementById('info-room-id').innerText = roomId;
+            const passWrapper = document.getElementById('info-room-pass-wrapper');
+            if (passWrapper) {
+                if (password) {
+                    passWrapper.style.display = 'inline-flex';
+                    document.getElementById('info-room-pass').innerText = password;
+                } else {
+                    passWrapper.style.display = 'none';
+                }
+            }
+        } else {
+            infoBadge.style.display = 'none';
+        }
+    }
 
     document.querySelectorAll('.room-item').forEach(li => {
         if (li.innerText.includes(roomName)) li.classList.add('active');
@@ -350,6 +370,11 @@ function switchRoom(newRoom) {
     unreadCounts[newRoom] = 0; // Clear unread for room we're entering
     currentRoom = newRoom;
     roomNameEl.innerText = newRoom;
+    
+    // Hide info badge when switching to general rooms
+    const infoBadge = document.getElementById('room-info-badge');
+    if (infoBadge) infoBadge.style.display = 'none';
+    
     socket.emit('joinRoom', { username: currentUsername, room: newRoom });
     typingUsers.clear();
     if (typingIndicator) typingIndicator.style.display = 'none';
@@ -466,7 +491,7 @@ socket.on('roomCreated', ({ roomId, roomName }) => {
     const password = document.getElementById('create-room-password').value;
     
     socket.emit('joinRoom', { username: currentUsername, room: roomId, password: isPrivate ? password : null });
-    enterChatRoom(roomName);
+    enterChatRoom(roomName, roomId, isPrivate ? password : null);
 });
 
 // Handle custom joining errors (reset UI to onboarding join screen)

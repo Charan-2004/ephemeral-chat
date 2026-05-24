@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chathere-v10';
+const CACHE_NAME = 'chathere-v11';
 const OFFLINE_URL = '/';
 
 const PRECACHE_ASSETS = [
