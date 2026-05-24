@@ -227,8 +227,8 @@ body::before {
   width: 100%;
   padding: 12px 14px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
   color: #fff;
   font-size: 1rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -238,9 +238,9 @@ body::before {
 .form-control input:focus,
 .form-control select:focus {
   outline: none;
-  border-color: var(--primary-color);
-  background: rgba(255, 255, 255, 0.06);
-  box-shadow: 0 0 14px rgba(88, 101, 242, 0.25);
+  border-color: #818cf8;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 16px rgba(88, 101, 242, 0.4);
 }
 
 .form-control select {
@@ -273,8 +273,20 @@ body::before {
   gap: 10px;
   margin-bottom: 24px;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.95);
   font-size: 0.88rem;
+}
+
+.terms-checkbox a {
+  color: #818cf8;
+  font-weight: 600;
+  text-decoration: underline;
+  transition: all 0.2s ease;
+}
+
+.terms-checkbox a:hover {
+  color: #a5b4fc;
+  text-shadow: 0 0 8px rgba(129, 140, 248, 0.5);
 }
 
 .terms-checkbox label {
@@ -294,6 +306,8 @@ body::before {
   accent-color: var(--primary-color);
   cursor: pointer;
   margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  outline: none;
 }
 
 
@@ -405,7 +419,7 @@ body::before {
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.92rem;
   display: flex;
   align-items: center;
@@ -415,8 +429,8 @@ body::before {
 }
 
 .room-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .room-item.active {
@@ -597,17 +611,18 @@ body::before {
 /* Image upload button in chat form */
 #chat-form .btn-icon,
 #chat-form label.btn {
-  color: rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 10px;
 }
 
 #chat-form .btn-icon:hover,
 #chat-form label.btn:hover {
-  color: rgba(255, 255, 255, 0.85);
-  background: rgba(88, 101, 242, 0.12);
-  border-color: rgba(88, 101, 242, 0.25);
+  color: #fff;
+  background: rgba(88, 101, 242, 0.25);
+  border-color: rgba(88, 101, 242, 0.45);
+  box-shadow: 0 0 12px rgba(88, 101, 242, 0.2);
 }
 
 #chat-form {
@@ -620,8 +635,8 @@ body::before {
   flex: 1;
   padding: 12px 18px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
   color: white;
   outline: none;
   font-size: 0.93rem;
@@ -698,36 +713,37 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   width: 36px;
   height: 36px;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.85);
   font-size: 0.95rem;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
 }
 
 .btn-icon:hover {
-  background: rgba(88, 101, 242, 0.15);
-  border-color: rgba(88, 101, 242, 0.3);
+  background: rgba(88, 101, 242, 0.25);
+  border-color: rgba(88, 101, 242, 0.45);
   color: #fff;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(88, 101, 242, 0.2);
 }
 
 .btn-sm {
   padding: 6px 10px;
   font-size: 0.85rem;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.85);
   box-shadow: none;
 }
 
 .btn-sm:hover {
-  background: rgba(88, 101, 242, 0.15);
-  border-color: rgba(88, 101, 242, 0.3);
+  background: rgba(88, 101, 242, 0.25);
+  border-color: rgba(88, 101, 242, 0.45);
   color: #fff;
   box-shadow: none;
   transform: translateY(-1px);
@@ -1273,11 +1289,11 @@ body::before {
 .room-count {
   margin-left: auto;
   font-size: 0.65rem;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   padding: 2px 7px;
   border-radius: 8px;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.75);
   min-width: 20px;
   text-align: center;
 }
@@ -1583,7 +1599,7 @@ body::before {
 }
 
 .nav-link {
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 600;
@@ -1748,7 +1764,7 @@ body::before {
 .join-form-wrapper label {
   font-size: 0.8rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.75);
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
@@ -1894,8 +1910,8 @@ body::before {
 }
 
 .join-form-wrapper .btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   color: #fff;
   font-weight: 600;
   font-size: 0.95rem;
@@ -1911,9 +1927,10 @@ body::before {
 }
 
 .join-form-wrapper .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.4);
   transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.08);
 }
 
 .join-tagline {
@@ -1934,8 +1951,8 @@ body::before {
 }
 
 .feature-card-flat {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
   padding: 12px 18px;
   display: flex;
@@ -1947,8 +1964,8 @@ body::before {
 }
 
 .feature-card-flat:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(88, 101, 242, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(88, 101, 242, 0.35);
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
@@ -1988,17 +2005,19 @@ body::before {
 
 /* Online Counter Badge */
 .online-counter-badge {
-  background: rgba(52, 211, 153, 0.06);
-  border: 1px solid rgba(52, 211, 153, 0.15);
+  background: rgba(52, 211, 153, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.3);
   border-radius: 100px;
   padding: 6px 16px;
   display: inline-flex;
   align-items: center;
   gap: 10px;
   font-size: 0.82rem;
-  color: #a7f3d0;
+  color: #34d399;
+  font-weight: 600;
   margin-top: 4px;
   animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+  box-shadow: 0 0 15px rgba(52, 211, 153, 0.15);
 }
 
 .online-pulse-dot {
