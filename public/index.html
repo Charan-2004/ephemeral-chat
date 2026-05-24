@@ -631,6 +631,29 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js?v=GLASS_V5"></script>
     <script>
+    // Force complete cache clearing and service worker updates on version bump (IMM_V10/GLASS_V5)
+    const APP_VERSION = 'IMM_V10_GLASS_V5';
+    const cachedVersion = localStorage.getItem('chathere_app_version');
+    if (cachedVersion !== APP_VERSION) {
+        if ('caches' in window) {
+            caches.keys().then((names) => {
+                for (let name of names) caches.delete(name);
+            });
+        }
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then((registrations) => {
+                for (let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+        }
+        localStorage.setItem('chathere_app_version', APP_VERSION);
+        console.log('Forced app reload to flush cache storage...');
+        setTimeout(() => {
+            window.location.reload(true);
+        }, 150);
+    }
+
     // PWA Service Worker + Install
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(() => {});
