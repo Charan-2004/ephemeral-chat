@@ -4,6 +4,38 @@ const roomNameEl = document.getElementById('room-name');
 const joinScreen = document.getElementById('join-screen');
 const chatScreen = document.getElementById('chat-screen');
 const joinForm = document.getElementById('join-form');
+
+// Onboarding dynamic tabs state
+let activeTab = 'general';
+let selectedRoomType = 'public';
+
+// Tab click binding
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.onclick = () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeTab = btn.getAttribute('data-tab');
+
+        // Hide all sections, show active section
+        document.querySelectorAll('.tab-section').forEach(sec => sec.classList.remove('active'));
+        const activeSec = document.getElementById(`tab-section-${activeTab}`);
+        if (activeSec) activeSec.classList.add('active');
+    };
+});
+
+// Room Type Toggle click binding (Public / Private)
+document.querySelectorAll('.type-btn').forEach(btn => {
+    btn.onclick = () => {
+        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedRoomType = btn.getAttribute('data-type');
+
+        const passField = document.querySelector('.private-only');
+        if (passField) {
+            passField.style.display = selectedRoomType === 'private' ? 'block' : 'none';
+        }
+    };
+});
 const msgInput = document.getElementById('msg');
 const imageInput = document.getElementById('image-input');
 const replyPreview = document.getElementById('reply-preview');
@@ -257,32 +289,61 @@ joinForm.addEventListener('submit', (e) => {
         return showError('You must agree to the Terms & Conditions to join');
     }
 
-    const user = e.target.elements.username.value;
-    const room = e.target.elements.room.value;
-
-    if (!room) return showError('Select a room');
-
+    const user = e.target.elements.username.value || document.getElementById('username-display').innerText;
+    
     // Save to localStorage for returning users
     localStorage.setItem('chathere_username', user);
-    localStorage.setItem('chathere_room', room);
-
     currentUsername = user;
-    currentRoom = room;
 
-    socket.emit('joinRoom', { username: user, room });
+    if (activeTab === 'general') {
+        const room = e.target.elements.room.value;
+        if (!room) return showError('Select a room');
+        
+        localStorage.setItem('chathere_room', room);
+        currentRoom = room;
+        
+        socket.emit('joinRoom', { username: user, room });
+        enterChatRoom(room);
+    } 
+    else if (activeTab === 'create') {
+        const roomName = document.getElementById('create-room-name').value;
+        const password = document.getElementById('create-room-password').value;
+        
+        const isPrivate = selectedRoomType === 'private';
+        if (isPrivate && !password) {
+            return showError('Password is required for private rooms');
+        }
+        
+        // Emit room creation event
+        socket.emit('createRoom', { roomName, isPrivate, password });
+    } 
+    else if (activeTab === 'join') {
+        const roomId = document.getElementById('join-room-id').value.trim().toUpperCase();
+        const password = document.getElementById('join-room-password').value;
+        
+        if (!roomId || roomId.length !== 8) {
+            return showError('Room ID must be exactly 8 characters');
+        }
+        
+        currentRoom = roomId;
+        socket.emit('joinRoom', { username: user, room: roomId, password });
+        enterChatRoom(roomId);
+    }
+});
 
+function enterChatRoom(roomName) {
     joinScreen.style.display = 'none';
     chatScreen.style.display = 'flex';
     const siteFooter = document.getElementById('site-footer');
     if (siteFooter) siteFooter.style.display = 'none';
     const siteHeader = document.getElementById('main-site-header');
     if (siteHeader) siteHeader.style.display = 'none';
-    roomNameEl.innerText = room;
+    roomNameEl.innerText = roomName;
 
     document.querySelectorAll('.room-item').forEach(li => {
-        if (li.innerText.includes(room)) li.classList.add('active');
+        if (li.innerText.includes(roomName)) li.classList.add('active');
     });
-});
+}
 
 function switchRoom(newRoom) {
     chatMessages.innerHTML = '';
@@ -397,6 +458,34 @@ socket.on('room-locked', () => {
 });
 
 socket.on('error-message', (msg) => showError(msg));
+
+// Handle successful room creation
+socket.on('roomCreated', ({ roomId, roomName }) => {
+    currentRoom = roomId;
+    const isPrivate = selectedRoomType === 'private';
+    const password = document.getElementById('create-room-password').value;
+    
+    socket.emit('joinRoom', { username: currentUsername, room: roomId, password: isPrivate ? password : null });
+    enterChatRoom(roomName);
+});
+
+// Handle custom joining errors (reset UI to onboarding join screen)
+socket.on('incorrect-password', () => {
+    rollbackToJoinScreen();
+});
+
+socket.on('room-not-found', () => {
+    rollbackToJoinScreen();
+});
+
+function rollbackToJoinScreen() {
+    joinScreen.style.display = 'block';
+    chatScreen.style.display = 'none';
+    const siteFooter = document.getElementById('site-footer');
+    if (siteFooter) siteFooter.style.display = 'block';
+    const siteHeader = document.getElementById('main-site-header');
+    if (siteHeader) siteHeader.style.display = 'flex';
+}
 
 socket.on('reactionAdded', ({ messageId, reactions }) => {
     const el = document.querySelector(`.message[data-id="${messageId}"]`);

@@ -84,20 +84,53 @@ app.use('/api/', apiLimiter);
 
 // Room Management
 let rooms = [
-    { name: 'General', locked: false, reason: '' },
-    { name: 'Tech', locked: false, reason: '' },
-    { name: 'Music', locked: false, reason: '' },
-    { name: 'Movies', locked: false, reason: '' },
-    { name: 'Politics', locked: false, reason: '' },
-    { name: 'Gaming', locked: false, reason: '' }
+    { name: 'General', id: 'General', isCustom: false, isPrivate: false, locked: false, reason: '' },
+    { name: 'Tech', id: 'Tech', isCustom: false, isPrivate: false, locked: false, reason: '' },
+    { name: 'Music', id: 'Music', isCustom: false, isPrivate: false, locked: false, reason: '' },
+    { name: 'Movies', id: 'Movies', isCustom: false, isPrivate: false, locked: false, reason: '' },
+    { name: 'Politics', id: 'Politics', isCustom: false, isPrivate: false, locked: false, reason: '' },
+    { name: 'Gaming', id: 'Gaming', isCustom: false, isPrivate: false, locked: false, reason: '' }
 ];
+
+// Room ID Generator: 8-character string with exactly 4 letters (uppercase) and 4 numbers
+function generateRoomId() {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const numbers = '0123456789';
+    let id = [];
+    
+    // Generate exactly 4 letters and 4 numbers to satisfy total 8 length and at least 3 letters/3 numbers
+    for (let i = 0; i < 4; i++) {
+        id.push(letters.charAt(Math.floor(Math.random() * letters.length)));
+        id.push(numbers.charAt(Math.floor(Math.random() * numbers.length)));
+    }
+    
+    // Shuffle the generated array
+    for (let i = id.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [id[i], id[j]] = [id[j], id[i]];
+    }
+    return id.join('');
+}
+
+function generateUniqueRoomId(existingRooms) {
+    let attempts = 0;
+    while (attempts < 1000) {
+        const id = generateRoomId();
+        if (!existingRooms.find(r => r.id === id || r.name === id)) {
+            return id;
+        }
+        attempts++;
+    }
+    throw new Error('Failed to generate unique Room ID');
+}
 
 // Store current pinned message state
 let pinnedMessage = null;
 
 // API: Get Rooms
 app.get('/api/rooms', (req, res) => {
-    res.json(rooms);
+    // Only return general and custom public rooms
+    res.json(rooms.filter(r => !r.isPrivate));
 });
 
 // API: Get Online Count
@@ -117,7 +150,7 @@ app.get('/api/config', (req, res) => {
 function broadcastRoomCounts() {
     const counts = {};
     rooms.forEach(r => {
-        counts[r.name] = getRoomUserCount(r.name);
+        counts[r.id] = getRoomUserCount(r.id);
     });
     io.emit('room-counts', counts);
 }
@@ -274,24 +307,36 @@ setInterval(() => {
 }, 5000);
 
 io.on('connection', socket => {
-    socket.on('joinRoom', ({ username, room }) => {
-        const roomConfig = rooms.find(r => r.name === room);
-        if (roomConfig && roomConfig.locked && username !== 'AdminMonitor') {
+    socket.on('joinRoom', ({ username, room, password }) => {
+        // Resolve room by ID or name
+        const roomConfig = rooms.find(r => r.id === room || r.name === room);
+        if (!roomConfig) {
+            socket.emit('error-message', 'Room not found.');
+            socket.emit('room-not-found');
+            return;
+        }
+
+        if (roomConfig.isPrivate) {
+            if (!password || roomConfig.password !== password) {
+                socket.emit('error-message', 'Incorrect room password.');
+                socket.emit('incorrect-password');
+                return;
+            }
+        }
+
+        if (roomConfig.locked && username !== 'AdminMonitor') {
             socket.emit('error-message', `LOCKED: ${roomConfig.reason}`);
             socket.emit('room-locked');
             return;
         }
-
 
         // Input Validation
         if (!username || typeof username !== 'string' || username.trim().length === 0 || username.length > 20) {
             socket.emit('error-message', 'Invalid username (1-20 chars)');
             return;
         }
-        if (!room || typeof room !== 'string') {
-            socket.emit('error-message', 'Invalid room');
-            return;
-        }
+
+        const resolvedRoomId = roomConfig.id;
 
         // Leave previous room to prevent cross-room message leakage
         const existingUser = getCurrentUser(socket.id);
@@ -299,14 +344,26 @@ io.on('connection', socket => {
             socket.leave(existingUser.room);
             const prevRoom = existingUser.room;
             userLeave(socket.id);
-            io.to(prevRoom).emit('roomUsers', {
-                room: prevRoom,
-                count: getRoomUserCount(prevRoom),
-                users: getRoomUsers(prevRoom).map(u => ({ username: u.username, id: u.id, isBot: u.isBot, color: u.color }))
-            });
+            
+            // Clean up custom room if it becomes empty
+            const remainingCount = getRoomUserCount(prevRoom);
+            const prevRoomConfig = rooms.find(r => r.id === prevRoom);
+            if (remainingCount === 0 && prevRoomConfig && prevRoomConfig.isCustom) {
+                const idx = rooms.findIndex(r => r.id === prevRoom);
+                if (idx !== -1) {
+                    rooms.splice(idx, 1);
+                    io.emit('rooms-updated', rooms.filter(r => !r.isPrivate));
+                }
+            } else {
+                io.to(prevRoom).emit('roomUsers', {
+                    room: prevRoom,
+                    count: getRoomUserCount(prevRoom),
+                    users: getRoomUsers(prevRoom).map(u => ({ username: u.username, id: u.id, isBot: u.isBot, color: u.color }))
+                });
+            }
         }
 
-        const user = userJoin(socket.id, username, room);
+        const user = userJoin(socket.id, username, resolvedRoomId);
         socket.join(user.room);
 
         const history = getRoomMessages(user.room);
@@ -317,7 +374,9 @@ io.on('connection', socket => {
             socket.emit('message-pinned', pinnedMessage);
         }
 
-        socket.emit('message', formatMessage(botName, 'Welcome to ChatHere! 👻 Messages here are anonymous and vanish when the server restarts. Be kind and have fun!', user.room, '#888', null, null, null, 'system'));
+        // Welcome message with absolute unmonitored room content disclaimer
+        const disclaimerText = 'Welcome to ChatHere! 👻 All rooms are unmonitored and user-directed. We assume zero responsibility for any room contents or user conduct. Messages vanish when the server restarts. Be kind!';
+        socket.emit('message', formatMessage(botName, disclaimerText, user.room, '#888', null, null, null, 'system'));
 
         // Empty room experience: show conversation starters when user is alone
         const roomUserCount = getRoomUserCount(user.room);
@@ -437,14 +496,51 @@ io.on('connection', socket => {
         }
     });
 
+    // Create custom public or private rooms
+    socket.on('createRoom', ({ roomName, isPrivate, password }) => {
+        try {
+            const roomId = generateUniqueRoomId(rooms);
+            const newRoom = {
+                name: roomName ? roomName.trim().substring(0, 30) : `Room ${roomId}`,
+                id: roomId,
+                isCustom: true,
+                isPrivate: !!isPrivate,
+                password: isPrivate ? password : null,
+                locked: false,
+                reason: ''
+            };
+            rooms.push(newRoom);
+            socket.emit('roomCreated', { roomId, roomName: newRoom.name });
+            
+            // Broadcast updated rooms list to public users if public
+            if (!isPrivate) {
+                io.emit('rooms-updated', rooms.filter(r => !r.isPrivate));
+                broadcastRoomCounts();
+            }
+        } catch (err) {
+            socket.emit('error-message', 'Failed to create room. Please try again.');
+        }
+    });
+
     socket.on('disconnect', () => {
         const user = userLeave(socket.id);
         if (user) {
-            io.to(user.room).emit('roomUsers', {
-                room: user.room,
-                count: getRoomUserCount(user.room),
-                users: getRoomUsers(user.room).map(u => ({ username: u.username, id: u.id, isBot: u.isBot, color: u.color }))
-            });
+            // Clean up custom room if it becomes empty
+            const remainingCount = getRoomUserCount(user.room);
+            const prevRoomConfig = rooms.find(r => r.id === user.room);
+            if (remainingCount === 0 && prevRoomConfig && prevRoomConfig.isCustom) {
+                const idx = rooms.findIndex(r => r.id === user.room);
+                if (idx !== -1) {
+                    rooms.splice(idx, 1);
+                    io.emit('rooms-updated', rooms.filter(r => !r.isPrivate));
+                }
+            } else {
+                io.to(user.room).emit('roomUsers', {
+                    room: user.room,
+                    count: getRoomUserCount(user.room),
+                    users: getRoomUsers(user.room).map(u => ({ username: u.username, id: u.id, isBot: u.isBot, color: u.color }))
+                });
+            }
             broadcastRoomCounts();
         }
         io.emit('online-count', io.engine.clientsCount + getBotStatus().botCount);
