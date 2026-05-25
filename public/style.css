@@ -28,7 +28,8 @@ body {
   height: 100vh;
   height: 100dvh;
   /* Mobile fix */
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   /* Removed flex centering to prevent mobile jitter */
 }
 
@@ -108,13 +109,11 @@ body::before {
    ========================================= */
 /* Immersive Split-Screen Join Layout */
 .join-screen-immersive {
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: relative;
   width: 100%;
-  height: 100%;
+  min-height: 100dvh;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   z-index: 100;
   animation: fadeInCentered 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
@@ -334,17 +333,14 @@ body::before {
 
 /* Header */
 .chat-header {
-  height: 56px;
-  padding: 0 1.25rem;
-  background: rgba(10, 10, 12, 0.45);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  display: flex;
+  height: auto !important;
+  min-height: 56px;
+  padding: 10px 16px !important;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  flex-shrink: 0;
-  position: relative;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .header-branding {
@@ -354,17 +350,20 @@ body::before {
 }
 
 .header-branding h1 {
-  font-size: 1.15rem !important;
-  font-weight: 700 !important;
-  color: #fff !important;
-  margin: 0 !important;
-  letter-spacing: -0.3px !important;
-  display: flex !important;
-  align-items: center !important;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  max-width: 100%;
+  flex: 1;
 }
 
 #room-name {
-  font-size: 1.15rem !important;
+  font-size: 0.95rem !important;
   font-weight: 700 !important;
   color: #fff !important;
   white-space: nowrap !important;
@@ -382,8 +381,10 @@ body::before {
 
 .header-right {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 /* Main Layout */
@@ -842,7 +843,7 @@ body::before {
   display: flex;
   gap: 5px;
   margin-top: 5px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap !important;
 }
 
 .reaction-badge {
@@ -1184,13 +1185,15 @@ body::before {
 
   /* Responsive Mobile Header Improvements */
   .chat-header {
-    height: auto !important;
-    min-height: 56px;
-    padding: 10px 16px !important;
-    flex-wrap: wrap;
-    align-content: center;
-    gap: 8px 12px;
-  }
+  height: auto !important;
+  min-height: 56px;
+  padding: 10px 16px !important;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
 
   .header-branding {
     flex: 1 1 auto;
@@ -1198,31 +1201,45 @@ body::before {
   }
 
   .header-branding h1 {
-    font-size: 1.05rem !important;
-    margin: 0 !important;
-  }
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  max-width: 100%;
+  flex: 1;
+}
 
   #room-name {
-    font-size: 1.05rem !important;
+    font-size: 0.85rem !important;
     max-width: 130px !important;
   }
 
   .header-right {
-    flex: 0 0 auto;
-    gap: 6px !important;
-  }
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+}
 
   .room-info-badge {
-    position: static !important;
-    transform: none !important;
-    width: 100% !important;
-    justify-content: center !important;
-    order: 3;
-    margin: 4px 0 0 0 !important;
-    background: rgba(255, 255, 255, 0.05) !important;
-    padding: 6px 12px !important;
-    box-shadow: none !important;
-  }
+  grid-column: 1 / -1;
+  justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.07);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+}
 
   .room-info-badge .info-tag {
     font-size: 0.76rem !important;
@@ -1633,7 +1650,7 @@ body::before {
   left: 0;
   right: 0;
   padding: 24px 40px;
-  z-index: 200;
+  z-index: 1000;
   background: linear-gradient(180deg, rgba(10, 10, 12, 0.5) 0%, rgba(10, 10, 12, 0) 100%);
 }
 
@@ -1694,19 +1711,15 @@ body::before {
    ========================================= */
 
 .join-screen-immersive {
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
+  position: relative !important;
   width: 100% !important;
-  height: 100% !important;
+  min-height: 100dvh !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
-  justify-content: flex-start !important;
   z-index: 100 !important;
   animation: fadeInCentered 0.8s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  overflow-y: auto !important;
-  padding: 140px 24px 60px 24px !important;
+  padding: calc(72px + 2rem) 1rem 2rem !important;
 }
 
 /* Dim the animated background in the center for pristine readability */
@@ -1732,8 +1745,7 @@ body::before {
   gap: 24px !important;
   position: relative !important;
   z-index: 10 !important;
-  margin: 0 auto !important;
-}
+  margin: 0 auto !important;}
 
 /* Floating Site Header - Floating at the top of the viewport */
 .site-header {
@@ -1742,7 +1754,7 @@ body::before {
   left: 0;
   right: 0;
   padding: 18px 40px;
-  z-index: 200;
+  z-index: 1000;
   background: rgba(10, 10, 12, 0.35);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -1783,13 +1795,15 @@ body::before {
 
 /* Hero Header Segment */
 .hero-header-segment {
+  position: relative;
+  z-index: 2;
   text-align: center;
   max-width: 760px;
   animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .hero-main-title {
-  font-size: 2.8rem;
+  font-size: 2.0rem;
   font-weight: 900;
   letter-spacing: -1.5px;
   line-height: 1.15;
@@ -2158,13 +2172,12 @@ body::before {
 /* Responsive Overrides */
 @media (max-width: 900px) {
   .join-screen-immersive {
-    padding-top: 90px;
-    padding-bottom: 30px;
+    padding-top: calc(56px + 1.5rem); padding-bottom: 2rem;
     overflow-y: auto;
   }
   
   .hero-main-title {
-    font-size: 2.4rem;
+    font-size: 1.8rem;
   }
   
   .features-integrated-grid {
@@ -2178,7 +2191,7 @@ body::before {
 
 @media (max-width: 600px) {
   .hero-main-title {
-    font-size: 2rem;
+    font-size: 1.5rem;
   }
   
   .hero-subtagline {
@@ -2352,19 +2365,18 @@ body::before {
 
 /* Room Info Badge (Header Centered Perfectly) */
 .room-info-badge {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  grid-column: 1 / -1;
+  justify-content: center;
   display: inline-flex;
   align-items: center;
   gap: 10px;
   background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 4px 12px;
   border-radius: 20px;
-  padding: 4px 14px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-  z-index: 10;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
 }
 
 .info-tag {
