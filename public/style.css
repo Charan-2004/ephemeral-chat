@@ -1185,33 +1185,37 @@ body::before {
 
   /* Responsive Mobile Header Improvements */
   .chat-header {
-  height: auto !important;
-  min-height: 56px;
-  padding: 10px 16px !important;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
+    height: auto !important;
+    min-height: 56px;
+    padding: 10px 16px !important;
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    grid-template-rows: auto auto !important;
+    align-items: center !important;
+    gap: 8px 12px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
 
   .header-branding {
-    flex: 1 1 auto;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    display: flex !important;
+    align-items: center !important;
     gap: 8px !important;
   }
 
   .header-branding h1 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin: 0;
-  letter-spacing: -0.3px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-  max-width: 100%;
-  flex: 1;
-}
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    max-width: 100%;
+    flex: 1;
+  }
 
   #room-name {
     font-size: 0.85rem !important;
@@ -1219,27 +1223,32 @@ body::before {
   }
 
   .header-right {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 6px;
-}
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
 
   .room-info-badge {
-  grid-column: 1 / -1;
-  justify-content: center;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(255, 255, 255, 0.07);
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-}
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    justify-self: center !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    background: rgba(255, 255, 255, 0.07) !important;
+    padding: 4px 12px !important;
+    border-radius: 20px !important;
+    font-size: 0.8rem !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(10px) !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
 
   .room-info-badge .info-tag {
     font-size: 0.76rem !important;
@@ -2365,8 +2374,8 @@ body::before {
 
 /* Room Info Badge (Header Centered Perfectly) */
 .room-info-badge {
-  grid-column: 1 / -1;
-  justify-content: center;
+  grid-column: 2;
+  justify-self: center;
   display: inline-flex;
   align-items: center;
   gap: 10px;
