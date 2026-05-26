@@ -173,17 +173,7 @@ function playMentionSound() {
     } catch (e) {}
 }
 
-// Fetch online count for join screen
-async function fetchOnlineCount() {
-    try {
-        const res = await fetch('/api/online-count');
-        const data = await res.json();
-        const el = document.getElementById('online-count-num');
-        if (el) el.textContent = data.count || 0;
-    } catch (e) {}
-}
-fetchOnlineCount();
-setInterval(fetchOnlineCount, 10000);
+// (Online count polling removed — replaced by Active Rooms)
 
 // Get Config
 async function getConfig() {
@@ -279,6 +269,94 @@ function renderRooms(rooms) {
             select.value = saved;
         }
     }
+
+    // 3. Active Rooms on onboarding page
+    renderActiveRooms(rooms);
+}
+
+
+
+// Render Active Rooms on onboarding page
+function renderActiveRooms(rooms) {
+    const grid = document.getElementById('active-rooms-grid');
+    if (!grid) return;
+
+    // Filter to public rooms only (already filtered from server, but be safe)
+    const publicRooms = rooms.filter(r => !r.isPrivate);
+
+    // Check if any room has users
+    const totalUsers = publicRooms.reduce((sum, r) => sum + (r.userCount || roomCounts[r.id] || roomCounts[r.name] || 0), 0);
+
+    if (totalUsers === 0) {
+        grid.innerHTML = `
+            <div class="active-rooms-empty">
+                <i class="fas fa-moon"></i>
+                <span>All rooms are quiet — be the first to start a conversation!</span>
+            </div>`;
+        return;
+    }
+
+    grid.innerHTML = '';
+    publicRooms.forEach(r => {
+        const count = r.userCount || roomCounts[r.id] || roomCounts[r.name] || 0;
+        const card = document.createElement('div');
+        card.className = 'active-room-card' + (count > 0 ? ' has-users' : '');
+
+        const icon = r.isCustom ? 'fa-comments' : 'fa-hashtag';
+        const pulseHtml = count > 0 ? '<span class="room-pulse-dot"></span>' : '';
+
+        card.innerHTML = `
+            <div class="room-card-header">
+                <i class="fas ${icon} room-card-icon"></i>
+                <span class="room-card-name">${r.name}</span>
+            </div>
+            <div class="room-card-stats">
+                ${pulseHtml}
+                <span class="room-card-count">${count} ${count === 1 ? 'chatter' : 'chatters'}</span>
+            </div>
+            <button class="room-card-join-btn" data-room="${r.id || r.name}" data-room-name="${r.name}">
+                <i class="fas fa-sign-in-alt"></i> Join
+            </button>`;
+
+        // Instant join handler
+        const joinBtn = card.querySelector('.room-card-join-btn');
+        joinBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            instantJoinRoom(r.id || r.name, r.name);
+        });
+
+        grid.appendChild(card);
+    });
+}
+
+// Instant join from Active Rooms card
+function instantJoinRoom(roomId, roomName) {
+    // Check terms
+    const termsCheck = document.getElementById('terms-check');
+    if (termsCheck && !termsCheck.checked) {
+        // Auto-check and scroll to terms for visibility
+        termsCheck.focus();
+        showError('Please agree to the Terms & Conditions first');
+        const formWrapper = document.querySelector('.join-form-wrapper');
+        if (formWrapper) formWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+    }
+
+    // Get username
+    const user = document.getElementById('username').value || document.getElementById('username-display').innerText;
+    if (!user || user === 'Generating...') {
+        showError('Please wait for your alias to generate');
+        return;
+    }
+
+    // Save and join
+    localStorage.setItem('chathere_username', user);
+    localStorage.setItem('chathere_room', roomId);
+    currentUsername = user;
+    currentRoom = roomId;
+
+    socket.emit('joinRoom', { username: user, room: roomId });
+    enterChatRoom(roomName || roomId);
 }
 
 // Join Room

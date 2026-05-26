@@ -35,7 +35,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
         integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
-    <link rel="stylesheet" href="style.css?v=14">
+    <link rel="stylesheet" href="style.css?v=15">
 
     <!-- Favicon - Google requires minimum 48x48px -->
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
@@ -425,10 +425,16 @@
                 </div>
             </div>
 
-            <!-- Live Counter -->
-            <div id="online-counter" class="online-counter-badge">
-                <span class="online-pulse-dot"></span>
-                <span class="counter-text"><span id="online-count-num" class="count-highlight">0</span> active chatters online now</span>
+            <!-- Browse Active Rooms -->
+            <div class="active-rooms-section" id="active-rooms-section">
+                <h2 class="active-rooms-title"><i class="fas fa-fire"></i> Active Rooms</h2>
+                <p class="active-rooms-subtitle">See where conversations are happening — click to jump in instantly</p>
+                <div class="active-rooms-grid" id="active-rooms-grid">
+                    <div class="active-rooms-empty">
+                        <i class="fas fa-moon"></i>
+                        <span>All rooms are quiet — be the first to start a conversation!</span>
+                    </div>
+                </div>
             </div>
 
             <!-- SEO Footer - Minimal -->

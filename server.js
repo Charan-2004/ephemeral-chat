@@ -129,8 +129,12 @@ let pinnedMessage = null;
 
 // API: Get Rooms
 app.get('/api/rooms', (req, res) => {
-    // Only return general and custom public rooms
-    res.json(rooms.filter(r => !r.isPrivate));
+    // Only return general and custom public rooms, with live user counts
+    const publicRooms = rooms.filter(r => !r.isPrivate).map(r => ({
+        ...r,
+        userCount: getRoomUserCount(r.id)
+    }));
+    res.json(publicRooms);
 });
 
 // API: Get Online Count
