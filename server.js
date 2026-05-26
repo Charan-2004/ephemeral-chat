@@ -215,9 +215,13 @@ app.post('/api/admin/login', (req, res) => {
 
 // Stats
 app.get('/api/admin/stats', isAdmin, (req, res) => {
+    const totalRooms = rooms.length;
+    const onlineRooms = rooms.filter(r => getRoomUserCount(r.id || r.name) > 0).length;
+    const users = io.engine.clientsCount + getBotStatus().botCount;
     res.json({
-        users: io.engine.clientsCount,
-        activeRooms: rooms.length
+        users,
+        onlineRooms,
+        totalRooms
     });
 });
 

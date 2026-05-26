@@ -99,9 +99,17 @@ async function loadStats() {
         if (!res) return;
         const data = await res.json();
         document.getElementById('stat-users').innerText = data.users;
-        document.getElementById('stat-rooms').innerText = data.activeRooms;
+        document.getElementById('stat-online-rooms').innerText = data.onlineRooms;
+        document.getElementById('stat-total-rooms').innerText = data.totalRooms;
     } catch (e) { console.error('Stats load invalid'); }
 }
+
+// Auto-refresh overview stats every 10 seconds if overview tab is active
+setInterval(() => {
+    if (document.getElementById('tab-overview').classList.contains('active') && adminToken) {
+        loadStats();
+    }
+}, 10000);
 
 // Rooms
 async function loadRooms() {
