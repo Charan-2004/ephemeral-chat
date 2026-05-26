@@ -23,7 +23,7 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "cdnjs.cloudflare.com", "html2canvas.hertzen.com"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "cdnjs.cloudflare.com"],
             styleSrc: ["'self'", "'unsafe-inline'", "cdnjs.cloudflare.com", "fonts.googleapis.com"],
             fontSrc: ["'self'", "cdnjs.cloudflare.com", "fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "blob:"],
@@ -194,12 +194,24 @@ function getAdminAccounts() {
     }];
 }
 
+function verifySession(token) {
+    if (!token || !adminSessions.has(token)) return null;
+    const session = adminSessions.get(token);
+    const SESSION_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
+    if (Date.now() - session.createdAt > SESSION_EXPIRY_MS) {
+        adminSessions.delete(token);
+        return null;
+    }
+    return session;
+}
+
 const isAdmin = (req, res, next) => {
     const token = req.headers['authorization'];
-    if (!token || !adminSessions.has(token)) {
+    const session = verifySession(token);
+    if (!session) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
-    req.adminUsername = adminSessions.get(token);
+    req.adminUsername = session.username;
     next();
 };
 
@@ -216,7 +228,7 @@ app.post('/api/admin/login', (req, res) => {
 
     if (matchedAdmin) {
         const token = generateToken();
-        adminSessions.set(token, username);
+        adminSessions.set(token, { username, createdAt: Date.now() });
         return res.json({ success: true, token, username });
     }
 
@@ -510,11 +522,12 @@ io.on('connection', socket => {
     });
 
     socket.on('adminChat', ({ text, room, username, token }) => {
-        if (!token || !adminSessions.has(token)) {
+        const session = verifySession(token);
+        if (!session) {
             socket.emit('error-message', 'Unauthorized administrative action.');
             return;
         }
-        const verifiedUsername = adminSessions.get(token) || username || 'Moderator';
+        const verifiedUsername = session.username || username || 'Moderator';
         const message = formatMessage(verifiedUsername, text, room, '#ffd700', null, null, null, 'admin');
         message.isAdmin = true;
         storeMessage(message, io);
