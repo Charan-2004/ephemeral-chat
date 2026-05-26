@@ -35,7 +35,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
         integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
-    <link rel="stylesheet" href="style.css?v=15">
+    <link rel="stylesheet" href="style.css?v=16">
 
     <!-- Favicon - Google requires minimum 48x48px -->
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
@@ -282,6 +282,17 @@
                 <img src="logo.png" alt="Logo" class="header-logo">
                 <span class="header-title">ChatHere</span>
             </div>
+
+            <!-- Real-Time Online Status Badge (Floating in Header) -->
+            <div id="online-counter" class="live-counter-premium">
+                <span class="pulse-ring-glow">
+                    <span class="pulse-core-dot"></span>
+                </span>
+                <span class="live-status-text">
+                    <span id="online-count-num" class="live-count-badge">0</span> Active
+                </span>
+            </div>
+
             <nav class="header-nav">
                 <a href="/about.html" class="nav-link"><i class="fas fa-info-circle"></i> About</a>
                 <a href="mailto:admin@chathere.online" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
@@ -300,18 +311,13 @@
 
             <!-- Join Form Section (No containers/boxes!) -->
             <div class="join-form-wrapper">
-                <form id="join-form">
-                    <!-- Glassmorphic Tab Selector Bar -->
-                    <div class="onboarding-tabs">
-                        <button type="button" class="tab-btn active" data-tab="general"><i class="fas fa-compass"></i> Join General</button>
-                        <button type="button" class="tab-btn" data-tab="create"><i class="fas fa-plus-circle"></i> Create Room</button>
-                        <button type="button" class="tab-btn" data-tab="join"><i class="fas fa-sign-in-alt"></i> Join Room</button>
-                    </div>
-
-                    <!-- Common field: Your Alias (always visible!) -->
-                    <div class="form-row-group">
+                
+                <!-- 1. Selection Page (Visible by default) -->
+                <div id="onboarding-selection-view" class="onboarding-view active">
+                    <!-- Common field: Your Alias (always visible at the top!) -->
+                    <div class="form-row-group" style="margin-bottom: 8px;">
                         <div class="form-control" style="flex: 1;">
-                            <label for="username">Your Alias</label>
+                            <label>Your Alias</label>
                             <div class="username-display-wrapper">
                                 <div class="username-display" id="username-display">Generating...</div>
                                 <button type="button" class="btn-regenerate" id="regenerate-username-btn" title="Generate another name">
@@ -322,119 +328,150 @@
                         </div>
                     </div>
 
-                    <!-- Dynamic Fields Container -->
-                    <div class="dynamic-tab-content">
-                        <!-- 1. Join General Form Section -->
-                        <div id="tab-section-general" class="tab-section active">
-                            <div class="form-row-group">
-                                <div class="form-control" style="flex: 1;">
-                                    <label for="room">Topic Room</label>
-                                    <div class="select-wrapper">
-                                        <select name="room" id="room">
-                                            <option value="" disabled selected>Loading rooms...</option>
-                                        </select>
+                    <div class="terms-checkbox select-terms">
+                        <input type="checkbox" id="terms-check-selection" required checked>
+                        <label for="terms-check-selection">I agree to the <a href="#" class="open-terms text-link">Terms &amp; Conditions</a></label>
+                    </div>
+
+                    <div class="selection-options-grid">
+                        <button type="button" class="selection-card-btn btn-browse" id="btn-show-browse">
+                            <div class="selection-card-icon"><i class="fas fa-fire"></i></div>
+                            <div class="selection-card-content">
+                                <h3>Browse Active Rooms</h3>
+                                <p>See where people are chatting right now and join instantly.</p>
+                            </div>
+                            <div class="selection-card-arrow"><i class="fas fa-chevron-right"></i></div>
+                        </button>
+
+                        <button type="button" class="selection-card-btn btn-custom" id="btn-show-custom">
+                            <div class="selection-card-icon"><i class="fas fa-key"></i></div>
+                            <div class="selection-card-content">
+                                <h3>Enter Room ID &amp; Password</h3>
+                                <p>Join private custom channels or create a new room.</p>
+                            </div>
+                            <div class="selection-card-arrow"><i class="fas fa-chevron-right"></i></div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. Active Rooms Browser Page -->
+                <div id="onboarding-browse-view" class="onboarding-view">
+                    <div class="view-header">
+                        <button type="button" class="btn-back" id="back-to-selection-from-browse">
+                            <i class="fas fa-chevron-left"></i> Back
+                        </button>
+                        <h2><i class="fas fa-fire"></i> Live Public Rooms</h2>
+                    </div>
+
+                    <div class="rooms-browser-search">
+                        <div class="search-input-wrapper">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="rooms-search-input" placeholder="Search rooms by name..." autocomplete="off" />
+                        </div>
+                    </div>
+
+                    <div class="active-rooms-grid" id="active-rooms-grid">
+                        <!-- Loaded dynamically and sorted by users -->
+                    </div>
+                </div>
+
+                <!-- 3. Custom Join Form Page -->
+                <div id="onboarding-custom-view" class="onboarding-view">
+                    <div class="view-header">
+                        <button type="button" class="btn-back" id="back-to-selection-from-custom">
+                            <i class="fas fa-chevron-left"></i> Back
+                        </button>
+                        <h2>Join / Create Channel</h2>
+                    </div>
+
+                    <form id="join-form">
+                        <!-- Glassmorphic Tab Selector Bar -->
+                        <div class="onboarding-tabs">
+                            <button type="button" class="tab-btn active" data-tab="general"><i class="fas fa-compass"></i> Topic Rooms</button>
+                            <button type="button" class="tab-btn" data-tab="create"><i class="fas fa-plus-circle"></i> Create Room</button>
+                            <button type="button" class="tab-btn" data-tab="join"><i class="fas fa-sign-in-alt"></i> Room ID</button>
+                        </div>
+
+                        <!-- Dynamic Fields Container -->
+                        <div class="dynamic-tab-content">
+                            <!-- 1. Join General Form Section -->
+                            <div id="tab-section-general" class="tab-section active">
+                                <div class="form-row-group">
+                                    <div class="form-control" style="flex: 1;">
+                                        <label for="room">Topic Room</label>
+                                        <div class="select-wrapper">
+                                            <select name="room" id="room">
+                                                <option value="" disabled selected>Loading rooms...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2. Create Room Form Section -->
+                            <div id="tab-section-create" class="tab-section">
+                                <div class="form-row-group">
+                                    <div class="form-control" style="flex: 1;">
+                                        <label for="create-room-name">Custom Room Name</label>
+                                        <div class="input-wrapper">
+                                            <input type="text" id="create-room-name" placeholder="E.g., Secret Project" autocomplete="off" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-row-group">
+                                    <div class="form-control" style="flex: 1;">
+                                        <label>Room Accessibility</label>
+                                        <div class="room-type-toggle">
+                                            <button type="button" class="type-btn active" data-type="public"><i class="fas fa-globe"></i> Public</button>
+                                            <button type="button" class="type-btn" data-type="private"><i class="fas fa-lock"></i> Private</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Dynamic sliding private password field -->
+                                <div class="form-row-group private-only" style="display: none;">
+                                    <div class="form-control" style="flex: 1;">
+                                        <label for="create-room-password">Room Password</label>
+                                        <div class="input-wrapper">
+                                            <input type="password" id="create-room-password" placeholder="Room Password (required)" autocomplete="new-password" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 3. Join Custom Room Form Section -->
+                            <div id="tab-section-join" class="tab-section">
+                                <div class="form-row-group">
+                                    <div class="form-control" style="flex: 1;">
+                                        <label for="join-room-id">Room ID</label>
+                                        <div class="input-wrapper">
+                                            <input type="text" id="join-room-id" placeholder="8-Character Alphanumeric ID" autocomplete="off" max-length="8" style="text-transform: uppercase;" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Password field for joining custom rooms if private -->
+                                <div class="form-row-group">
+                                    <div class="form-control" style="flex: 1;">
+                                        <label for="join-room-password">Room Password (Optional)</label>
+                                        <div class="input-wrapper">
+                                            <input type="password" id="join-room-password" placeholder="Enter password if private" autocomplete="new-password" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 2. Create Room Form Section -->
-                        <div id="tab-section-create" class="tab-section">
-                            <div class="form-row-group">
-                                <div class="form-control" style="flex: 1;">
-                                    <label for="create-room-name">Custom Room Name</label>
-                                    <div class="input-wrapper">
-                                        <input type="text" id="create-room-name" placeholder="E.g., Secret Project" autocomplete="off" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-row-group">
-                                <div class="form-control" style="flex: 1;">
-                                    <label>Room Accessibility</label>
-                                    <div class="room-type-toggle">
-                                        <button type="button" class="type-btn active" data-type="public"><i class="fas fa-globe"></i> Public</button>
-                                        <button type="button" class="type-btn" data-type="private"><i class="fas fa-lock"></i> Private</button>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Dynamic sliding private password field -->
-                            <div class="form-row-group private-only" style="display: none;">
-                                <div class="form-control" style="flex: 1;">
-                                    <label for="create-room-password">Room Password</label>
-                                    <div class="input-wrapper">
-                                        <input type="password" id="create-room-password" placeholder="Room Password (required)" autocomplete="new-password" />
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="terms-checkbox custom-terms">
+                            <input type="checkbox" id="terms-check" checked required>
+                            <label for="terms-check">I agree to the <a href="#" class="open-terms text-link">Terms &amp; Conditions</a></label>
                         </div>
 
-                        <!-- 3. Join Custom Room Form Section -->
-                        <div id="tab-section-join" class="tab-section">
-                            <div class="form-row-group">
-                                <div class="form-control" style="flex: 1;">
-                                    <label for="join-room-id">Room ID</label>
-                                    <div class="input-wrapper">
-                                        <input type="text" id="join-room-id" placeholder="8-Character Alphanumeric ID" autocomplete="off" max-length="8" style="text-transform: uppercase;" />
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Password field for joining custom rooms if private -->
-                            <div class="form-row-group">
-                                <div class="form-control" style="flex: 1;">
-                                    <label for="join-room-password">Room Password (Optional)</label>
-                                    <div class="input-wrapper">
-                                        <input type="password" id="join-room-password" placeholder="Enter password if private" autocomplete="new-password" />
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary btn-glow">Join Room</button>
+                            <button id="install-btn" class="btn-secondary" style="display:none;"><i class="fas fa-download"></i> Install App</button>
                         </div>
-                    </div>
-
-                    <div class="terms-checkbox">
-                        <input type="checkbox" id="terms-check" required>
-                        <label for="terms-check">I agree to the <a href="#" id="open-terms" class="text-link">Terms &amp; Conditions</a></label>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary btn-glow">Join Room</button>
-                        <button id="install-btn" class="btn-secondary" style="display:none;"><i class="fas fa-download"></i> Install App</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Integrated Features Grid -->
-            <div class="features-integrated-grid">
-                <div class="feature-card-flat">
-                    <div class="feature-icon"><i class="fas fa-ghost"></i></div>
-                    <div class="feature-text">
-                        <h3>Ephemeral</h3>
-                    </div>
-                </div>
-                <div class="feature-card-flat">
-                    <div class="feature-icon"><i class="fas fa-user-shield"></i></div>
-                    <div class="feature-text">
-                        <h3>Anonymous</h3>
-                    </div>
+                    </form>
                 </div>
 
-                <div class="feature-card-flat">
-                    <div class="feature-icon"><i class="fas fa-bell"></i></div>
-                    <div class="feature-text">
-                        <h3>@Mentions</h3>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Browse Active Rooms -->
-            <div class="active-rooms-section" id="active-rooms-section">
-                <h2 class="active-rooms-title"><i class="fas fa-fire"></i> Active Rooms</h2>
-                <p class="active-rooms-subtitle">See where conversations are happening — click to jump in instantly</p>
-                <div class="active-rooms-grid" id="active-rooms-grid">
-                    <div class="active-rooms-empty">
-                        <i class="fas fa-moon"></i>
-                        <span>All rooms are quiet — be the first to start a conversation!</span>
-                    </div>
-                </div>
             </div>
 
             <!-- SEO Footer - Minimal -->
