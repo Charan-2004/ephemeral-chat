@@ -3184,3 +3184,48 @@ body::before {
     padding: 5px 12px;
   }
 }
+
+
+/* Premium Inline Browse Active Rooms Button (Orange Glass Capsule) */
+.btn-browse-inline {
+  width: 100% !important;
+  background: rgba(249, 115, 22, 0.08) !important;
+  border: 1px dashed rgba(249, 115, 22, 0.3) !important;
+  border-radius: 12px !important;
+  padding: 12px 20px !important;
+  color: #ffedd5 !important;
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  font-family: 'Inter', sans-serif !important;
+  box-shadow: 0 0 15px rgba(249, 115, 22, 0.02) !important;
+  height: auto !important;
+}
+
+.btn-browse-inline:hover {
+  background: rgba(249, 115, 22, 0.15) !important;
+  border-color: rgba(249, 115, 22, 0.5) !important;
+  color: #fff !important;
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.1) !important;
+  transform: translateY(-1px) !important;
+}
+
+.btn-browse-inline:active {
+  transform: translateY(0) !important;
+}
+
+.btn-browse-inline i {
+  color: #f97316;
+  font-size: 0.95rem;
+  animation: spinSlow 8s infinite linear;
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

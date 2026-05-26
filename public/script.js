@@ -293,10 +293,10 @@ function showView(viewId) {
             target.classList.add('active');
         }, 10);
         
-        // Hide alias form group in views other than selection to save space
+        // Hide alias form group in rooms browser view to save space
         const aliasGroup = document.getElementById('alias-form-group');
         if (aliasGroup) {
-            aliasGroup.style.display = (viewId === 'onboarding-selection-view') ? 'flex' : 'none';
+            aliasGroup.style.display = (viewId === 'onboarding-browse-view') ? 'none' : 'flex';
         }
 
         const wrapper = document.querySelector('.join-form-wrapper');
@@ -308,51 +308,26 @@ function showView(viewId) {
 
 // Set up UI triggers and event handlers on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
-    const btnShowBrowse = document.getElementById('btn-show-browse');
-    const btnShowCustom = document.getElementById('btn-show-custom');
+    const btnBrowseInline = document.getElementById('btn-browse-active-inline');
     const backFromBrowse = document.getElementById('back-to-selection-from-browse');
-    const backFromCustom = document.getElementById('back-to-selection-from-custom');
     const roomsSearchInput = document.getElementById('rooms-search-input');
-    const termsCheckSelection = document.getElementById('terms-check-selection');
-    const termsCheckCustom = document.getElementById('terms-check');
+    const termsCheck = document.getElementById('terms-check');
 
-    if (btnShowBrowse) {
-        btnShowBrowse.addEventListener('click', () => {
-            // Check terms status from selection view
-            if (termsCheckSelection && !termsCheckSelection.checked) {
+    if (btnBrowseInline) {
+        btnBrowseInline.addEventListener('click', () => {
+            // Validate terms before taking user to the rooms browser
+            if (termsCheck && !termsCheck.checked) {
                 showError('Please agree to the Terms & Conditions first');
-                termsCheckSelection.focus();
+                termsCheck.focus();
                 return;
             }
             showView('onboarding-browse-view');
         });
     }
 
-    if (btnShowCustom) {
-        btnShowCustom.addEventListener('click', () => {
-            showView('onboarding-custom-view');
-        });
-    }
-
     if (backFromBrowse) {
         backFromBrowse.addEventListener('click', () => {
-            showView('onboarding-selection-view');
-        });
-    }
-
-    if (backFromCustom) {
-        backFromCustom.addEventListener('click', () => {
-            showView('onboarding-selection-view');
-        });
-    }
-
-    // Bidirectional Terms Checkboxes Synchronization
-    if (termsCheckSelection && termsCheckCustom) {
-        termsCheckSelection.addEventListener('change', () => {
-            termsCheckCustom.checked = termsCheckSelection.checked;
-        });
-        termsCheckCustom.addEventListener('change', () => {
-            termsCheckSelection.checked = termsCheckCustom.checked;
+            showView('onboarding-custom-view');
         });
     }
 
@@ -436,13 +411,13 @@ function renderActiveRooms(rooms) {
 
 // Instant join from Active Rooms card
 function instantJoinRoom(roomId, roomName) {
-    // Check terms (either checkbox)
-    const termsCheck = document.getElementById('terms-check') || document.getElementById('terms-check-selection');
+    // Check terms checkbox
+    const termsCheck = document.getElementById('terms-check');
     if (termsCheck && !termsCheck.checked) {
         // Auto-check and scroll to terms for visibility
         termsCheck.focus();
         showError('Please agree to the Terms & Conditions first');
-        showView('onboarding-selection-view');
+        showView('onboarding-custom-view');
         const checkWrapper = termsCheck.closest('.terms-checkbox');
         if (checkWrapper) checkWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
