@@ -82,6 +82,16 @@ const apiLimiter = rateLimit({
 // Apply to API routes
 app.use('/api/', apiLimiter);
 
+// Login Specific Rate Limiter (Max 5 attempts per 15 minutes)
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many login attempts. Please try again after 15 minutes.' }
+});
+app.use('/api/admin/login', loginLimiter);
+
 // Room Management
 let rooms = [
     { name: 'General', id: 'General', isCustom: false, isPrivate: false, locked: false, reason: '' },
@@ -314,6 +324,34 @@ setInterval(() => {
     cleanExpiredMessages(io);
 }, 5000);
 
+// Cleanup idle empty custom rooms (every 60 seconds)
+setInterval(() => {
+    try {
+        const now = Date.now();
+        let changed = false;
+        
+        rooms = rooms.filter(r => {
+            if (!r.isCustom) return true; // Keep default rooms
+            
+            const userCount = getRoomUserCount(r.id);
+            // If room is empty and has existed for more than 5 minutes
+            const ageMs = now - (r.createdAt || 0);
+            if (userCount === 0 && ageMs > 5 * 60 * 1000) {
+                changed = true;
+                return false; // Filter it out (delete)
+            }
+            return true;
+        });
+        
+        if (changed && io) {
+            io.emit('rooms-updated', rooms.filter(r => !r.isPrivate));
+            broadcastRoomCounts();
+        }
+    } catch (err) {
+        console.error('Custom room cleanup error:', err);
+    }
+}, 60000);
+
 io.on('connection', socket => {
     socket.on('joinRoom', ({ username, room, password }) => {
         // Resolve room by ID or name
@@ -414,10 +452,14 @@ io.on('connection', socket => {
         io.emit('online-count', io.engine.clientsCount + getBotStatus().botCount);
     });
 
-    // Typing Indicator
+    // Typing Indicator (Throttle to max 1 emit per second)
     socket.on('typing', () => {
         const user = getCurrentUser(socket.id);
         if (user) {
+            const now = Date.now();
+            socket.lastTypingEmit = socket.lastTypingEmit || 0;
+            if (now - socket.lastTypingEmit < 1000) return;
+            socket.lastTypingEmit = now;
             socket.to(user.room).emit('user-typing', { username: user.username });
         }
     });
@@ -425,6 +467,10 @@ io.on('connection', socket => {
     socket.on('stop-typing', () => {
         const user = getCurrentUser(socket.id);
         if (user) {
+            const now = Date.now();
+            socket.lastStopTypingEmit = socket.lastStopTypingEmit || 0;
+            if (now - socket.lastStopTypingEmit < 1000) return;
+            socket.lastStopTypingEmit = now;
             socket.to(user.room).emit('user-stop-typing', { username: user.username });
         }
     });
@@ -463,9 +509,13 @@ io.on('connection', socket => {
         }
     });
 
-    socket.on('adminChat', ({ text, room, username }) => {
-        const senderName = username || 'Moderator';
-        const message = formatMessage(senderName, text, room, '#ffd700', null, null, null, 'admin');
+    socket.on('adminChat', ({ text, room, username, token }) => {
+        if (!token || !adminSessions.has(token)) {
+            socket.emit('error-message', 'Unauthorized administrative action.');
+            return;
+        }
+        const verifiedUsername = adminSessions.get(token) || username || 'Moderator';
+        const message = formatMessage(verifiedUsername, text, room, '#ffd700', null, null, null, 'admin');
         message.isAdmin = true;
         storeMessage(message, io);
         io.to(room).emit('message', message);
@@ -482,8 +532,13 @@ io.on('connection', socket => {
                 socket.emit('error-message', `Please wait ${waitTime}s.`);
                 return;
             }
-            if (imageData.length > config.maxImageSize) {
-                socket.emit('error-message', 'Image too large. Max 2MB.');
+            if (!imageData || typeof imageData !== 'string' || imageData.length > config.maxImageSize) {
+                socket.emit('error-message', 'Image too large. Max 500KB.');
+                return;
+            }
+            // Enforce basic image format regex validation
+            if (!/^data:image\/(jpeg|png|gif|webp);base64,/.test(imageData)) {
+                socket.emit('error-message', 'Invalid image format. Only JPEG, PNG, GIF, and WEBP supported.');
                 return;
             }
             updateLastMessageTime(socket.id);
@@ -497,6 +552,16 @@ io.on('connection', socket => {
     socket.on('addReaction', ({ messageId, emoji }) => {
         const user = getCurrentUser(socket.id);
         if (user) {
+            // Reaction rate limit: sliding window of max 5 reactions per 5 seconds
+            const now = Date.now();
+            socket.reactionWindow = socket.reactionWindow || [];
+            socket.reactionWindow = socket.reactionWindow.filter(t => now - t < 5000);
+            if (socket.reactionWindow.length >= 5) {
+                socket.emit('error-message', 'Too many reactions. Slow down.');
+                return;
+            }
+            socket.reactionWindow.push(now);
+
             const updatedMsg = addReaction(messageId, emoji);
             if (updatedMsg) {
                 io.to(user.room).emit('reactionAdded', { messageId, reactions: updatedMsg.reactions });
@@ -507,6 +572,24 @@ io.on('connection', socket => {
     // Create custom public or private rooms
     socket.on('createRoom', ({ roomName, isPrivate, password }) => {
         try {
+            // Enforce Global Limit of max 100 custom rooms
+            const MAX_CUSTOM_ROOMS = 100;
+            const currentCustomCount = rooms.filter(r => r.isCustom).length;
+            if (currentCustomCount >= MAX_CUSTOM_ROOMS) {
+                socket.emit('error-message', 'Global limit of custom rooms reached. Try again later.');
+                return;
+            }
+
+            // Enforce Rate-Limiting: Max 1 room every 10 seconds per socket
+            const now = Date.now();
+            socket.lastRoomCreatedTime = socket.lastRoomCreatedTime || 0;
+            const elapsed = (now - socket.lastRoomCreatedTime) / 1000;
+            if (elapsed < 10) {
+                socket.emit('error-message', `Please wait ${Math.ceil(10 - elapsed)}s to create another room.`);
+                return;
+            }
+            socket.lastRoomCreatedTime = now;
+
             const roomId = generateUniqueRoomId(rooms);
             const newRoom = {
                 name: roomName ? roomName.trim().substring(0, 30) : `Room ${roomId}`,
@@ -515,7 +598,8 @@ io.on('connection', socket => {
                 isPrivate: !!isPrivate,
                 password: isPrivate ? password : null,
                 locked: false,
-                reason: ''
+                reason: '',
+                createdAt: Date.now() // Track creation time for cleanup
             };
             rooms.push(newRoom);
             socket.emit('roomCreated', { roomId, roomName: newRoom.name });

@@ -891,12 +891,19 @@ document.getElementById('close-pin').onclick = () => document.getElementById('pi
 // Image
 imageInput.onchange = function () {
     if (this.files[0]) {
+        const file = this.files[0];
+        // Enforce 500KB client-side limit
+        if (file.size > 512000) {
+            showError('Image too large. Max 500KB.');
+            this.value = '';
+            return;
+        }
         const r = new FileReader();
         r.onload = (e) => {
             socket.emit('chatImage', { imageData: e.target.result, replyTo: replyToId, replyToText: replyToText });
             clearReply();
         };
-        r.readAsDataURL(this.files[0]);
+        r.readAsDataURL(file);
     }
     this.value = '';
 };
@@ -954,11 +961,16 @@ msgInput.addEventListener('keydown', (e) => {
 
 // URL detection - make links clickable and format @mentions
 function linkify(text) {
-    let escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    let escaped = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;');
     
-    // Replace URL links first
+    // Replace URL links first. Stop matching on spaces, brackets, or unescaped/escaped quote chars.
     escaped = escaped.replace(
-        /(https?:\/\/[^\s<]+)/g,
+        /(https?:\/\/[^\s<>&"'\(\)]+(?:#[^\s<>&"'\(\)]*)?)/g,
         '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:#7289da;text-decoration:underline;">$1</a>'
     );
 

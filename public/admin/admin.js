@@ -218,7 +218,7 @@ document.getElementById('monitor-room-select').addEventListener('change', (e) =>
 document.getElementById('admin-chat-btn').addEventListener('click', () => {
     const txt = document.getElementById('admin-chat-input').value;
     if (txt && currentMonitorRoom) {
-        socket.emit('adminChat', { text: txt, room: currentMonitorRoom, username: adminUsername });
+        socket.emit('adminChat', { text: txt, room: currentMonitorRoom, username: adminUsername, token: adminToken });
         document.getElementById('admin-chat-input').value = '';
     }
 });
