@@ -277,12 +277,7 @@ function renderRooms(rooms) {
 
 
 // Render Active Rooms on onboarding page
-
-// ============================================================
-// ONBOARDING SCREEN VIEW NAVIGATION & LOGIC
-// ============================================================
-
-// Switch views with smooth styling
+// Onboarding navigation and transitions
 function showView(viewId) {
     const views = document.querySelectorAll('.onboarding-view');
     views.forEach(v => {
@@ -298,7 +293,12 @@ function showView(viewId) {
             target.classList.add('active');
         }, 10);
         
-        // Smooth scroll to wrapper center
+        // Hide alias form group in views other than selection to save space
+        const aliasGroup = document.getElementById('alias-form-group');
+        if (aliasGroup) {
+            aliasGroup.style.display = (viewId === 'onboarding-selection-view') ? 'flex' : 'none';
+        }
+
         const wrapper = document.querySelector('.join-form-wrapper');
         if (wrapper) {
             wrapper.style.minHeight = 'auto';
@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnShowBrowse) {
         btnShowBrowse.addEventListener('click', () => {
-            // Check terms check status from selection page first
+            // Check terms status from selection view
             if (termsCheckSelection && !termsCheckSelection.checked) {
                 showError('Please agree to the Terms & Conditions first');
                 termsCheckSelection.focus();
@@ -346,20 +346,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Bidirectional Terms & Conditions Sync
+    // Bidirectional Terms Checkboxes Synchronization
     if (termsCheckSelection && termsCheckCustom) {
         termsCheckSelection.addEventListener('change', () => {
             termsCheckCustom.checked = termsCheckSelection.checked;
         });
         termsCheckCustom.addEventListener('change', () => {
-            termsCheckSelection.checked = termsCheckSelection.checked;
+            termsCheckSelection.checked = termsCheckCustom.checked;
         });
     }
 
-    // Search Filtering Trigger
+    // Live search text filtering trigger
     if (roomsSearchInput) {
         roomsSearchInput.addEventListener('input', () => {
-            fetchRooms(); // Refetches rooms and triggers live re-rendering/filtering
+            fetchRooms(); // refetch and trigger re-render
         });
     }
 });
@@ -449,7 +449,7 @@ function instantJoinRoom(roomId, roomName) {
     }
 
     // Get username
-    const user = document.getElementById('username')?.value || document.getElementById('username-display')?.innerText;
+    const user = document.getElementById('username').value || document.getElementById('username-display').innerText;
     if (!user || user === 'Generating...') {
         showError('Please wait for your alias to generate');
         return;
@@ -463,4 +463,838 @@ function instantJoinRoom(roomId, roomName) {
 
     socket.emit('joinRoom', { username: user, room: roomId });
     enterChatRoom(roomName || roomId);
+}
+
+// Join Room
+joinForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const termsCheck = document.getElementById('terms-check');
+    if (termsCheck && !termsCheck.checked) {
+        return showError('You must agree to the Terms & Conditions to join');
+    }
+
+    const user = e.target.elements.username.value || document.getElementById('username-display').innerText;
+    
+    // Save to localStorage for returning users
+    localStorage.setItem('chathere_username', user);
+    currentUsername = user;
+
+    if (activeTab === 'general') {
+        const room = e.target.elements.room.value;
+        if (!room) return showError('Select a room');
+        
+        localStorage.setItem('chathere_room', room);
+        currentRoom = room;
+        
+        socket.emit('joinRoom', { username: user, room });
+        enterChatRoom(room);
+    } 
+    else if (activeTab === 'create') {
+        const roomName = document.getElementById('create-room-name').value;
+        const password = document.getElementById('create-room-password').value;
+        
+        const isPrivate = selectedRoomType === 'private';
+        if (isPrivate && !password) {
+            return showError('Password is required for private rooms');
+        }
+        
+        // Emit room creation event
+        socket.emit('createRoom', { roomName, isPrivate, password });
+    } 
+    else if (activeTab === 'join') {
+        const roomId = document.getElementById('join-room-id').value.trim().toUpperCase();
+        const password = document.getElementById('join-room-password').value;
+        
+        if (!roomId || roomId.length !== 8) {
+            return showError('Room ID must be exactly 8 characters');
+        }
+        
+        currentRoom = roomId;
+        socket.emit('joinRoom', { username: user, room: roomId, password });
+        enterChatRoom(roomId, roomId, password);
+    }
+});
+
+function enterChatRoom(roomName, roomId, password) {
+    joinScreen.style.display = 'none';
+    chatScreen.style.display = 'flex';
+    const siteFooter = document.getElementById('site-footer');
+    if (siteFooter) siteFooter.style.display = 'none';
+    const siteHeader = document.getElementById('main-site-header');
+    if (siteHeader) siteHeader.style.display = 'none';
+    roomNameEl.innerText = roomName;
+
+    // Handle room info badge (Room ID & Password) display
+    const infoBadge = document.getElementById('room-info-badge');
+    if (infoBadge) {
+        if (roomId) {
+            infoBadge.style.display = 'inline-flex';
+            document.getElementById('info-room-id').innerText = roomId;
+            const passWrapper = document.getElementById('info-room-pass-wrapper');
+            if (passWrapper) {
+                if (password) {
+                    passWrapper.style.display = 'inline-flex';
+                    document.getElementById('info-room-pass').innerText = password;
+                } else {
+                    passWrapper.style.display = 'none';
+                }
+            }
+        } else {
+            infoBadge.style.display = 'none';
+        }
+    }
+
+    document.querySelectorAll('.room-item').forEach(li => {
+        if (li.innerText.includes(roomName)) li.classList.add('active');
+    });
+}
+
+function switchRoom(newRoom) {
+    chatMessages.innerHTML = '';
+    unreadCounts[newRoom] = 0; // Clear unread for room we're entering
+    currentRoom = newRoom;
+    roomNameEl.innerText = newRoom;
+    
+    // Hide info badge when switching to general rooms
+    const infoBadge = document.getElementById('room-info-badge');
+    if (infoBadge) infoBadge.style.display = 'none';
+    
+    socket.emit('joinRoom', { username: currentUsername, room: newRoom });
+    typingUsers.clear();
+    if (typingIndicator) typingIndicator.style.display = 'none';
+    fetchRooms(); // Refresh UI state
+}
+
+// Socket Events
+socket.on('rooms-updated', (rooms) => {
+    if (Array.isArray(rooms)) renderRooms(rooms);
+});
+
+socket.on('roomUsers', ({ users }) => {
+    if (Array.isArray(users)) {
+        activeUsers = users;
+    }
+});
+
+socket.on('message', (msg) => {
+    outputMessage(msg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Check if the current user is mentioned by someone else in the room
+    const isMentioned = msg.text && msg.senderId !== socket.id && msg.senderId !== 'system' &&
+                        currentUsername && msg.text.includes(`@${currentUsername}`);
+
+    if (isMentioned) {
+        playMentionSound();
+        if (!isTabFocused && Notification.permission === 'granted') {
+            new Notification(`Mentioned by ${msg.username} in ${currentRoom}`, { body: msg.text, icon: '/favicon.png' });
+        }
+    } else {
+        // Sound + browser notification when tab not focused
+        if (!isTabFocused && msg.senderId !== socket.id && msg.senderId !== 'system') {
+            playNotificationSound();
+            if (Notification.permission === 'granted') {
+                new Notification(`${msg.username} in ${currentRoom}`, { body: msg.text || '[Image]', icon: '/favicon.png' });
+            }
+        }
+    }
+
+    // Track unread for other rooms (messages from server relay)
+    // This handles messages in current room - unread for other rooms handled by room-message event
+});
+
+// Unread messages for other rooms
+socket.on('room-message', ({ room }) => {
+    if (room !== currentRoom) {
+        unreadCounts[room] = (unreadCounts[room] || 0) + 1;
+        fetchRooms(); // re-render sidebar to show badge
+    }
+});
+
+
+
+// Room counts from server
+socket.on('room-counts', (counts) => {
+    roomCounts = counts;
+    fetchRooms(); // re-render sidebar with updated counts
+});
+
+// Online count update
+socket.on('online-count', (count) => {
+    const el = document.getElementById('online-count-num');
+    if (el) el.textContent = count;
+});
+
+// Typing indicator
+const typingIndicator = document.getElementById('typing-indicator');
+const typingUser = document.getElementById('typing-user');
+let typingUsers = new Set();
+let typingHideTimeout = null;
+
+socket.on('user-typing', ({ username }) => {
+    typingUsers.add(username);
+    updateTypingDisplay();
+});
+
+socket.on('user-stop-typing', ({ username }) => {
+    typingUsers.delete(username);
+    updateTypingDisplay();
+});
+
+function updateTypingDisplay() {
+    if (typingUsers.size > 0) {
+        typingIndicator.style.display = 'flex';
+        const names = Array.from(typingUsers);
+        typingUser.textContent = names.length > 2 ? `${names[0]} and ${names.length - 1} others` : names.join(' and ');
+    } else {
+        typingIndicator.style.display = 'none';
+    }
+}
+
+socket.on('message-pinned', ({ text, username }) => {
+    document.getElementById('pinned-bar').style.display = 'flex';
+    document.getElementById('pinned-author').innerText = username || 'Moderator';
+    document.getElementById('pinned-text').innerText = text;
+});
+
+socket.on('message-unpinned', () => {
+    document.getElementById('pinned-bar').style.display = 'none';
+});
+
+socket.on('room-locked', () => {
+    showError('Room Locked');
+    setTimeout(() => location.reload(), 2000);
+});
+
+socket.on('error-message', (msg) => showError(msg));
+
+// Handle successful room creation
+socket.on('roomCreated', ({ roomId, roomName }) => {
+    currentRoom = roomId;
+    const isPrivate = selectedRoomType === 'private';
+    const password = document.getElementById('create-room-password').value;
+    
+    socket.emit('joinRoom', { username: currentUsername, room: roomId, password: isPrivate ? password : null });
+    enterChatRoom(roomName, roomId, isPrivate ? password : null);
+});
+
+// Handle custom joining errors (reset UI to onboarding join screen)
+socket.on('incorrect-password', () => {
+    rollbackToJoinScreen();
+});
+
+socket.on('room-not-found', () => {
+    rollbackToJoinScreen();
+});
+
+function rollbackToJoinScreen() {
+    joinScreen.style.display = 'block';
+    chatScreen.style.display = 'none';
+    const siteFooter = document.getElementById('site-footer');
+    if (siteFooter) siteFooter.style.display = 'block';
+    const siteHeader = document.getElementById('main-site-header');
+    if (siteHeader) siteHeader.style.display = 'flex';
+}
+
+socket.on('reactionAdded', ({ messageId, reactions }) => {
+    const el = document.querySelector(`.message[data-id="${messageId}"]`);
+    if (el) updateReactions(el, reactions);
+});
+
+socket.on('message-expired', (id) => {
+    const el = document.querySelector(`.message[data-id="${id}"]`);
+    if (el) el.remove();
+});
+
+socket.on('message-deleted', (id) => {
+    const el = document.querySelector(`.message[data-id="${id}"]`);
+    if (el) {
+        el.innerHTML = '<em style="color:#888;">Message deleted by moderator</em>';
+        setTimeout(() => el.remove(), 2000);
+    }
+});
+
+
+// Chat Form
+chatForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = msgInput.value;
+    if (!text) return;
+
+    socket.emit('chatMessage', { text, replyTo: replyToId, replyToText: replyToText });
+
+    msgInput.value = '';
+    msgInput.focus();
+    clearReply();
+    socket.emit('stop-typing');
+});
+
+// Output Message
+function outputMessage(msg) {
+    const div = document.createElement('div');
+    div.className = 'message';
+    div.dataset.id = msg.id;
+
+    // Classes
+    if (msg.senderId === socket.id) div.classList.add('my-message');
+    if (msg.isAdmin) div.classList.add('admin-message');
+    
+    // Highlight if current user is mentioned in the text
+    if (msg.text && currentUsername && msg.text.includes(`@${currentUsername}`)) {
+        div.classList.add('mention-highlight');
+    }
+
+    // Meta
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+
+    // REMOVED PROFILE PICTURE (User request 5)
+
+    const name = document.createElement('span');
+    name.className = 'username';
+    name.innerText = msg.username;
+    name.style.color = msg.color || '#fff';
+    meta.appendChild(name);
+
+    // Mod Badge (Checkmark) (User request 4)
+    if (msg.isAdmin) {
+        const badge = document.createElement('span');
+        badge.innerHTML = '<i class="fas fa-check-circle"></i> MOD';
+        badge.style.color = '#ffd700';
+        badge.style.marginLeft = '5px';
+        badge.style.fontSize = '0.8rem';
+        meta.appendChild(badge);
+    }
+
+    const time = document.createElement('span');
+    time.className = 'time';
+    // Format timestamp locally so users see their own time zone
+    if (msg.createdAt) {
+        time.innerText = new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else {
+        time.innerText = msg.time;
+    }
+    meta.appendChild(time);
+
+    div.appendChild(meta);
+
+    // Reply
+    if (msg.replyToText) {
+        const rep = document.createElement('div');
+        rep.className = 'reply-preview';
+        rep.innerText = `Replying to: ${msg.replyToText}`;
+        rep.style.fontSize = '0.8rem';
+        div.appendChild(rep);
+    }
+
+    // Image
+    if (msg.imageData) {
+        const img = document.createElement('img');
+        img.src = msg.imageData;
+        img.className = 'message-image';
+        div.appendChild(img);
+    }
+
+    // Text with clickable links
+    if (msg.text) {
+        const p = document.createElement('p');
+        p.className = 'text';
+        p.innerHTML = linkify(msg.text);
+        div.appendChild(p);
+    }
+
+    // Reactions
+    const reacts = document.createElement('div');
+    reacts.className = 'reactions';
+    div.appendChild(reacts);
+    if (msg.reactions) updateReactions(div, msg.reactions);
+
+    // Actions
+    const actions = document.createElement('div');
+    actions.className = 'message-actions';
+
+    const repBtn = document.createElement('button');
+    repBtn.className = 'action-btn';
+    repBtn.innerHTML = '<i class="fas fa-reply"></i>';
+    repBtn.onclick = () => {
+        replyToId = msg.id;
+        replyToText = msg.text || '[Image]';
+        replyPreview.style.display = 'flex';
+        replyText.innerText = `Replying: ${replyToText}`;
+        msgInput.focus();
+    };
+
+    const reactBtn = document.createElement('button');
+    reactBtn.className = 'action-btn';
+    reactBtn.innerHTML = '<i class="far fa-smile"></i>';
+    reactBtn.onclick = (e) => {
+        currentMessageIdForReaction = msg.id;
+        const rect = reactBtn.getBoundingClientRect();
+        emojiPicker.style.display = 'flex';
+        emojiPicker.style.top = (rect.top - 50) + 'px';
+        emojiPicker.style.left = rect.left + 'px';
+        e.stopPropagation();
+    };
+
+    actions.appendChild(repBtn);
+    actions.appendChild(reactBtn);
+    div.appendChild(actions);
+
+    chatMessages.appendChild(div);
+}
+
+function updateReactions(el, reactions) {
+    const c = el.querySelector('.reactions');
+    if (!c) return;
+    c.innerHTML = '';
+    for (const [e, n] of Object.entries(reactions)) {
+        const s = document.createElement('span');
+        s.className = 'reaction-badge';
+        s.innerText = `${e} ${n}`;
+        s.onclick = () => socket.emit('addReaction', { messageId: el.dataset.id, emoji: e });
+        c.appendChild(s);
+    }
+}
+
+// Emoji Picker Logic
+// Emoji Picker Logic (Consolidated)
+
+// Close Picker on Outside Click
+document.addEventListener('click', (e) => {
+    if (!emojiPicker.contains(e.target) && !e.target.closest('.action-btn')) {
+        emojiPicker.style.display = 'none';
+        currentMessageIdForReaction = null;
+    }
+});
+
+function showEmojiPicker(x, y, msgId) {
+    currentMessageIdForReaction = msgId;
+    emojiPicker.style.display = 'flex';
+
+    // Boundary checks
+    const rect = emojiPicker.getBoundingClientRect();
+    const winWidth = window.innerWidth;
+    const winHeight = window.innerHeight;
+
+    let finalX = x;
+    let finalY = y;
+
+    if (x + 300 > winWidth) finalX = winWidth - 310;
+    if (y + 50 > winHeight) finalY = y - 60; // Show above if near bottom
+
+    emojiPicker.style.left = `${finalX}px`;
+    emojiPicker.style.top = `${finalY}px`;
+}
+function showError(msg) {
+    const d = document.createElement('div');
+    d.style.position = 'fixed';
+    d.style.top = '20px';
+    d.style.left = '50%';
+    d.style.transform = 'translateX(-50%)';
+    d.style.background = '#ff4757';
+    d.style.color = '#fff';
+    d.style.padding = '10px 20px';
+    d.style.zIndex = 10000;
+    d.innerText = msg;
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 3000);
+}
+
+function clearReply() {
+    replyToId = null;
+    replyToText = null;
+    replyPreview.style.display = 'none';
+}
+replyCancelBtn.onclick = clearReply;
+
+// Setup
+fetchRooms();
+getConfig();
+document.getElementById('leave-btn').onclick = () => location.reload();
+document.getElementById('close-pin').onclick = () => document.getElementById('pinned-bar').style.display = 'none';
+
+// Image
+imageInput.onchange = function () {
+    if (this.files[0]) {
+        const r = new FileReader();
+        r.onload = (e) => {
+            socket.emit('chatImage', { imageData: e.target.result, replyTo: replyToId, replyToText: replyToText });
+            clearReply();
+        };
+        r.readAsDataURL(this.files[0]);
+    }
+    this.value = '';
+};
+
+// Typing emit + autocomplete check on input
+msgInput.addEventListener('input', () => {
+    socket.emit('typing');
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => socket.emit('stop-typing'), 2000);
+
+    // Check for active autocomplete state
+    const value = msgInput.value;
+    const selectionEnd = msgInput.selectionEnd;
+    const textBeforeCursor = value.slice(0, selectionEnd);
+    const lastAtIdx = textBeforeCursor.lastIndexOf('@');
+
+    if (lastAtIdx !== -1) {
+        const charBeforeAt = lastAtIdx > 0 ? textBeforeCursor[lastAtIdx - 1] : '';
+        if (charBeforeAt === '' || /\s/.test(charBeforeAt)) {
+            const query = textBeforeCursor.slice(lastAtIdx + 1);
+            if (!/\s/.test(query)) {
+                isMentionActive = true;
+                mentionStartIdx = lastAtIdx;
+                mentionSearchQuery = query;
+                filterAndShowAutocomplete(query);
+                return;
+            }
+        }
+    }
+    hideAutocomplete();
+});
+
+// Keydown listener for autocomplete navigation
+msgInput.addEventListener('keydown', (e) => {
+    if (!isMentionActive) return;
+
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedMentionIndex = (selectedMentionIndex + 1) % filteredMentionUsers.length;
+        updateActiveAutocompleteItem();
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedMentionIndex = (selectedMentionIndex - 1 + filteredMentionUsers.length) % filteredMentionUsers.length;
+        updateActiveAutocompleteItem();
+    } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (selectedMentionIndex >= 0 && selectedMentionIndex < filteredMentionUsers.length) {
+            selectAutocompleteUser(filteredMentionUsers[selectedMentionIndex].username);
+        }
+    } else if (e.key === 'Escape') {
+        e.preventDefault();
+        hideAutocomplete();
+    }
+});
+
+// URL detection - make links clickable and format @mentions
+function linkify(text) {
+    let escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    
+    // Replace URL links first
+    escaped = escaped.replace(
+        /(https?:\/\/[^\s<]+)/g,
+        '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:#7289da;text-decoration:underline;">$1</a>'
+    );
+
+    // Replace @mentions with pill badges (case-insensitive username check)
+    escaped = escaped.replace(/@([a-zA-Z0-9_]+)/g, (match, username) => {
+        const isMe = currentUsername && username.toLowerCase() === currentUsername.toLowerCase();
+        const badgeClass = isMe ? 'mention-tag me' : 'mention-tag';
+        return `<span class="${badgeClass}">@${username}</span>`;
+    });
+
+    return escaped;
+}
+
+// Request notification permission
+if ('Notification' in window && Notification.permission === 'default') {
+    // Ask after first interaction
+    document.addEventListener('click', function askNotif() {
+        Notification.requestPermission();
+        document.removeEventListener('click', askNotif);
+    }, { once: true });
+}
+
+// Close emoji & autocomplete on outside click
+document.onclick = (e) => {
+    if (!e.target.closest('.action-btn') && !emojiPicker.contains(e.target)) emojiPicker.style.display = 'none';
+    if (!e.target.closest('#mention-autocomplete') && e.target !== msgInput) {
+        hideAutocomplete();
+    }
+};
+
+// Terms Modal Logic
+const termsModal = document.getElementById('terms-modal');
+const openTermsBtn = document.getElementById('open-terms');
+const closeTermsBtn = document.getElementById('close-terms');
+const acceptTermsBtn = document.getElementById('accept-terms');
+
+if (openTermsBtn) {
+    openTermsBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        termsModal.style.display = 'flex';
+    };
+}
+if (closeTermsBtn) closeTermsBtn.onclick = () => termsModal.style.display = 'none';
+if (acceptTermsBtn) acceptTermsBtn.onclick = () => termsModal.style.display = 'none';
+
+// Close modal on outside click
+window.onmousedown = (e) => {
+    if (e.target === termsModal) termsModal.style.display = 'none';
+};
+
+// ============================================
+// SHARE / EXPORT FUNCTIONALITY
+// ============================================
+let isSelectionMode = false;
+let selectedMessages = new Set();
+const selectionControls = document.getElementById('selection-controls');
+const generateShareBtn = document.getElementById('generate-share-btn');
+const cancelShareBtn = document.getElementById('cancel-share-btn');
+const shareModal = document.getElementById('share-modal');
+const closeModalBtn = document.querySelector('.close-modal');
+const sharePreview = document.getElementById('share-preview');
+const downloadLink = document.getElementById('download-link');
+const exportContainer = document.getElementById('export-container');
+const exportList = document.getElementById('export-messages');
+
+if (shareBtn) {
+    shareBtn.onclick = () => toggleSelectionMode(true);
+}
+
+if (cancelShareBtn) {
+    cancelShareBtn.onclick = () => toggleSelectionMode(false);
+}
+
+if (closeModalBtn) {
+    closeModalBtn.onclick = () => shareModal.style.display = 'none';
+}
+
+function toggleSelectionMode(active) {
+    isSelectionMode = active;
+    selectedMessages.clear();
+
+    if (active) {
+        document.body.classList.add('selection-mode');
+        // Hide chat form, show selection controls
+        document.getElementById('chat-form').style.display = 'none';
+        selectionControls.style.display = 'flex';
+        // Clear previous selections visually
+        document.querySelectorAll('.message').forEach(m => m.classList.remove('selected'));
+    } else {
+        document.body.classList.remove('selection-mode');
+        document.getElementById('chat-form').style.display = 'flex';
+        selectionControls.style.display = 'none';
+        document.querySelectorAll('.message').forEach(m => m.classList.remove('selected'));
+    }
+}
+
+// Delegate Click for Message Selection
+chatMessages.addEventListener('click', (e) => {
+    if (!isSelectionMode) return;
+
+    const msgEl = e.target.closest('.message');
+    if (!msgEl) return;
+
+    // Prevent interaction with buttons inside
+    e.preventDefault();
+    e.stopPropagation();
+
+    const id = msgEl.dataset.id;
+    if (selectedMessages.has(id)) {
+        selectedMessages.delete(id);
+        msgEl.classList.remove('selected');
+    } else {
+        if (selectedMessages.size >= 10) return showError('Max 10 messages');
+        selectedMessages.add(id);
+        msgEl.classList.add('selected');
+    }
+});
+
+// Generate Image
+if (generateShareBtn) {
+    generateShareBtn.onclick = async () => {
+        if (selectedMessages.size === 0) return showError('Select at least one message');
+
+        // 1. Populate Export Container
+        exportList.innerHTML = '';
+
+        // Sort selected messages by position in DOM to maintain order
+        const allMessages = Array.from(document.querySelectorAll('.message'));
+        const sortedSelected = allMessages.filter(m => selectedMessages.has(m.dataset.id));
+
+        sortedSelected.forEach(el => {
+            const clone = el.cloneNode(true);
+            clone.classList.remove('selected');
+            clone.style.margin = '10px 0'; // ensure spacing in image
+            exportList.appendChild(clone);
+        });
+
+        // 2. Capture
+        try {
+            exportContainer.style.visibility = 'visible'; // Make visible for capture
+            exportContainer.style.top = '0'; // Bring into viewport temporarily (off-screen sometimes fails)
+
+            const canvas = await html2canvas(exportContainer, {
+                backgroundColor: '#2c2f33',
+                scale: 2, // High res
+                logging: false,
+                useCORS: true // For images
+            });
+
+            // Hide again
+            exportContainer.style.visibility = 'hidden';
+            exportContainer.style.top = '-9999px';
+
+            // 3. Show Modal
+            sharePreview.innerHTML = '';
+            const img = document.createElement('img');
+            img.src = canvas.toDataURL('image/png');
+            img.style.maxWidth = '100%';
+            img.style.borderRadius = '8px';
+            sharePreview.appendChild(img);
+
+            downloadLink.href = canvas.toDataURL('image/png');
+            downloadLink.download = `chathere_${Date.now()}.png`;
+            shareModal.style.display = 'flex';
+
+            toggleSelectionMode(false); // Exit mode
+
+        } catch (err) {
+            console.error(err);
+            showError('Failed to generate image');
+            exportContainer.style.visibility = 'hidden';
+            exportContainer.style.top = '-9999px';
+        }
+    };
+}
+
+// Close Modal outside click
+window.onclick = (e) => {
+    if (e.target === shareModal) shareModal.style.display = 'none';
+};
+
+
+// Share Room Button (P2)
+const shareRoomBtn = document.getElementById('share-room-btn');
+if (shareRoomBtn) {
+    shareRoomBtn.onclick = async () => {
+        const url = 'https://chathere.online/?room=' + encodeURIComponent(currentRoom);
+        if (navigator.share) {
+            try { await navigator.share({ title: 'Join me on ChatHere - ' + currentRoom, text: 'Chat anonymously in the ' + currentRoom + ' room!', url }); } catch(e) {}
+        } else {
+            navigator.clipboard.writeText(url).then(() => {
+                const d = document.createElement('div');
+                d.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#43b581;color:#fff;padding:10px 20px;border-radius:8px;z-index:10000;font-weight:600;';
+                d.textContent = 'Room link copied!';
+                document.body.appendChild(d);
+                setTimeout(() => d.remove(), 2000);
+            });
+        }
+    };
+}
+
+// ============================================
+// @MENTION AUTOCOMPLETE UTILITIES
+// ============================================
+function filterAndShowAutocomplete(query) {
+    // Filter activeUsers by matching the query (case insensitive)
+    // Exclude the current user to prevent mentioning yourself
+    filteredMentionUsers = activeUsers.filter(u => {
+        if (currentUsername && u.username.toLowerCase() === currentUsername.toLowerCase()) {
+            return false;
+        }
+        return u.username.toLowerCase().includes(query.toLowerCase());
+    });
+
+    if (filteredMentionUsers.length === 0) {
+        hideAutocomplete();
+        return;
+    }
+
+    // Limit to 8 results for a clean UI
+    filteredMentionUsers = filteredMentionUsers.slice(0, 8);
+    
+    const autocompleteEl = document.getElementById('mention-autocomplete');
+    if (!autocompleteEl) return;
+
+    autocompleteEl.innerHTML = '';
+    autocompleteEl.style.display = 'block';
+
+    selectedMentionIndex = 0; // Default select first item
+
+    filteredMentionUsers.forEach((user, index) => {
+        const item = document.createElement('div');
+        item.className = 'mention-item';
+        if (index === selectedMentionIndex) {
+            item.classList.add('active');
+        }
+
+        // Color dot
+        const dot = document.createElement('span');
+        dot.className = 'mention-dot';
+        dot.style.background = user.color || '#a5b4fc';
+
+        // Name
+        const name = document.createElement('span');
+        name.className = 'mention-name';
+        name.textContent = user.username;
+
+        // Badge
+        const badge = document.createElement('span');
+        badge.className = 'badge-role'; // Let's use standard class
+        badge.classList.add('mention-badge');
+        if (user.isBot) {
+            badge.classList.add('bot');
+            badge.textContent = 'Bot';
+        } else {
+            badge.textContent = 'User';
+        }
+
+        item.appendChild(dot);
+        item.appendChild(name);
+        item.appendChild(badge);
+
+        // Click selection
+        item.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            selectAutocompleteUser(user.username);
+        };
+
+        autocompleteEl.appendChild(item);
+    });
+}
+
+function selectAutocompleteUser(username) {
+    const value = msgInput.value;
+    const beforeMention = value.slice(0, mentionStartIdx);
+    const afterMention = value.slice(msgInput.selectionEnd);
+    
+    // Insert autocomplete mention with a trailing space
+    msgInput.value = beforeMention + `@${username} ` + afterMention;
+    
+    // Reset selection/cursor position right after inserted name and space
+    const newCursorPos = mentionStartIdx + username.length + 2; // @ + name + space
+    msgInput.setSelectionRange(newCursorPos, newCursorPos);
+    
+    hideAutocomplete();
+    msgInput.focus();
+}
+
+function hideAutocomplete() {
+    isMentionActive = false;
+    selectedMentionIndex = -1;
+    filteredMentionUsers = [];
+    const autocompleteEl = document.getElementById('mention-autocomplete');
+    if (autocompleteEl) {
+        autocompleteEl.style.display = 'none';
+    }
+}
+
+function updateActiveAutocompleteItem() {
+    const autocompleteEl = document.getElementById('mention-autocomplete');
+    if (!autocompleteEl) return;
+    
+    const items = autocompleteEl.querySelectorAll('.mention-item');
+    items.forEach((item, index) => {
+        if (index === selectedMentionIndex) {
+            item.classList.add('active');
+            item.scrollIntoView({ block: 'nearest' });
+        } else {
+            item.classList.remove('active');
+        }
+    });
 }
