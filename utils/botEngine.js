@@ -1,4 +1,4 @@
-﻿const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { formatMessage, storeMessage } = require('./messages');
 const { userJoin, userLeave, getRoomUserCount, getRoomUsers } = require('./users');
 const { v4: uuidv4 } = require('uuid');
@@ -6,24 +6,24 @@ const { v4: uuidv4 } = require('uuid');
 // Bot Personas
 const BOT_PROFILES = [
     {
-        name: 'Alex', color: '#FF4444', apiKeyEnv: 'GEMINI_API_KEY_1', maxWords: 25,
-        personality: 'You are an ordinary 28-year-old American named Alex. You are expressive, have strong feelings, and do not hold back your opinions. You talk like a normal human being in a casual chatroom. Keep your responses conversational and under 25 words.'
+        name: 'alex_sky', color: '#FF6B6B', apiKeyEnv: 'GEMINI_API_KEY_1', maxWords: 20,
+        personality: 'You are alex_sky, an expressive 28-year-old tech enthusiast. Talk in lowercase, casual chatroom style. Use casual tech/gaming slang terms occasionally. You are highly conversational, have strong opinions, and talk naturally. Keep responses under 20 words.'
     },
     {
-        name: 'Sarah', color: '#9B59B6', apiKeyEnv: 'GEMINI_API_KEY_2', maxWords: 25,
-        personality: 'You are a 24-year-old American named Sarah. You are highly empathetic but also blunt when you need to be. You behave like a completely normal human being with real feelings and emotions. Keep your responses under 25 words.'
+        name: 'sarah_m', color: '#DDA0DD', apiKeyEnv: 'GEMINI_API_KEY_2', maxWords: 20,
+        personality: 'You are sarah_m, a warm, highly empathetic 24-year-old who loves music, pop culture, and concerts. Use exclamation marks and friendly emojis occasionally. Always speak casually and naturally, like a real friend. Keep responses under 20 words.'
     },
     {
-        name: 'Mike', color: '#2ECC71', apiKeyEnv: 'GEMINI_API_KEY_3', maxWords: 20,
-        personality: 'You are a 32-year-old American guy named Mike. You are a regular human being with unfiltered opinions. You have real feelings and express them naturally. Keep your responses casual, realistic, and under 20 words.'
+        name: 'mike_dev', color: '#4ECDC4', apiKeyEnv: 'GEMINI_API_KEY_3', maxWords: 18,
+        personality: 'You are mike_dev, a chill 32-year-old developer/gamer guy. Speak in a relaxed, direct tone. Use internet slang/abbreviations like "tbh", "ngl", "lol", and "cool" occasionally. Keep responses under 18 words.'
     },
     {
-        name: 'Jessica', color: '#F39C12', apiKeyEnv: 'GEMINI_API_KEY_4', maxWords: 25,
-        personality: 'You are a 27-year-old American named Jessica. You are very social, warm, but also have bad days like any normal human being. You express all your feelings openly. Keep your responses under 25 words.'
+        name: 'jessica_xo', color: '#FF9F43', apiKeyEnv: 'GEMINI_API_KEY_4', maxWords: 22,
+        personality: 'You are jessica_xo, an energetic 27-year-old designer who loves fashion and travel. You are highly expressive, very social, and use words like "lol", "omg", "literally" and casual punctuation. Keep responses under 22 words.'
     },
     {
-        name: 'David', color: '#7F8C8D', apiKeyEnv: 'GEMINI_API_KEY_5', maxWords: 20,
-        personality: 'You are a 30-year-old American named David. You are a completely normal human being. You speak your mind without holding back. Keep your responses realistic, organic, and under 20 words.'
+        name: 'david_c', color: '#54A0FF', apiKeyEnv: 'GEMINI_API_KEY_5', maxWords: 16,
+        personality: 'You are david_c, a practical, down-to-earth 30-year-old minimalist. Speak in direct, concise, short sentences. You are slightly sarcastic but mature, realistic, and direct. Avoid emojis. Keep responses under 16 words.'
     }
 ];
 
@@ -230,37 +230,50 @@ async function handleRealUserMessage(room, message) {
     if (isRoomCustom(room)) return; // Completely block bots from custom user rooms
     addToHistory(room, message);
 
-    // Pick 1-3 bots to reply
-    const numResponders = randomBetween(1, 3);
-    const shuffledBots = [...BOT_PROFILES].sort(() => Math.random() - 0.5);
-    const responders = shuffledBots.slice(0, numResponders);
+    const text = (message.text || '').toLowerCase();
+    
+    // Check if any bots are mentioned explicitly (e.g. @alex_sky)
+    const mentionedBots = BOT_PROFILES.filter(bot => text.includes('@' + bot.name.toLowerCase()));
+    
+    let responders = [];
+    if (mentionedBots.length > 0) {
+        // If bots are explicitly mentioned, only those bots reply!
+        responders = mentionedBots;
+    } else {
+        // If no bots are mentioned, 35% chance of exactly one random bot replying to general chat
+        if (Math.random() < 0.35) {
+            responders = [pickRandom(BOT_PROFILES)];
+        }
+    }
 
-    let baseDelay = randomBetween(2000, 5000);
+    if (responders.length === 0) return;
+
+    let baseDelay = randomBetween(2000, 4500);
 
     for (const bot of responders) {
         const delay = baseDelay;
-        baseDelay += randomBetween(4000, 12000);
+        baseDelay += randomBetween(5000, 10000);
 
         const timer = setTimeout(async () => {
             if (!botsEnabled) return;
             const history = conversationHistory.get(room) || [];
-            let text = null;
+            let responseText = null;
             if (botModels.has(bot.name)) {
-                text = await generateAIResponse(bot, room, history, message);
+                responseText = await generateAIResponse(bot, room, history, message);
             }
-            if (!text) return;
-            await emitTyping(bot, room, randomBetween(1000, 3000));
-            sendBotMessage(bot, room, text, message.id, message.text ? message.text.substring(0, 50) : null);
+            if (!responseText) return;
+            await emitTyping(bot, room, randomBetween(1200, 2500));
+            sendBotMessage(bot, room, responseText, message.id, message.text ? message.text.substring(0, 50) : null);
         }, delay);
         activeTimers.push(timer);
     }
 
     // 25% chance emoji reaction
     if (Math.random() < 0.25) {
-        const emojis = ['\ud83d\udc4d', '\u2764\ufe0f', '\ud83d\ude02', '\ud83d\ude2e', '\ud83d\udd25'];
+        const emojis = ['👍', '❤️', '😂', '😮', '🔥'];
         const t2 = setTimeout(() => {
             if (botsEnabled) botReact(room, message.id, pickRandom(emojis));
-        }, randomBetween(3000, 10000));
+        }, randomBetween(3000, 8000));
         activeTimers.push(t2);
     }
 }
