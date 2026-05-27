@@ -160,13 +160,18 @@ app.get('/api/config', (req, res) => {
     });
 });
 
-// Broadcast room user counts to all clients
+// Broadcast room user counts to all clients (debounced to coalesce rapid events)
+let _broadcastRoomCountsTimer = null;
 function broadcastRoomCounts() {
-    const counts = {};
-    rooms.forEach(r => {
-        counts[r.id] = getRoomUserCount(r.id);
-    });
-    io.emit('room-counts', counts);
+    if (_broadcastRoomCountsTimer) return;
+    _broadcastRoomCountsTimer = setTimeout(() => {
+        _broadcastRoomCountsTimer = null;
+        const counts = {};
+        rooms.forEach(r => {
+            counts[r.id] = getRoomUserCount(r.id);
+        });
+        io.emit('room-counts', counts);
+    }, 500);
 }
 
 // --- Admin API ---

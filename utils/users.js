@@ -1,4 +1,5 @@
-const users = [];
+const usersById = new Map();
+const roomUsersMap = new Map(); // room -> Set<userId>
 
 // Fixed distinct color palette
 const COLORS = [
@@ -30,6 +31,12 @@ function generateColor() {
 
 // Join user to chat
 function userJoin(id, username, room, isBot = false) {
+    // Remove from old room if re-joining
+    if (usersById.has(id)) {
+        const old = usersById.get(id);
+        const oldSet = roomUsersMap.get(old.room);
+        if (oldSet) oldSet.delete(id);
+    }
     const user = {
         id,
         username,
@@ -38,37 +45,48 @@ function userJoin(id, username, room, isBot = false) {
         lastMessageTime: 0,
         isBot
     };
-    users.push(user);
+    usersById.set(id, user);
+    if (!roomUsersMap.has(room)) roomUsersMap.set(room, new Set());
+    roomUsersMap.get(room).add(id);
     return user;
 }
 
 // Get current user
 function getCurrentUser(id) {
-    return users.find(user => user.id === id);
+    return usersById.get(id) || null;
 }
 
 // User leaves chat
 function userLeave(id) {
-    const index = users.findIndex(user => user.id === id);
-
-    if (index !== -1) {
-        return users.splice(index, 1)[0];
-    }
+    const user = usersById.get(id);
+    if (!user) return undefined;
+    usersById.delete(id);
+    const set = roomUsersMap.get(user.room);
+    if (set) set.delete(id);
+    return user;
 }
 
 // Get room users
 function getRoomUsers(room) {
-    return users.filter(user => user.room === room);
+    const set = roomUsersMap.get(room);
+    if (!set || set.size === 0) return [];
+    const result = [];
+    for (const id of set) {
+        const user = usersById.get(id);
+        if (user) result.push(user);
+    }
+    return result;
 }
 
 // Get room user count only
 function getRoomUserCount(room) {
-    return users.filter(user => user.room === room).length;
+    const set = roomUsersMap.get(room);
+    return set ? set.size : 0;
 }
 
 // Update last message time
 function updateLastMessageTime(id) {
-    const user = users.find(user => user.id === id);
+    const user = usersById.get(id);
     if (user) {
         user.lastMessageTime = Date.now();
     }

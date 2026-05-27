@@ -134,9 +134,25 @@ window.addEventListener('focus', () => { isTabFocused = true; });
 window.addEventListener('blur', () => { isTabFocused = false; });
 
 // Notification sound (generated tone)
+let _sharedAudioCtx = null;
+function _getAudioCtx() {
+    try {
+        if (!_sharedAudioCtx) {
+            _sharedAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (_sharedAudioCtx.state === 'suspended') {
+            _sharedAudioCtx.resume();
+        }
+        return _sharedAudioCtx;
+    } catch (e) {
+        return null;
+    }
+}
+
 function playNotificationSound() {
     try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const ctx = _getAudioCtx();
+        if (!ctx) return;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.connect(gain);
@@ -153,7 +169,8 @@ function playNotificationSound() {
 // Premium synthesizer double beep sound for mentions
 function playMentionSound() {
     try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const ctx = _getAudioCtx();
+        if (!ctx) return;
         const playBeep = (freq, startTime, duration) => {
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
@@ -201,11 +218,12 @@ function populateEmojiPicker() {
 }
 
 // Fetch Rooms
+let cachedRooms = [];
 async function fetchRooms() {
     try {
         const res = await fetch('/api/rooms');
-        const rooms = await res.json();
-        renderRooms(rooms);
+        cachedRooms = await res.json();
+        renderRooms(cachedRooms);
     } catch (e) { console.error(e); }
 }
 
@@ -331,10 +349,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Live search text filtering trigger
+    // Live search text filtering trigger with debouncing
+    let searchDebounceTimer = null;
     if (roomsSearchInput) {
         roomsSearchInput.addEventListener('input', () => {
-            fetchRooms(); // refetch and trigger re-render
+            if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => {
+                fetchRooms(); // refetch and trigger re-render
+            }, 300);
         });
     }
 });
@@ -542,7 +564,10 @@ function switchRoom(newRoom) {
 
 // Socket Events
 socket.on('rooms-updated', (rooms) => {
-    if (Array.isArray(rooms)) renderRooms(rooms);
+    if (Array.isArray(rooms)) {
+        cachedRooms = rooms;
+        renderRooms(rooms);
+    }
 });
 
 socket.on('roomUsers', ({ users }) => {
@@ -552,8 +577,12 @@ socket.on('roomUsers', ({ users }) => {
 });
 
 socket.on('message', (msg) => {
+    const isAtBottom = (chatMessages.scrollHeight - chatMessages.clientHeight - chatMessages.scrollTop) <= 150;
+    const isOwnMessage = msg.senderId === socket.id;
     outputMessage(msg);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    if (isAtBottom || isOwnMessage) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 
     // Check if the current user is mentioned by someone else in the room
     const isMentioned = msg.text && msg.senderId !== socket.id && msg.senderId !== 'system' &&
@@ -578,20 +607,20 @@ socket.on('message', (msg) => {
     // This handles messages in current room - unread for other rooms handled by room-message event
 });
 
-// Unread messages for other rooms
+// Unread messages for other rooms (render sidebar badge locally from memory)
 socket.on('room-message', ({ room }) => {
     if (room !== currentRoom) {
         unreadCounts[room] = (unreadCounts[room] || 0) + 1;
-        fetchRooms(); // re-render sidebar to show badge
+        renderRooms(cachedRooms); // re-render sidebar locally without HTTP request
     }
 });
 
 
 
-// Room counts from server
+// Room counts from server (render sidebar counts locally from memory)
 socket.on('room-counts', (counts) => {
     roomCounts = counts;
-    fetchRooms(); // re-render sidebar with updated counts
+    renderRooms(cachedRooms); // re-render sidebar locally without HTTP request
 });
 
 // Online count update
