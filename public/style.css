@@ -3230,3 +3230,179 @@ body::before {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+/* =========================================
+   INLINE USERNAME EDITING STYLES
+   ========================================= */
+.username-display {
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.username-display:hover {
+  opacity: 0.9;
+}
+
+.edit-indicator {
+  font-size: 0.85rem;
+  margin-left: 8px;
+  opacity: 0.3;
+  color: #ffd700;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  vertical-align: middle;
+}
+
+.username-display:hover .edit-indicator {
+  opacity: 0.9;
+  transform: scale(1.15) rotate(-10deg);
+}
+
+.username-edit-input {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+  background: transparent;
+  border: none;
+  outline: none;
+  letter-spacing: 0.5px;
+  flex-grow: 1;
+  text-align: center;
+  font-family: 'Inter', system-ui, sans-serif;
+  padding-left: 32px;
+  caret-color: #ffd700;
+  width: 100%;
+  animation: fadeIn 0.2s ease;
+}
+
+.username-edit-input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+  font-weight: 500;
+}
+
+/* =========================================
+   PRIVATE ROOM USERS LIST PANEL STYLES
+   ========================================= */
+.chat-container {
+  position: relative; /* Anchor the absolute floating panel */
+}
+
+.users-list-panel {
+  position: absolute;
+  top: 64px;
+  right: 16px;
+  width: 260px;
+  max-height: 350px;
+  background: rgba(15, 15, 20, 0.85);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  padding: 16px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: slideInDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.users-list-panel h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 8px;
+}
+
+.user-badge-count {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  color: #ccc;
+}
+
+.panel-users-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  max-height: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.panel-users-list::-webkit-scrollbar {
+  width: 4px;
+}
+.panel-users-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.panel-user-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.panel-user-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.panel-user-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #43b581; /* Green for online */
+}
+
+.panel-user-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #eee;
+  flex-grow: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel-user-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.panel-user-tag.you {
+  background: rgba(88, 101, 242, 0.2);
+  color: #5865f2;
+}
+
+.panel-user-tag.bot {
+  background: rgba(255, 215, 0, 0.15);
+  color: #ffd700;
+}

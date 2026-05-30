@@ -135,8 +135,10 @@ function setPinnedMessage(msg) { pinnedMessage = msg; }
 // --- Room Users Broadcast Helper ---
 
 function emitRoomUsers(io, room, extraFields) {
+    const roomConfig = findRoom(room);
     const payload = {
         room,
+        isPrivate: roomConfig ? !!roomConfig.isPrivate : false,
         count: getRoomUserCount(room),
         users: getRoomUsers(room).map(u => ({
             username: u.username,

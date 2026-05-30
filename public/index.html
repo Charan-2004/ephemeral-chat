@@ -307,7 +307,11 @@
                         <div class="form-control" style="flex: 1;">
                             <label for="username">Your Alias</label>
                             <div class="username-display-wrapper">
-                                <div class="username-display" id="username-display">Generating...</div>
+                                <div class="username-display" id="username-display" title="Click to edit">
+                                    <span id="username-text">Generating...</span>
+                                    <i class="fas fa-pencil-alt edit-indicator"></i>
+                                </div>
+                                <input type="text" id="username-edit-input" class="username-edit-input" style="display: none;" maxlength="20" placeholder="Type custom name..." />
                                 <button type="button" class="btn-regenerate" id="regenerate-username-btn" title="Generate another name">
                                     <i class="fas fa-redo-alt"></i>
                                 </button>
@@ -445,6 +449,11 @@
         </div>
     </div>
     <div class="chat-container" id="chat-screen" style="display: none;">
+        <!-- Floating Users List Panel (Private Rooms Only) -->
+        <div id="users-list-panel" class="users-list-panel" style="display: none;">
+            <h3>Online Users <span id="users-list-count" class="user-badge-count">0</span></h3>
+            <ul id="users-list-content" class="panel-users-list"></ul>
+        </div>
         <header class="chat-header">
             <div class="header-branding">
                 <button id="mobile-menu-btn" class="btn btn-icon" style="display: none; margin-right: 10px;">
@@ -459,6 +468,9 @@
                 <span class="info-tag pass-tag" id="info-room-pass-wrapper" style="display: none;"><i class="fas fa-key"></i> Key: <strong id="info-room-pass"></strong></span>
             </div>
             <div class="header-right">
+                <button id="users-list-btn" class="btn btn-sm" title="View users in this room" style="display: none;">
+                    <i class="fas fa-users"></i>
+                </button>
                 <button id="share-btn" class="btn btn-sm" title="Select messages to share"><i
                         class="fas fa-share-alt"></i></button>
                 <button id="share-room-btn" class="btn btn-sm" title="Share this room"><i class="fas fa-link"></i></button>

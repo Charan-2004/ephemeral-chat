@@ -92,6 +92,12 @@ const usernameDisplay = document.getElementById('username-display');
 const usernameInput = document.getElementById('username');
 const regenerateBtn = document.getElementById('regenerate-username-btn');
 
+// Users list selectors
+const usersListBtn = document.getElementById('users-list-btn');
+const usersListPanel = document.getElementById('users-list-panel');
+const usersListCount = document.getElementById('users-list-count');
+const usersListContent = document.getElementById('users-list-content');
+
 const ADJECTIVES = ['Silent', 'Mystic', 'Crimson', 'Golden', 'Shadow', 'Radiant', 'Frosty', 'Wild', 'Cosmic', 'Swift', 'Lone', 'Vibrant', 'Serene', 'Ember', 'Stealthy', 'Noble', 'Ancient', 'Wandering', 'Bold', 'Chilled'];
 const NOUNS = ['Wolf', 'Falcon', 'Tiger', 'Panda', 'Eagle', 'Fox', 'Dragon', 'Phoenix', 'Raven', 'Lion', 'Leopard', 'Hawk', 'Badger', 'Coyote', 'Bear', 'Jaguar', 'Viper', 'Owl', 'Dolphin', 'Stag'];
 
@@ -103,8 +109,15 @@ function generateRandomUsername() {
 }
 
 function setUsername(name) {
-    if (usernameDisplay) usernameDisplay.textContent = name;
+    const textEl = document.getElementById('username-text');
+    if (textEl) {
+        textEl.textContent = name;
+    } else if (usernameDisplay) {
+        usernameDisplay.textContent = name;
+    }
     if (usernameInput) usernameInput.value = name;
+    const editInputEl = document.getElementById('username-edit-input');
+    if (editInputEl) editInputEl.value = name;
     localStorage.setItem('chathere_username', name);
 }
 
@@ -126,6 +139,65 @@ function setUsername(name) {
 if (regenerateBtn) {
     regenerateBtn.onclick = () => {
         setUsername(generateRandomUsername());
+        const editInputEl = document.getElementById('username-edit-input');
+        if (editInputEl) editInputEl.style.display = 'none';
+        if (usernameDisplay) usernameDisplay.style.display = 'inline-flex';
+    };
+}
+
+if (usernameDisplay) {
+    usernameDisplay.onclick = () => {
+        const editInputEl = document.getElementById('username-edit-input');
+        if (editInputEl) {
+            usernameDisplay.style.display = 'none';
+            editInputEl.style.display = 'block';
+            editInputEl.focus();
+            editInputEl.select();
+        }
+    };
+}
+
+const editInputEl = document.getElementById('username-edit-input');
+if (editInputEl) {
+    const saveUsernameEdit = () => {
+        const val = editInputEl.value.trim();
+        if (!val) {
+            showError('Username cannot be empty');
+            editInputEl.focus();
+            return;
+        }
+        if (val.length > 20) {
+            showError('Username must be 20 characters or less');
+            editInputEl.focus();
+            return;
+        }
+        setUsername(val);
+        editInputEl.style.display = 'none';
+        if (usernameDisplay) usernameDisplay.style.display = 'inline-flex';
+    };
+
+    const cancelUsernameEdit = () => {
+        editInputEl.value = usernameInput.value;
+        editInputEl.style.display = 'none';
+        if (usernameDisplay) usernameDisplay.style.display = 'inline-flex';
+    };
+
+    editInputEl.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            saveUsernameEdit();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            cancelUsernameEdit();
+        }
+    };
+
+    editInputEl.onblur = () => {
+        setTimeout(() => {
+            if (editInputEl.style.display === 'block') {
+                saveUsernameEdit();
+            }
+        }, 150);
     };
 }
 
@@ -515,6 +587,10 @@ joinForm.addEventListener('submit', (e) => {
 function enterChatRoom(roomName, roomId, password) {
     joinScreen.style.display = 'none';
     chatScreen.style.display = 'flex';
+    
+    // Reset users panel state on enter
+    if (usersListBtn) usersListBtn.style.display = 'none';
+    if (usersListPanel) usersListPanel.style.display = 'none';
     const siteFooter = document.getElementById('site-footer');
     if (siteFooter) siteFooter.style.display = 'none';
     const siteHeader = document.getElementById('main-site-header');
@@ -570,9 +646,24 @@ socket.on('rooms-updated', (rooms) => {
     }
 });
 
-socket.on('roomUsers', ({ users }) => {
+socket.on('roomUsers', ({ users, isPrivate }) => {
     if (Array.isArray(users)) {
         activeUsers = users;
+        
+        // Re-render users list in panel if it is currently open
+        if (usersListPanel && usersListPanel.style.display !== 'none') {
+            renderPanelUsers();
+        }
+    }
+    
+    // Control users list button visibility based on isPrivate
+    if (usersListBtn) {
+        if (isPrivate) {
+            usersListBtn.style.display = 'inline-flex';
+        } else {
+            usersListBtn.style.display = 'none';
+            if (usersListPanel) usersListPanel.style.display = 'none';
+        }
     }
 });
 
@@ -1314,3 +1405,66 @@ function updateActiveAutocompleteItem() {
         }
     });
 }
+
+// ============================================
+// PRIVATE ROOMS USER LIST POPUP PANEL
+// ============================================
+function renderPanelUsers() {
+    if (!usersListContent || !usersListCount) return;
+    
+    usersListContent.innerHTML = '';
+    usersListCount.textContent = activeUsers.length;
+    
+    activeUsers.forEach(u => {
+        const li = document.createElement('li');
+        li.className = 'panel-user-item';
+        
+        const dot = document.createElement('span');
+        dot.className = 'panel-user-dot';
+        
+        const name = document.createElement('span');
+        name.className = 'panel-user-name';
+        name.textContent = u.username;
+        name.style.color = u.color || '#fff';
+        
+        li.appendChild(dot);
+        li.appendChild(name);
+        
+        if (u.username === currentUsername) {
+            const tag = document.createElement('span');
+            tag.className = 'panel-user-tag you';
+            tag.textContent = 'You';
+            li.appendChild(tag);
+        } else if (u.isBot) {
+            const tag = document.createElement('span');
+            tag.className = 'panel-user-tag bot';
+            tag.textContent = 'Bot';
+            li.appendChild(tag);
+        }
+        
+        usersListContent.appendChild(li);
+    });
+}
+
+if (usersListBtn && usersListPanel) {
+    usersListBtn.onclick = (e) => {
+        e.stopPropagation();
+        const isHidden = usersListPanel.style.display === 'none';
+        if (isHidden) {
+            usersListPanel.style.display = 'flex';
+            renderPanelUsers();
+        } else {
+            usersListPanel.style.display = 'none';
+        }
+    };
+    
+    usersListPanel.onclick = (e) => {
+        e.stopPropagation();
+    };
+}
+
+window.addEventListener('click', () => {
+    if (usersListPanel && usersListPanel.style.display !== 'none') {
+        usersListPanel.style.display = 'none';
+    }
+});

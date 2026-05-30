@@ -85,6 +85,12 @@ module.exports = function registerSocketHandlers(io) {
                 socket.emit('message', formatMessage('System', '\u{1F4E2} Share this room: chathere.online/?room=' + user.room + ' \u2014 invite a friend!', user.room, '#888', null, null, null, 'system'));
             }
 
+            if (roomConfig.isPrivate) {
+                const joinMsg = formatMessage('System', `${username} joined the chat.`, user.room, '#888', null, null, null, 'system');
+                storeMessage(joinMsg, io);
+                io.to(user.room).emit('message', joinMsg);
+            }
+
             emitRoomUsers(io, user.room, { userColor: user.color });
 
             // Broadcast updated counts to all clients
