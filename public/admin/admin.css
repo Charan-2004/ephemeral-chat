@@ -459,3 +459,38 @@ body {
 .bot-info-row {
     margin-top: 12px;
 }
+/* =========================================
+   PRIVATE ROOM JOINING AND LAYOUT STYLES
+   ========================================= */
+.monitor-private-join {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.monitor-private-join select {
+  margin-bottom: 0 !important; /* Override margin bottom */
+}
+
+.monitor-private-join input {
+  padding: 10px;
+  background: #16213e;
+  border: 1px solid #0f3460;
+  border-radius: 4px;
+  color: #fff;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.monitor-private-join input:focus {
+  border-color: #e94560;
+  outline: none;
+}
+
+.monitor-private-join span {
+  align-self: center;
+  color: #888;
+  font-size: 0.9rem;
+  font-weight: 500;
+}

@@ -210,6 +210,11 @@ document.getElementById('monitor-room-select').addEventListener('change', (e) =>
     document.getElementById('admin-chat-input-area').style.display = currentMonitorRoom ? 'flex' : 'none';
 
     if (currentMonitorRoom) {
+        if (adminUsername === 'system') {
+            document.getElementById('admin-chat-input').placeholder = 'Message as System...';
+        } else {
+            document.getElementById('admin-chat-input').placeholder = 'Message as Moderator...';
+        }
         socket.emit('joinRoom', { username: 'AdminMonitor', room: currentMonitorRoom });
     }
 });
@@ -218,7 +223,14 @@ document.getElementById('monitor-room-select').addEventListener('change', (e) =>
 document.getElementById('admin-chat-btn').addEventListener('click', () => {
     const txt = document.getElementById('admin-chat-input').value;
     if (txt && currentMonitorRoom) {
-        socket.emit('adminChat', { text: txt, room: currentMonitorRoom, username: adminUsername, token: adminToken });
+        const sendAsSystem = adminUsername === 'system';
+        socket.emit('adminChat', { 
+            text: txt, 
+            room: currentMonitorRoom, 
+            username: adminUsername, 
+            token: adminToken,
+            sendAsSystem: sendAsSystem
+        });
         document.getElementById('admin-chat-input').value = '';
     }
 });
@@ -435,3 +447,58 @@ setInterval(() => {
     }
 }, 30000);
 
+
+// ============================================
+// SYSTEM ADMIN PRIVATE JOIN & HELPER CONTROLLERS
+// ============================================
+const monitorPrivateBtn = document.getElementById('monitor-private-btn');
+if (monitorPrivateBtn) {
+    monitorPrivateBtn.addEventListener('click', () => {
+        const roomId = document.getElementById('monitor-private-id').value.trim().toUpperCase();
+        const password = document.getElementById('monitor-private-pass').value.trim();
+        
+        if (!roomId || roomId.length !== 8) {
+            return alert('Please enter a valid 8-character Room ID');
+        }
+        
+        if (currentMonitorRoom) {
+            socket.emit('leaveRoom', { room: currentMonitorRoom });
+        }
+        
+        currentMonitorRoom = roomId;
+        document.getElementById('monitor-messages').innerHTML = '';
+        document.getElementById('admin-chat-input-area').style.display = 'flex';
+        
+        if (adminUsername === 'system') {
+            document.getElementById('admin-chat-input').placeholder = 'Message as System...';
+        } else {
+            document.getElementById('admin-chat-input').placeholder = 'Message as Moderator...';
+        }
+        
+        socket.emit('joinRoom', { username: 'AdminMonitor', room: roomId, password: password });
+        
+        // Clear inputs
+        document.getElementById('monitor-private-id').value = '';
+        document.getElementById('monitor-private-pass').value = '';
+    });
+}
+
+// Socket error handling for Admin
+socket.on('error-message', (msg) => {
+    alert('Error: ' + msg);
+    const viewport = document.getElementById('monitor-messages');
+    if (viewport) {
+        viewport.innerHTML = `<div style="color: #ff6b6b; padding: 10px; font-weight: bold;"><i class="fas fa-exclamation-triangle"></i> Failed to monitor room: ${msg}</div>`;
+    }
+});
+
+// Chat input Enter keypress behavior
+const adminChatInput = document.getElementById('admin-chat-input');
+if (adminChatInput) {
+    adminChatInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('admin-chat-btn').click();
+        }
+    });
+}

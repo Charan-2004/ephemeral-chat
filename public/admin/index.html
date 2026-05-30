@@ -82,9 +82,15 @@
             <section id="tab-monitor" class="tab-content">
                 <h2>Live Monitor</h2>
                 <div class="monitor-layout">
-                    <select id="monitor-room-select">
-                        <option value="">Select a Room</option>
-                    </select>
+                    <div class="monitor-private-join">
+                        <select id="monitor-room-select" style="flex: 1; min-width: 150px;">
+                            <option value="">Select a Room</option>
+                        </select>
+                        <span>or</span>
+                        <input type="text" id="monitor-private-id" placeholder="Private Room ID" maxlength="8">
+                        <input type="password" id="monitor-private-pass" placeholder="Password">
+                        <button id="monitor-private-btn" class="btn" style="margin: 0; padding: 10px 15px;"><i class="fas fa-sign-in-alt"></i> Join Private</button>
+                    </div>
                     <div class="chat-viewport" id="monitor-messages">
                         <!-- Messages render here -->
                     </div>

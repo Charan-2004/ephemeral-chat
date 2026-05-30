@@ -155,17 +155,23 @@ module.exports = function registerSocketHandlers(io) {
             }
         });
 
-        socket.on('adminChat', ({ text, room, username, token }) => {
+        socket.on('adminChat', ({ text, room, username, token, sendAsSystem }) => {
             const session = verifySession(token);
             if (!session) {
                 socket.emit('error-message', 'Unauthorized administrative action.');
                 return;
             }
             const verifiedUsername = session.username || username || 'Moderator';
-            const message = formatMessage(verifiedUsername, text, room, '#ffd700', null, null, null, 'admin');
-            message.isAdmin = true;
-            storeMessage(message, io);
-            io.to(room).emit('message', message);
+            if (sendAsSystem && verifiedUsername === 'system') {
+                const message = formatMessage('System', text, room, '#888', null, null, null, 'system');
+                storeMessage(message, io);
+                io.to(room).emit('message', message);
+            } else {
+                const message = formatMessage(verifiedUsername, text, room, '#ffd700', null, null, null, 'admin');
+                message.isAdmin = true;
+                storeMessage(message, io);
+                io.to(room).emit('message', message);
+            }
             io.emit('room-message', { room });
         });
 
