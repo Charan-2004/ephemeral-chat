@@ -494,3 +494,39 @@ body {
   font-size: 0.9rem;
   font-weight: 500;
 }
+
+/* =========================================
+   PASSWORD VISIBILITY TOGGLE BUTTON STYLES
+   ========================================= */
+.admin-input-wrapper {
+  position: relative;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.admin-input-wrapper input {
+  width: 100%;
+  margin-bottom: 0 !important; /* Spacing handled by wrapper */
+  padding-right: 40px !important; /* Space for the eye icon */
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.4);
+  transition: color 0.2s ease, transform 0.2s ease;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.password-toggle-btn:hover {
+  color: #fff;
+  transform: translateY(-50%) scale(1.1);
+}

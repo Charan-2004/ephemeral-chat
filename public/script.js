@@ -1468,3 +1468,23 @@ window.addEventListener('click', () => {
         usersListPanel.style.display = 'none';
     }
 });
+
+// ============================================
+// PASSWORD VISIBILITY TOGGLE HELPER
+// ============================================
+function togglePasswordVisibility(inputId, btnEl) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const icon = btnEl.querySelector('i');
+    if (!icon) return;
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}

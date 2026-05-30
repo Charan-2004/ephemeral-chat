@@ -2472,7 +2472,7 @@ body::before {
   background: rgba(10, 10, 12, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 14px;
-  padding: 0 18px;
+  padding: 0 45px 0 18px;
   color: #fff;
   outline: none;
   font-size: 0.95rem;
@@ -3405,4 +3405,28 @@ body::before {
 .panel-user-tag.bot {
   background: rgba(255, 215, 0, 0.15);
   color: #ffd700;
+}
+
+/* =========================================
+   PASSWORD VISIBILITY TOGGLE BUTTON STYLES
+   ========================================= */
+.password-toggle-btn {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.4);
+  transition: color 0.2s ease, transform 0.2s ease;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.password-toggle-btn:hover {
+  color: #fff;
+  transform: translateY(-50%) scale(1.1);
 }
