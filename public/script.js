@@ -69,6 +69,11 @@ document.addEventListener('click', (e) => {
 
 const socket = io();
 
+let currentUserId = localStorage.getItem('chathere_userId');
+if (!currentUserId) {
+    currentUserId = 'usr_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+    localStorage.setItem('chathere_userId', currentUserId);
+}
 let currentUsername = '';
 let currentRoom = '';
 let replyToId = null;
@@ -530,7 +535,7 @@ function instantJoinRoom(roomId, roomName) {
     currentUsername = user;
     currentRoom = roomId;
 
-    socket.emit('joinRoom', { username: user, room: roomId });
+    socket.emit('joinRoom', { username: user, room: roomId, userId: currentUserId });
     enterChatRoom(roomName || roomId);
 }
 
@@ -555,7 +560,7 @@ joinForm.addEventListener('submit', (e) => {
         localStorage.setItem('chathere_room', room);
         currentRoom = room;
         
-        socket.emit('joinRoom', { username: user, room });
+        socket.emit('joinRoom', { username: user, room, userId: currentUserId });
         enterChatRoom(room);
     } 
     else if (activeTab === 'create') {
@@ -579,7 +584,7 @@ joinForm.addEventListener('submit', (e) => {
         }
         
         currentRoom = roomId;
-        socket.emit('joinRoom', { username: user, room: roomId, password });
+        socket.emit('joinRoom', { username: user, room: roomId, password, userId: currentUserId });
         enterChatRoom(roomId, roomId, password);
     }
 });
@@ -633,7 +638,7 @@ function switchRoom(newRoom) {
     const infoBadge = document.getElementById('room-info-badge');
     if (infoBadge) infoBadge.style.display = 'none';
     
-    socket.emit('joinRoom', { username: currentUsername, room: newRoom });
+    socket.emit('joinRoom', { username: currentUsername, room: newRoom, userId: currentUserId });
     typingUsers.clear();
     if (typingIndicator) typingIndicator.style.display = 'none';
     fetchRooms(); // Refresh UI state
@@ -657,6 +662,16 @@ socket.on('roomUsers', ({ users, isPrivate }) => {
         }
     }
     
+    // Control leaderboard button visibility
+    const leaderboardBtnEl = document.getElementById('leaderboard-btn');
+    if (leaderboardBtnEl) {
+        if (isPrivate) {
+            leaderboardBtnEl.style.display = 'none';
+        } else {
+            leaderboardBtnEl.style.display = 'inline-flex';
+        }
+    }
+
     // Control users list button visibility based on isPrivate
     if (usersListBtn) {
         if (isPrivate) {
@@ -770,7 +785,7 @@ socket.on('roomCreated', ({ roomId, roomName }) => {
     const isPrivate = selectedRoomType === 'private';
     const password = document.getElementById('create-room-password').value;
     
-    socket.emit('joinRoom', { username: currentUsername, room: roomId, password: isPrivate ? password : null });
+    socket.emit('joinRoom', { username: currentUsername, room: roomId, password: isPrivate ? password : null, userId: currentUserId });
     enterChatRoom(roomName, roomId, isPrivate ? password : null);
 });
 
@@ -866,10 +881,11 @@ function outputMessage(msg) {
     if (msg.username && msg.username !== 'System') {
         const rankBadge = document.createElement('span');
         rankBadge.className = 'chat-rank-badge';
-        rankBadge.dataset.username = msg.username;
+        const msgUserId = msg.userId || msg.senderId;
+        rankBadge.dataset.userId = msgUserId;
         rankBadge.style.display = 'none';
         if (typeof top3Users !== 'undefined' && Array.isArray(top3Users)) {
-            const entry = top3Users.find(e => e.username === msg.username);
+            const entry = top3Users.find(e => e.userId === msgUserId);
             if (entry) {
                 rankBadge.style.display = 'inline-flex';
                 rankBadge.classList.add('rank-badge-' + entry.rank);
@@ -1594,7 +1610,7 @@ function renderLeaderboard(leaderboard, myRank) {
         leaderboard.forEach(entry => {
             const item = document.createElement('div');
             const rankClass = entry.rank <= 3 ? `rank-${entry.rank}` : 'rank-other';
-            const isMe = entry.username === currentUsername;
+            const isMe = entry.userId === currentUserId;
             item.className = `leaderboard-item ${rankClass}${isMe ? ' is-me' : ''}`;
 
             // Rank circle
@@ -1687,14 +1703,14 @@ function startCountdown(msRemaining) {
 function updateAllRankBadges() {
     const allBadges = document.querySelectorAll('.chat-rank-badge');
     allBadges.forEach(badge => {
-        const username = badge.dataset.username;
+        const userId = badge.dataset.userId;
         // Reset
         badge.style.display = 'none';
         badge.className = 'chat-rank-badge';
         badge.innerHTML = '';
 
         if (top3Users && top3Users.length > 0) {
-            const entry = top3Users.find(e => e.username === username);
+            const entry = top3Users.find(e => e.userId === userId);
             if (entry) {
                 badge.style.display = 'inline-flex';
                 badge.classList.add('rank-badge-' + entry.rank);

@@ -10,7 +10,7 @@ const config = require('../utils/config');
 module.exports = function registerSocketHandlers(io) {
     io.on('connection', socket => {
 
-        socket.on('joinRoom', ({ username, room, password }) => {
+        socket.on('joinRoom', ({ username, room, password, userId }) => {
             // Resolve room by ID or name
             const roomConfig = findRoom(room);
             if (!roomConfig) {
@@ -54,7 +54,7 @@ module.exports = function registerSocketHandlers(io) {
                 }
             }
 
-            const user = userJoin(socket.id, username, resolvedRoomId);
+            const user = userJoin(socket.id, username, resolvedRoomId, false, userId);
             socket.join(user.room);
 
             const history = getRoomMessages(user.room);
@@ -152,7 +152,7 @@ module.exports = function registerSocketHandlers(io) {
                 }
 
                 updateLastMessageTime(socket.id);
-                const message = formatMessage(user.username, text, user.room, user.color, replyTo, replyToText, null, user.id);
+                const message = formatMessage(user.username, text, user.room, user.color, replyTo, replyToText, null, user.id, user.userId);
                 storeMessage(message, io);
                 io.to(user.room).emit('message', message);
                 // Notify all clients for unread badge tracking
@@ -162,7 +162,7 @@ module.exports = function registerSocketHandlers(io) {
 
                 // Leaderboard: record message for public rooms
                 if (roomConfig && !roomConfig.isPrivate) {
-                    recordMessage(user.room, user.username);
+                    recordMessage(user.room, user.userId, user.username);
                     const newTop3 = updateAndCheckTop3(user.room);
                     if (newTop3) {
                         io.to(user.room).emit('room-leaderboard-top3', newTop3);
@@ -211,7 +211,7 @@ module.exports = function registerSocketHandlers(io) {
                     return;
                 }
                 updateLastMessageTime(socket.id);
-                const message = formatMessage(user.username, '', user.room, user.color, replyTo, replyToText, imageData, user.id);
+                const message = formatMessage(user.username, '', user.room, user.color, replyTo, replyToText, imageData, user.id, user.userId);
                 storeMessage(message, io);
                 io.to(user.room).emit('message', message);
                 io.emit('room-message', { room: user.room });
@@ -219,7 +219,7 @@ module.exports = function registerSocketHandlers(io) {
                 // Leaderboard: record image message for public rooms
                 const roomConfig = findRoom(user.room);
                 if (roomConfig && !roomConfig.isPrivate) {
-                    recordMessage(user.room, user.username);
+                    recordMessage(user.room, user.userId, user.username);
                     const newTop3 = updateAndCheckTop3(user.room);
                     if (newTop3) {
                         io.to(user.room).emit('room-leaderboard-top3', newTop3);
@@ -256,7 +256,7 @@ module.exports = function registerSocketHandlers(io) {
             if (!roomConfig || roomConfig.isPrivate) return;
 
             const leaderboard = getLeaderboard(user.room);
-            const myRank = getUserRank(user.room, user.username);
+            const myRank = getUserRank(user.room, user.userId);
             const msUntilReset = getMsUntilReset();
 
             socket.emit('leaderboard-data', {
@@ -323,3 +323,4 @@ module.exports = function registerSocketHandlers(io) {
         });
     });
 };
+

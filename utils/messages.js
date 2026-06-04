@@ -4,10 +4,11 @@ const config = require('./config');
 const messages = new Map();
 const roomIndex = new Map(); // room -> Set<messageId> for O(1) room lookups
 
-function formatMessage(username, text, room, color = null, replyTo = null, replyToText = null, imageData = null, senderId = null) {
+function formatMessage(username, text, room, color = null, replyTo = null, replyToText = null, imageData = null, senderId = null, userId = null) {
     return {
         id: uuidv4(),
         senderId,
+        userId: userId || senderId,
         username,
         text,
         room,

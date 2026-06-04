@@ -30,7 +30,7 @@ function generateColor() {
 }
 
 // Join user to chat
-function userJoin(id, username, room, isBot = false) {
+function userJoin(id, username, room, isBot = false, userId = null) {
     // Remove from old room if re-joining
     if (usersById.has(id)) {
         const old = usersById.get(id);
@@ -43,7 +43,8 @@ function userJoin(id, username, room, isBot = false) {
         room,
         color: generateColor(),
         lastMessageTime: 0,
-        isBot
+        isBot,
+        userId: userId || id
     };
     usersById.set(id, user);
     if (!roomUsersMap.has(room)) roomUsersMap.set(room, new Set());
