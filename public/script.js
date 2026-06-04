@@ -1770,7 +1770,7 @@ function updateEventBannerUI() {
         timerEl.textContent = formatMsToTime(ms);
     } else {
         banner.classList.remove('event-live');
-        textEl.innerHTML = `⏳ Next Event: <strong>${eventBannerData.name}</strong> (${eventBannerData.host})`;
+        textEl.innerHTML = `⏳ Next Event: <strong>${eventBannerData.name}</strong>`;
         const ms = eventBannerData.msUntil;
         timerEl.textContent = formatMsToTime(ms);
     }
@@ -1786,10 +1786,6 @@ function startEventCountdownTicker() {
             eventBannerData.timeRemaining = Math.max(0, eventBannerData.timeRemaining - 1000);
         } else {
             eventBannerData.msUntil = Math.max(0, eventBannerData.msUntil - 1000);
-            if (eventBannerData.msUntil === 0) {
-                // Request state update from server
-                socket.emit('joinRoom', { username: currentUsername, room: currentRoom, userId: currentUserId });
-            }
         }
         
         const timerEl = document.getElementById('event-timer');

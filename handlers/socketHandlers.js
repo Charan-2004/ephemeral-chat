@@ -67,9 +67,9 @@ module.exports = function registerSocketHandlers(io) {
                 socket.emit('message-pinned', pinnedMessage);
             }
 
-            // Welcome message with disclaimer
-            const disclaimerText = 'Welcome to ChatHere! \u{1F44B} All rooms are unmonitored and user-directed. We assume zero responsibility for any room contents or user conduct. Messages vanish when the server restarts. Be kind!';
-            socket.emit('message', formatMessage('System', disclaimerText, user.room, '#888', null, null, null, 'system'));
+            // Welcome message
+            const welcomeText = 'Welcome to ChatHere! \u{1F44B} Messages vanish when the server restarts. Be kind!';
+            socket.emit('message', formatMessage('System', welcomeText, user.room, '#888', null, null, null, 'system'));
 
             // Empty room experience: show conversation starters when user is alone
             const roomUserCount = getRoomUserCount(user.room);
