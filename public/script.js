@@ -76,6 +76,7 @@ if (!currentUserId) {
 }
 let currentUsername = '';
 let currentRoom = '';
+let isCurrentRoomPrivate = false;
 let replyToId = null;
 let replyToText = null;
 let currentMessageIdForReaction = null;
@@ -653,6 +654,7 @@ socket.on('rooms-updated', (rooms) => {
 });
 
 socket.on('roomUsers', ({ users, isPrivate }) => {
+    isCurrentRoomPrivate = !!isPrivate;
     if (Array.isArray(users)) {
         activeUsers = users;
         
@@ -669,6 +671,17 @@ socket.on('roomUsers', ({ users, isPrivate }) => {
             leaderboardBtnEl.style.display = 'none';
         } else {
             leaderboardBtnEl.style.display = 'inline-flex';
+        }
+    }
+
+    // Control event banner visibility
+    const eventBannerEl = document.getElementById('event-banner');
+    if (eventBannerEl) {
+        if (isPrivate) {
+            eventBannerEl.style.display = 'none';
+        } else if (typeof eventBannerData !== 'undefined' && eventBannerData) {
+            eventBannerEl.style.display = 'flex';
+            updateEventBannerUI();
         }
     }
 
@@ -1723,3 +1736,74 @@ function updateAllRankBadges() {
 }
 
 
+
+
+// ============================================
+// DAILY EVENTS FEATURE
+// ============================================
+let eventCountdownInterval = null;
+let eventBannerData = null;
+
+socket.on('event-status', (status) => {
+    eventBannerData = status;
+    updateEventBannerUI();
+    startEventCountdownTicker();
+});
+
+function updateEventBannerUI() {
+    const banner = document.getElementById('event-banner');
+    const textEl = document.getElementById('event-text');
+    const timerEl = document.getElementById('event-timer');
+    if (!banner || !textEl || !timerEl) return;
+
+    if (isCurrentRoomPrivate || !eventBannerData) {
+        banner.style.display = 'none';
+        return;
+    }
+
+    banner.style.display = 'flex';
+
+    if (eventBannerData.active) {
+        banner.classList.add('event-live');
+        textEl.innerHTML = `🔴 LIVE: <strong>${eventBannerData.name}</strong> hosted by <strong>${eventBannerData.host}</strong> in General!`;
+        const ms = eventBannerData.timeRemaining;
+        timerEl.textContent = formatMsToTime(ms);
+    } else {
+        banner.classList.remove('event-live');
+        textEl.innerHTML = `⏳ Next Event: <strong>${eventBannerData.name}</strong> (${eventBannerData.host})`;
+        const ms = eventBannerData.msUntil;
+        timerEl.textContent = formatMsToTime(ms);
+    }
+}
+
+function startEventCountdownTicker() {
+    if (eventCountdownInterval) clearInterval(eventCountdownInterval);
+
+    eventCountdownInterval = setInterval(() => {
+        if (!eventBannerData) return;
+
+        if (eventBannerData.active) {
+            eventBannerData.timeRemaining = Math.max(0, eventBannerData.timeRemaining - 1000);
+        } else {
+            eventBannerData.msUntil = Math.max(0, eventBannerData.msUntil - 1000);
+            if (eventBannerData.msUntil === 0) {
+                // Request state update from server
+                socket.emit('joinRoom', { username: currentUsername, room: currentRoom, userId: currentUserId });
+            }
+        }
+        
+        const timerEl = document.getElementById('event-timer');
+        if (timerEl) {
+            const ms = eventBannerData.active ? eventBannerData.timeRemaining : eventBannerData.msUntil;
+            timerEl.textContent = formatMsToTime(ms);
+        }
+    }, 1000);
+}
+
+function formatMsToTime(ms) {
+    const totalSecs = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSecs / 3600);
+    const mins = Math.floor((totalSecs % 3600) / 60);
+    const secs = totalSecs % 60;
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}

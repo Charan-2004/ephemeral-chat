@@ -3782,3 +3782,72 @@ body::before {
     color: #cd7f32;
     border: 1px solid rgba(205, 127, 50, 0.25);
 }
+
+
+/* ============================================
+   DAILY EVENTS BANNER STYLING
+   ============================================ */
+.event-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.9rem;
+    color: #e0e0e0;
+    transition: all 0.3s ease;
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+.event-banner.event-live {
+    background: linear-gradient(90deg, rgba(230, 126, 34, 0.1), rgba(255, 215, 0, 0.05));
+    border-bottom: 1px solid rgba(230, 126, 34, 0.3);
+    animation: live-pulse 3s infinite alternate;
+}
+
+@keyframes live-pulse {
+    0% { box-shadow: inset 0 0 5px rgba(230, 126, 34, 0.1); }
+    100% { box-shadow: inset 0 0 15px rgba(230, 126, 34, 0.25); }
+}
+
+.event-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    color: #a0a0a0;
+}
+
+.event-banner.event-live .event-icon {
+    color: #e67e22;
+    animation: pulse-icon 1s infinite alternate;
+}
+
+@keyframes pulse-icon {
+    0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(230, 126, 34, 0.5)); }
+    100% { transform: scale(1.15); filter: drop-shadow(0 0 8px rgba(230, 126, 34, 0.9)); }
+}
+
+.event-text {
+    flex-grow: 1;
+    font-weight: 500;
+}
+
+.event-timer {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    font-size: 1rem;
+    padding: 2px 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.event-banner.event-live .event-timer {
+    border-color: rgba(230, 126, 34, 0.4);
+    color: #e67e22;
+}

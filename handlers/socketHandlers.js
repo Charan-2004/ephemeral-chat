@@ -1,4 +1,5 @@
 ﻿const { formatMessage, storeMessage, addReaction, getRoomMessages } = require('../utils/messages');
+const eventsEngine = require('../utils/eventsEngine');
 const { userJoin, getCurrentUser, userLeave, getRoomUsers, getRoomUserCount, updateLastMessageTime } = require('../utils/users');
 const { isMessageSafe } = require('../utils/moderation');
 const { handleRealUserMessage, getBotStatus } = require('../utils/botEngine');
@@ -103,6 +104,14 @@ module.exports = function registerSocketHandlers(io) {
             // Broadcast updated counts to all clients
             broadcastRoomCounts(io);
             io.emit('online-count', io.engine.clientsCount + getBotStatus().botCount);
+
+            // Send current active event or next event countdown to user
+            const { activeEvent, nextEvent } = eventsEngine.getNextEventInfo();
+            if (activeEvent) {
+                socket.emit('event-status', { active: true, name: activeEvent.name, host: activeEvent.host, timeRemaining: activeEvent.timeRemaining });
+            } else if (nextEvent) {
+                socket.emit('event-status', { active: false, name: nextEvent.name, host: nextEvent.host, msUntil: nextEvent.msUntil });
+            }
         });
 
         // Typing Indicator (Throttle to max 1 emit per second)
@@ -157,6 +166,17 @@ module.exports = function registerSocketHandlers(io) {
                 io.to(user.room).emit('message', message);
                 // Notify all clients for unread badge tracking
                 io.emit('room-message', { room: user.room });
+
+                // Event message routing
+                if (user.room === 'General') {
+                    if (eventsEngine.triviaActive()) {
+                        eventsEngine.handleTriviaAnswer(user.username, user.userId, text);
+                    } else if (eventsEngine.storyActive()) {
+                        eventsEngine.handleStoryLine(user.username, text);
+                    } else if (eventsEngine.debateActive()) {
+                        eventsEngine.handleDebateComment(user.username, text);
+                    }
+                }
                 // Let bots potentially respond
                 handleRealUserMessage(user.room, message);
 

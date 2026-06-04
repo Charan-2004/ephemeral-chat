@@ -24,6 +24,18 @@ const BOT_PROFILES = [
     {
         name: 'david_c', color: '#54A0FF', apiKeyEnv: 'GEMINI_API_KEY_5', maxWords: 16,
         personality: 'You are david_c, a practical, down-to-earth 30-year-old minimalist. Speak in direct, concise, short sentences. You are slightly sarcastic but mature, realistic, and direct. Avoid emojis. Keep responses under 16 words.'
+    },
+    {
+        name: 'TriviaHost', color: '#FFD700', apiKeyEnv: 'GEMINI_API_KEY', maxWords: 30,
+        personality: 'You are TriviaHost, the gold-themed energetic host of the Daily Trivia Showdown. Speak in high energy, use exclamation marks and trivia emojis, and keep chat moving. Be concise and clear.'
+    },
+    {
+        name: 'StoryHost', color: '#DDA0DD', apiKeyEnv: 'GEMINI_API_KEY', maxWords: 40,
+        personality: 'You are StoryHost, the whimsical host of Creative Co-Write hour. Speak in a warm, encouraging, and imaginative tone. Help users co-create amazing stories.'
+    },
+    {
+        name: 'DebateBot', color: '#E67E22', apiKeyEnv: 'GEMINI_API_KEY', maxWords: 30,
+        personality: 'You are DebateBot, the sharp moderator of Midnight Debate hour. Present interesting discussion points, play devil\'s advocate, and encourage chat participants to state their opinions.'
     }
 ];
 
@@ -291,7 +303,8 @@ function startAmbientLoop(rooms) {
             const room = pickRandom(available);
 
             if (botModels.size > 0) {
-                const bot = pickRandom(BOT_PROFILES);
+                const normalBots = BOT_PROFILES.filter(b => b.name !== 'TriviaHost' && b.name !== 'StoryHost' && b.name !== 'DebateBot');
+                const bot = pickRandom(normalBots);
                 const history = conversationHistory.get(room) || [];
                 const text = await generateAIResponse(bot, room, history, null);
                 if (botsEnabled && text) {
@@ -300,7 +313,8 @@ function startAmbientLoop(rooms) {
 
                     // 50% chance a second bot replies
                     if (Math.random() < 0.5) {
-                        const bot2 = pickRandom(BOT_PROFILES.filter(b => b.name !== bot.name));
+                        const normalBots = BOT_PROFILES.filter(b => b.name !== 'TriviaHost' && b.name !== 'StoryHost' && b.name !== 'DebateBot');
+                        const bot2 = pickRandom(normalBots.filter(b => b.name !== bot.name));
                         const t2 = setTimeout(async () => {
                             if (!botsEnabled) return;
                             const h2 = conversationHistory.get(room) || [];
@@ -325,7 +339,7 @@ function startAmbientLoop(rooms) {
 function startTrendingLoop(rooms) {
     async function runTrending() {
         if (!botsEnabled || botModels.size === 0) return;
-        const botsWithModels = BOT_PROFILES.filter(b => botModels.has(b.name));
+        const botsWithModels = BOT_PROFILES.filter(b => botModels.has(b.name) && b.name !== 'TriviaHost' && b.name !== 'StoryHost' && b.name !== 'DebateBot');
         const bot = pickRandom(botsWithModels);
         const model = botModels.get(bot.name);
 
@@ -355,7 +369,8 @@ function startTrendingLoop(rooms) {
         await emitTyping(bot1, targetRoom, randomBetween(1000, 3000));
         sendBotMessage(bot1, targetRoom, opener);
 
-        const bot2 = pickRandom(BOT_PROFILES.filter(b => b.name !== bot1.name));
+        const normalBots = BOT_PROFILES.filter(b => b.name !== 'TriviaHost' && b.name !== 'StoryHost' && b.name !== 'DebateBot');
+        const bot2 = pickRandom(normalBots.filter(b => b.name !== bot1.name));
         const t = setTimeout(async () => {
             if (!botsEnabled) return;
             const h = conversationHistory.get(targetRoom) || [];
@@ -377,6 +392,15 @@ function startTrendingLoop(rooms) {
         activeTimers.push(t);
     }
     scheduleNext();
+}
+
+
+async function generateCustomBotResponse(botName, prompt) {
+    const botProfile = BOT_PROFILES.find(b => b.name === botName);
+    if (!botProfile) return null;
+    const model = botModels.get(botName);
+    if (!model) return null;
+    return apiQueue.enqueue(botProfile, model, prompt);
 }
 
 // Public API
@@ -450,4 +474,4 @@ function getBotStatus() {
 
 function isBot(username) { return isBotUser(username); }
 
-module.exports = { initBots, enableBots, disableBots, getBotStatus, handleRealUserMessage, isBot, BOT_PROFILES };
+module.exports = { generateCustomBotResponse, sendBotMessage, emitTyping, initBots, enableBots, disableBots, getBotStatus, handleRealUserMessage, isBot, BOT_PROFILES };
