@@ -11,6 +11,7 @@ const rateLimit = require('express-rate-limit');
 const { cleanExpiredMessages } = require('./utils/messages');
 const { initBots } = require('./utils/botEngine');
 const { getRooms, getPublicRooms, cleanupIdleCustomRooms, broadcastRoomCounts } = require('./utils/roomManager');
+const { initLeaderboardScheduler } = require('./utils/leaderboard');
 const publicRoutes = require('./routes/publicRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const registerSocketHandlers = require('./handlers/socketHandlers');
@@ -125,4 +126,5 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     initBots(io, getRooms());
+    initLeaderboardScheduler(io);
 });

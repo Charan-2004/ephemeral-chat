@@ -4,6 +4,7 @@ const { isMessageSafe } = require('../utils/moderation');
 const { handleRealUserMessage, getBotStatus } = require('../utils/botEngine');
 const { verifySession } = require('../utils/adminAuth');
 const { getRooms, findRoom, addRoom, generateUniqueRoomId, tryCleanupRoom, getPinnedMessage, broadcastRoomCounts, getPublicRooms, emitRoomUsers } = require('../utils/roomManager');
+const { recordMessage, getLeaderboard, getUserRank, getTop3, updateAndCheckTop3, getMsUntilReset } = require('../utils/leaderboard');
 const config = require('../utils/config');
 
 module.exports = function registerSocketHandlers(io) {
@@ -93,6 +94,12 @@ module.exports = function registerSocketHandlers(io) {
 
             emitRoomUsers(io, user.room, { userColor: user.color });
 
+            // Send current leaderboard Top 3 for public rooms
+            if (!roomConfig.isPrivate) {
+                const top3 = getTop3(user.room);
+                socket.emit('room-leaderboard-top3', top3);
+            }
+
             // Broadcast updated counts to all clients
             broadcastRoomCounts(io);
             io.emit('online-count', io.engine.clientsCount + getBotStatus().botCount);
@@ -152,6 +159,15 @@ module.exports = function registerSocketHandlers(io) {
                 io.emit('room-message', { room: user.room });
                 // Let bots potentially respond
                 handleRealUserMessage(user.room, message);
+
+                // Leaderboard: record message for public rooms
+                if (roomConfig && !roomConfig.isPrivate) {
+                    recordMessage(user.room, user.username);
+                    const newTop3 = updateAndCheckTop3(user.room);
+                    if (newTop3) {
+                        io.to(user.room).emit('room-leaderboard-top3', newTop3);
+                    }
+                }
             }
         });
 
@@ -199,6 +215,16 @@ module.exports = function registerSocketHandlers(io) {
                 storeMessage(message, io);
                 io.to(user.room).emit('message', message);
                 io.emit('room-message', { room: user.room });
+
+                // Leaderboard: record image message for public rooms
+                const roomConfig = findRoom(user.room);
+                if (roomConfig && !roomConfig.isPrivate) {
+                    recordMessage(user.room, user.username);
+                    const newTop3 = updateAndCheckTop3(user.room);
+                    if (newTop3) {
+                        io.to(user.room).emit('room-leaderboard-top3', newTop3);
+                    }
+                }
             }
         });
 
@@ -220,6 +246,24 @@ module.exports = function registerSocketHandlers(io) {
                     io.to(user.room).emit('reactionAdded', { messageId, reactions: updatedMsg.reactions });
                 }
             }
+        });
+
+        // Leaderboard: client requests full leaderboard data
+        socket.on('get-leaderboard', () => {
+            const user = getCurrentUser(socket.id);
+            if (!user) return;
+            const roomConfig = findRoom(user.room);
+            if (!roomConfig || roomConfig.isPrivate) return;
+
+            const leaderboard = getLeaderboard(user.room);
+            const myRank = getUserRank(user.room, user.username);
+            const msUntilReset = getMsUntilReset();
+
+            socket.emit('leaderboard-data', {
+                leaderboard: leaderboard.slice(0, 25), // Top 25
+                myRank,
+                msUntilReset
+            });
         });
 
         // Create custom public or private rooms

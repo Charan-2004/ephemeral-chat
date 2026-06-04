@@ -1,4 +1,4 @@
-const chatForm = document.getElementById('chat-form');
+﻿const chatForm = document.getElementById('chat-form');
 const chatMessages = document.getElementById('chat-messages');
 const roomNameEl = document.getElementById('room-name');
 const joinScreen = document.getElementById('join-screen');
@@ -262,7 +262,7 @@ function playMentionSound() {
     } catch (e) {}
 }
 
-// (Online count polling removed — replaced by Active Rooms)
+// (Online count polling removed â€” replaced by Active Rooms)
 
 // Get Config
 async function getConfig() {
@@ -458,13 +458,13 @@ function renderActiveRooms(rooms) {
             grid.innerHTML = `
                 <div class="active-rooms-empty">
                     <i class="fas fa-search"></i>
-                    <span>No public rooms match "${searchQuery}" — try creating one!</span>
+                    <span>No public rooms match "${searchQuery}" â€” try creating one!</span>
                 </div>`;
         } else {
             grid.innerHTML = `
                 <div class="active-rooms-empty">
                     <i class="fas fa-moon"></i>
-                    <span>All rooms are quiet — be the first to start a conversation!</span>
+                    <span>All rooms are quiet â€” be the first to start a conversation!</span>
                 </div>`;
         }
         return;
@@ -624,6 +624,7 @@ function enterChatRoom(roomName, roomId, password) {
 
 function switchRoom(newRoom) {
     chatMessages.innerHTML = '';
+    top3Users = []; // Reset leaderboard badges for new room
     unreadCounts[newRoom] = 0; // Clear unread for room we're entering
     currentRoom = newRoom;
     roomNameEl.innerText = newRoom;
@@ -859,6 +860,25 @@ function outputMessage(msg) {
         badge.style.marginLeft = '5px';
         badge.style.fontSize = '0.8rem';
         meta.appendChild(badge);
+    }
+
+    // Leaderboard Rank Badge (Top 3)
+    if (msg.username && msg.username !== 'System') {
+        const rankBadge = document.createElement('span');
+        rankBadge.className = 'chat-rank-badge';
+        rankBadge.dataset.username = msg.username;
+        rankBadge.style.display = 'none';
+        if (typeof top3Users !== 'undefined' && Array.isArray(top3Users)) {
+            const entry = top3Users.find(e => e.username === msg.username);
+            if (entry) {
+                rankBadge.style.display = 'inline-flex';
+                rankBadge.classList.add('rank-badge-' + entry.rank);
+                if (entry.rank === 1) rankBadge.innerHTML = '<i class="fas fa-crown"></i>';
+                else if (entry.rank === 2) rankBadge.innerHTML = '<i class="fas fa-medal"></i>';
+                else if (entry.rank === 3) rankBadge.innerHTML = '<i class="fas fa-medal"></i>';
+            }
+        }
+        meta.appendChild(rankBadge);
     }
 
     const time = document.createElement('span');
@@ -1488,3 +1508,202 @@ function togglePasswordVisibility(inputId, btnEl) {
         icon.classList.add('fa-eye');
     }
 }
+
+
+// ============================================
+// LEADERBOARD FEATURE
+// ============================================
+let top3Users = [];
+let leaderboardCountdownInterval = null;
+
+// --- Leaderboard Modal Elements ---
+const leaderboardModal = document.getElementById('leaderboard-modal');
+const leaderboardList = document.getElementById('leaderboard-list');
+const myLeaderboardRank = document.getElementById('my-leaderboard-rank');
+const resetCountdown = document.getElementById('reset-countdown');
+const closeLeaderboardBtn = document.getElementById('close-leaderboard');
+const leaderboardBtnEl = document.getElementById('leaderboard-btn');
+
+// --- Open Leaderboard ---
+if (leaderboardBtnEl) {
+    leaderboardBtnEl.onclick = (e) => {
+        e.stopPropagation();
+        socket.emit('get-leaderboard');
+        leaderboardModal.style.display = 'flex';
+    };
+}
+
+// --- Close Leaderboard ---
+if (closeLeaderboardBtn) {
+    closeLeaderboardBtn.onclick = () => {
+        leaderboardModal.style.display = 'none';
+        if (leaderboardCountdownInterval) {
+            clearInterval(leaderboardCountdownInterval);
+            leaderboardCountdownInterval = null;
+        }
+    };
+}
+
+// Close on background click
+window.addEventListener('mousedown', (e) => {
+    if (e.target === leaderboardModal) {
+        leaderboardModal.style.display = 'none';
+        if (leaderboardCountdownInterval) {
+            clearInterval(leaderboardCountdownInterval);
+            leaderboardCountdownInterval = null;
+        }
+    }
+});
+
+// --- Socket: Receive full leaderboard data ---
+socket.on('leaderboard-data', ({ leaderboard, myRank, msUntilReset }) => {
+    renderLeaderboard(leaderboard, myRank);
+    startCountdown(msUntilReset);
+});
+
+// --- Socket: Top 3 changed (real-time badge updates) ---
+socket.on('room-leaderboard-top3', (newTop3) => {
+    top3Users = newTop3 || [];
+    updateAllRankBadges();
+});
+
+// --- Socket: Hourly reset ---
+socket.on('leaderboard-reset', () => {
+    top3Users = [];
+    updateAllRankBadges();
+    // If leaderboard modal is open, clear it
+    if (leaderboardModal && leaderboardModal.style.display !== 'none') {
+        renderLeaderboard([], null);
+        startCountdown(60 * 60 * 1000);
+    }
+});
+
+// --- Render Leaderboard List ---
+function renderLeaderboard(leaderboard, myRank) {
+    if (!leaderboardList) return;
+    leaderboardList.innerHTML = '';
+
+    if (!leaderboard || leaderboard.length === 0) {
+        leaderboardList.innerHTML = `
+            <div class="leaderboard-empty">
+                <i class="fas fa-ghost"></i>
+                No messages yet this hour.<br>Be the first to chat and claim #1!
+            </div>
+        `;
+    } else {
+        leaderboard.forEach(entry => {
+            const item = document.createElement('div');
+            const rankClass = entry.rank <= 3 ? `rank-${entry.rank}` : 'rank-other';
+            const isMe = entry.username === currentUsername;
+            item.className = `leaderboard-item ${rankClass}${isMe ? ' is-me' : ''}`;
+
+            // Rank circle
+            const rankEl = document.createElement('div');
+            rankEl.className = 'leaderboard-rank';
+            if (entry.rank === 1) rankEl.innerHTML = '<i class="fas fa-crown"></i>';
+            else if (entry.rank === 2) rankEl.innerHTML = '<i class="fas fa-medal"></i>';
+            else if (entry.rank === 3) rankEl.innerHTML = '<i class="fas fa-medal"></i>';
+            else rankEl.textContent = `#${entry.rank}`;
+            item.appendChild(rankEl);
+
+            // User info
+            const info = document.createElement('div');
+            info.className = 'leaderboard-user-info';
+            const nameSpan = document.createElement('div');
+            nameSpan.className = 'leaderboard-username';
+            nameSpan.textContent = entry.username + (isMe ? ' (You)' : '');
+            info.appendChild(nameSpan);
+            const countSpan = document.createElement('div');
+            countSpan.className = 'leaderboard-msg-count';
+            countSpan.textContent = `${entry.count} message${entry.count !== 1 ? 's' : ''}`;
+            info.appendChild(countSpan);
+            item.appendChild(info);
+
+            // Count badge
+            const badge = document.createElement('div');
+            badge.className = 'leaderboard-count-badge';
+            badge.textContent = entry.count;
+            item.appendChild(badge);
+
+            leaderboardList.appendChild(item);
+        });
+    }
+
+    // My rank section
+    if (myLeaderboardRank) {
+        if (myRank) {
+            myLeaderboardRank.innerHTML = `
+                <div class="my-rank-card">
+                    <div>
+                        <div class="my-rank-label">Your Position</div>
+                        <div class="my-rank-value">#${myRank.rank}</div>
+                    </div>
+                    <div class="my-rank-msgs">${myRank.count} message${myRank.count !== 1 ? 's' : ''} this hour</div>
+                </div>
+            `;
+        } else {
+            myLeaderboardRank.innerHTML = `
+                <div class="my-rank-card">
+                    <div>
+                        <div class="my-rank-label">Your Position</div>
+                        <div class="my-rank-value">Unranked</div>
+                    </div>
+                    <div class="my-rank-msgs">Send a message to join!</div>
+                </div>
+            `;
+        }
+    }
+}
+
+// --- Countdown Timer ---
+function startCountdown(msRemaining) {
+    if (leaderboardCountdownInterval) {
+        clearInterval(leaderboardCountdownInterval);
+    }
+
+    let remaining = msRemaining;
+
+    function updateDisplay() {
+        if (!resetCountdown) return;
+        const totalSecs = Math.max(0, Math.floor(remaining / 1000));
+        const mins = Math.floor(totalSecs / 60);
+        const secs = totalSecs % 60;
+        resetCountdown.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    updateDisplay();
+    leaderboardCountdownInterval = setInterval(() => {
+        remaining -= 1000;
+        if (remaining <= 0) {
+            remaining = 0;
+            clearInterval(leaderboardCountdownInterval);
+            leaderboardCountdownInterval = null;
+        }
+        updateDisplay();
+    }, 1000);
+}
+
+// --- Update All Rank Badges in Chat ---
+function updateAllRankBadges() {
+    const allBadges = document.querySelectorAll('.chat-rank-badge');
+    allBadges.forEach(badge => {
+        const username = badge.dataset.username;
+        // Reset
+        badge.style.display = 'none';
+        badge.className = 'chat-rank-badge';
+        badge.innerHTML = '';
+
+        if (top3Users && top3Users.length > 0) {
+            const entry = top3Users.find(e => e.username === username);
+            if (entry) {
+                badge.style.display = 'inline-flex';
+                badge.classList.add('rank-badge-' + entry.rank);
+                if (entry.rank === 1) badge.innerHTML = '<i class="fas fa-crown"></i>';
+                else if (entry.rank === 2) badge.innerHTML = '<i class="fas fa-medal"></i>';
+                else if (entry.rank === 3) badge.innerHTML = '<i class="fas fa-medal"></i>';
+            }
+        }
+    });
+}
+
+

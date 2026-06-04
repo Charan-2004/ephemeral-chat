@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -165,14 +165,14 @@
     <noscript>
         <div style="max-width:800px;margin:0 auto;padding:40px 20px;font-family:sans-serif;color:#333;">
             <h1>ChatHere - Free Anonymous Chat Rooms</h1>
-            <p>Welcome to <strong>ChatHere</strong>, the #1 free anonymous chat platform. Connect instantly with people worldwide â€” no login required, no logs kept, completely anonymous.</p>
+            <p>Welcome to <strong>ChatHere</strong>, the #1 free anonymous chat platform. Connect instantly with people worldwide Ã¢â‚¬â€ no login required, no logs kept, completely anonymous.</p>
             <h2>Why Choose ChatHere?</h2>
             <ul>
-                <li><strong>100% Free</strong> â€” No subscriptions, no hidden fees</li>
-                <li><strong>No Registration</strong> â€” Just pick a name and start chatting</li>
-                <li><strong>Anonymous</strong> â€” No tracking, no data collection</li>
-                <li><strong>Real-Time</strong> â€” Instant messaging powered by WebSockets</li>
-                <li><strong>Ephemeral</strong> â€” Messages vanish, leaving no trace</li>
+                <li><strong>100% Free</strong> Ã¢â‚¬â€ No subscriptions, no hidden fees</li>
+                <li><strong>No Registration</strong> Ã¢â‚¬â€ Just pick a name and start chatting</li>
+                <li><strong>Anonymous</strong> Ã¢â‚¬â€ No tracking, no data collection</li>
+                <li><strong>Real-Time</strong> Ã¢â‚¬â€ Instant messaging powered by WebSockets</li>
+                <li><strong>Ephemeral</strong> Ã¢â‚¬â€ Messages vanish, leaving no trace</li>
             </ul>
             <h2>Available Chat Rooms</h2>
             <p>Join topic-based rooms: <strong>General</strong>, <strong>Tech</strong>, <strong>Music</strong>, <strong>Movies</strong>, <strong>Politics</strong>, and <strong>Gaming</strong>.</p>
@@ -473,6 +473,7 @@
                 <button id="users-list-btn" class="btn btn-sm" title="View users in this room" style="display: none;">
                     <i class="fas fa-users"></i>
                 </button>
+                <button id="leaderboard-btn" class="btn btn-sm" title="Leaderboard" style="display: none;"><i class="fas fa-crown"></i></button>
                 <button id="share-btn" class="btn btn-sm" title="Select messages to share"><i
                         class="fas fa-share-alt"></i></button>
                 <button id="share-room-btn" class="btn btn-sm" title="Share this room"><i class="fas fa-link"></i></button>
@@ -547,6 +548,22 @@
             <h2>Share Conversation</h2>
             <div id="share-preview"></div>
             <a id="download-link" class="btn" download="ChatHere.png">Download Image</a>
+        </div>
+    </div>
+
+    <!-- Leaderboard Modal -->
+    <div id="leaderboard-modal" class="modal" style="display: none;">
+        <div class="modal-content leaderboard-modal-content">
+            <span class="close-modal" id="close-leaderboard">&times;</span>
+            <div class="leaderboard-header">
+                <div class="leaderboard-trophy-icon">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <h2>Room Leaderboard</h2>
+                <p class="leaderboard-subtitle"><i class="far fa-clock"></i> Resets in: <span id="reset-countdown" class="countdown-timer">60:00</span></p>
+            </div>
+            <div id="leaderboard-list" class="leaderboard-list"></div>
+            <div id="my-leaderboard-rank" class="my-leaderboard-rank"></div>
         </div>
     </div>
 
@@ -637,7 +654,7 @@
                 <img src="logo.png" alt="Logo" style="height: 40px; width: 40px;">
                 <span>ChatHere</span>
             </div>
-            <div class="export-tagline">Anonymous â€¢ Encrypted â€¢ Vanishing</div>
+            <div class="export-tagline">Anonymous Ã¢â‚¬Â¢ Encrypted Ã¢â‚¬Â¢ Vanishing</div>
         </div>
         <div id="export-messages" class="export-messages"></div>
         <div class="export-footer">
@@ -697,3 +714,4 @@
 </body>
 
 </html>
+
