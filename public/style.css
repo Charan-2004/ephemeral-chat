@@ -3851,3 +3851,115 @@ body::before {
     border-color: rgba(230, 126, 34, 0.4);
     color: #e67e22;
 }
+
+
+/* ============================================
+   DRAG AND DROP OVERLAY & AUTO-BLUR STYLING
+   ============================================ */
+.drag-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    border-radius: 12px;
+}
+
+.drag-overlay.active {
+    pointer-events: auto;
+    opacity: 1;
+}
+
+.drag-overlay-content {
+    text-align: center;
+    color: #ffffff;
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.03);
+    max-width: 400px;
+    width: 80%;
+    transform: scale(0.9);
+    transition: transform 0.25s ease;
+}
+
+.drag-overlay.active .drag-overlay-content {
+    transform: scale(1);
+    border-color: #3b82f6;
+}
+
+.drag-icon {
+    font-size: 3.5rem;
+    color: #3b82f6;
+    margin-bottom: 15px;
+    animation: bounce-icon 2s infinite;
+}
+
+@keyframes bounce-icon {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Blurred Image Sharing */
+.blurred-image-wrapper {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.blurred-image-wrapper img.message-image {
+    filter: blur(25px);
+    transform: scale(1.05); /* hide edge artifacts of blur */
+    transition: filter 0.3s ease, transform 0.3s ease;
+    display: block;
+}
+
+.blurred-image-wrapper.unblurred img.message-image {
+    filter: blur(0);
+    transform: scale(1);
+}
+
+.blur-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+    padding: 10px;
+    box-sizing: border-box;
+    transition: opacity 0.3s ease;
+    z-index: 2;
+}
+
+.blurred-image-wrapper.unblurred .blur-overlay {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.blur-warning-icon {
+    font-size: 1.8rem;
+    color: #ffd700;
+    margin-bottom: 8px;
+}

@@ -933,10 +933,28 @@ function outputMessage(msg) {
 
     // Image
     if (msg.imageData) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'blurred-image-wrapper';
+        
         const img = document.createElement('img');
         img.src = msg.imageData;
         img.className = 'message-image';
-        div.appendChild(img);
+        wrapper.appendChild(img);
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'blur-overlay';
+        overlay.innerHTML = `
+            <i class="fas fa-eye-slash blur-warning-icon"></i>
+            <div>Sensitive Content</div>
+            <div style="font-size: 0.7rem; opacity: 0.8; margin-top: 4px;">Click to reveal</div>
+        `;
+        wrapper.appendChild(overlay);
+        
+        wrapper.onclick = () => {
+            wrapper.classList.toggle('unblurred');
+        };
+        
+        div.appendChild(wrapper);
     }
 
     // Text with clickable links
@@ -1802,4 +1820,67 @@ function formatMsToTime(ms) {
     const mins = Math.floor((totalSecs % 3600) / 60);
     const secs = totalSecs % 60;
     return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+
+// ============================================
+// DRAG AND DROP IMAGE SHARING
+// ============================================
+const chatContainerEl = document.querySelector('.chat-container');
+const dragOverlayEl = document.getElementById('drag-overlay');
+
+if (chatContainerEl && dragOverlayEl) {
+    let dragCounter = 0;
+
+    chatContainerEl.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        dragCounter++;
+        if (dragCounter === 1) {
+            dragOverlayEl.style.display = 'flex';
+            setTimeout(() => dragOverlayEl.classList.add('active'), 10);
+        }
+    });
+
+    chatContainerEl.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dragCounter--;
+        if (dragCounter === 0) {
+            dragOverlayEl.classList.remove('active');
+            setTimeout(() => {
+                if (!dragOverlayEl.classList.contains('active')) {
+                    dragOverlayEl.style.display = 'none';
+                }
+            }, 250);
+        }
+    });
+
+    chatContainerEl.addEventListener('dragover', (e) => {
+        e.preventDefault();
+    });
+
+    chatContainerEl.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dragCounter = 0;
+        dragOverlayEl.classList.remove('active');
+        dragOverlayEl.style.display = 'none';
+
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            const file = files[0];
+            if (!file.type.startsWith('image/')) {
+                showError('Only images can be shared');
+                return;
+            }
+            if (file.size > 512000) {
+                showError('Image too large. Max 500KB.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                socket.emit('chatImage', { imageData: event.target.result, replyTo: replyToId, replyToText: replyToText });
+                clearReply();
+            };
+            reader.readAsDataURL(file);
+        }
+    });
 }
