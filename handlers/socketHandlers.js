@@ -59,7 +59,15 @@ module.exports = function registerSocketHandlers(io) {
             socket.join(user.room);
 
             const history = getRoomMessages(user.room);
-            history.forEach(msg => socket.emit('message', msg));
+            history.forEach(msg => {
+                if (msg.isWhisper) {
+                    if (msg.userId === user.userId || msg.whisperRecipientUserId === user.userId) {
+                        socket.emit('message', msg);
+                    }
+                } else {
+                    socket.emit('message', msg);
+                }
+            });
 
             // Send current pinned message to new user if one exists
             const pinnedMessage = getPinnedMessage();
@@ -134,6 +142,48 @@ module.exports = function registerSocketHandlers(io) {
                 if (now - socket.lastStopTypingEmit < 1000) return;
                 socket.lastStopTypingEmit = now;
                 socket.to(user.room).emit('user-stop-typing', { username: user.username });
+            }
+        });
+
+        // Whisper Handler
+        socket.on('whisper', ({ recipientUserId, text, replyTo, replyToText }) => {
+            if (!text || typeof text !== 'string' || text.trim().length === 0 || text.length > 500) {
+                return;
+            }
+            if (!isMessageSafe(text)) {
+                socket.emit('error-message', 'Your whisper was blocked for violating community guidelines.');
+                return;
+            }
+            const user = getCurrentUser(socket.id);
+            if (user) {
+                const now = Date.now();
+                if ((now - user.lastMessageTime) / 1000 < config.rateLimitSeconds) {
+                    socket.emit('error-message', 'Please wait.');
+                    return;
+                }
+                updateLastMessageTime(socket.id);
+
+                const roomUsers = getRoomUsers(user.room);
+                const recipientInRoom = roomUsers.find(u => u.userId === recipientUserId);
+                if (!recipientInRoom) {
+                    socket.emit('error-message', 'That user is no longer in this room.');
+                    return;
+                }
+
+                const message = formatMessage(user.username, text, user.room, user.color, replyTo, replyToText, null, user.id, user.userId);
+                message.isWhisper = true;
+                message.whisperRecipientUserId = recipientUserId;
+                message.whisperRecipientUsername = recipientInRoom.username;
+
+                storeMessage(message, io);
+
+                const senderSockets = roomUsers.filter(u => u.userId === user.userId).map(u => u.id);
+                const recipientSockets = roomUsers.filter(u => u.userId === recipientUserId).map(u => u.id);
+
+                const targetSocketIds = new Set([...senderSockets, ...recipientSockets]);
+                targetSocketIds.forEach(socketId => {
+                    io.to(socketId).emit('message', message);
+                });
             }
         });
 

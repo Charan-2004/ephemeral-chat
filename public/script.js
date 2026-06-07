@@ -41,6 +41,64 @@ const imageInput = document.getElementById('image-input');
 const replyPreview = document.getElementById('reply-preview');
 const replyText = document.getElementById('reply-text');
 const replyCancelBtn = document.getElementById('reply-cancel');
+
+// Whisper Elements
+const whisperPreview = document.getElementById('whisper-preview');
+const whisperText = document.getElementById('whisper-text');
+const whisperCancelBtn = document.getElementById('whisper-cancel');
+let activeWhisperRecipient = null;
+let inviteTarget = null;
+
+const usernameContextMenu = document.getElementById('username-context-menu');
+const contextWhisperBtn = document.getElementById('context-whisper');
+const contextInviteBtn = document.getElementById('context-invite');
+
+function clearWhisper() {
+    activeWhisperRecipient = null;
+    if (whisperPreview) whisperPreview.style.display = 'none';
+}
+if (whisperCancelBtn) {
+    whisperCancelBtn.onclick = clearWhisper;
+}
+
+if (contextWhisperBtn) {
+    contextWhisperBtn.onclick = (e) => {
+        e.stopPropagation();
+        const targetUserId = usernameContextMenu.dataset.targetUserId;
+        const targetUsername = usernameContextMenu.dataset.targetUsername;
+        if (targetUserId && targetUsername) {
+            activeWhisperRecipient = { userId: targetUserId, username: targetUsername };
+            whisperText.innerHTML = `<i class="fas fa-user-secret"></i> Whispering to <strong>@${targetUsername}</strong>`;
+            whisperPreview.style.display = 'flex';
+            clearReply();
+            msgInput.focus();
+        }
+        usernameContextMenu.style.display = 'none';
+    };
+}
+
+if (contextInviteBtn) {
+    contextInviteBtn.onclick = (e) => {
+        e.stopPropagation();
+        const targetUserId = usernameContextMenu.dataset.targetUserId;
+        const targetUsername = usernameContextMenu.dataset.targetUsername;
+        if (targetUserId && targetUsername) {
+            const tempPassword = Math.floor(100000 + Math.random() * 900000).toString();
+            inviteTarget = { userId: targetUserId, username: targetUsername, password: tempPassword };
+            socket.emit('createRoom', {
+                roomName: `Chat w/ ${targetUsername}`,
+                isPrivate: true,
+                password: tempPassword
+            });
+        }
+        usernameContextMenu.style.display = 'none';
+    };
+}
+
+// Global click event to close context menu
+window.addEventListener('click', () => {
+    if (usernameContextMenu) usernameContextMenu.style.display = 'none';
+});
 const emojiPicker = document.getElementById('emoji-picker');
 
 // Social Elements
@@ -437,6 +495,30 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 300);
         });
     }
+
+    // Auto-join if room parameter is present in URL query
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomParam = urlParams.get('room');
+    const passwordParam = urlParams.get('password');
+    if (roomParam) {
+        const termsCheck = document.getElementById('terms-check');
+        if (termsCheck) termsCheck.checked = true;
+        
+        setTimeout(() => {
+            const user = usernameInput.value || usernameDisplay.innerText || generateRandomUsername();
+            setUsername(user);
+            currentUsername = user;
+            currentRoom = roomParam;
+            
+            socket.emit('joinRoom', {
+                username: user,
+                room: roomParam,
+                password: passwordParam || null,
+                userId: currentUserId
+            });
+            enterChatRoom(roomParam, roomParam, passwordParam);
+        }, 400); // 400ms delay to allow socket to fully connect
+    }
 });
 
 // Render Active Rooms on onboarding page
@@ -794,12 +876,37 @@ socket.on('error-message', (msg) => showError(msg));
 
 // Handle successful room creation
 socket.on('roomCreated', ({ roomId, roomName }) => {
-    currentRoom = roomId;
-    const isPrivate = selectedRoomType === 'private';
-    const password = document.getElementById('create-room-password').value;
-    
-    socket.emit('joinRoom', { username: currentUsername, room: roomId, password: isPrivate ? password : null, userId: currentUserId });
-    enterChatRoom(roomName, roomId, isPrivate ? password : null);
+    if (inviteTarget) {
+        // We are in the middle of inviting someone to a private room!
+        const inviteLink = `${window.location.origin}/?room=${roomId}&password=${inviteTarget.password}`;
+        const inviteMessage = `Hey, I created a private room for us to chat! Click here to join: ${inviteLink}`;
+        
+        // Send the whisper in the current room before switching
+        socket.emit('whisper', {
+            recipientUserId: inviteTarget.userId,
+            text: inviteMessage
+        });
+        
+        const pwd = inviteTarget.password;
+        inviteTarget = null;
+        
+        // Switch the host to the new private room
+        currentRoom = roomId;
+        socket.emit('joinRoom', {
+            username: currentUsername,
+            room: roomId,
+            password: pwd,
+            userId: currentUserId
+        });
+        enterChatRoom(roomName, roomId, pwd);
+    } else {
+        currentRoom = roomId;
+        const isPrivate = selectedRoomType === 'private';
+        const password = document.getElementById('create-room-password').value;
+        
+        socket.emit('joinRoom', { username: currentUsername, room: roomId, password: isPrivate ? password : null, userId: currentUserId });
+        enterChatRoom(roomName, roomId, isPrivate ? password : null);
+    }
 });
 
 // Handle custom joining errors (reset UI to onboarding join screen)
@@ -845,7 +952,16 @@ chatForm.addEventListener('submit', (e) => {
     const text = msgInput.value;
     if (!text) return;
 
-    socket.emit('chatMessage', { text, replyTo: replyToId, replyToText: replyToText });
+    if (activeWhisperRecipient) {
+        socket.emit('whisper', {
+            recipientUserId: activeWhisperRecipient.userId,
+            text,
+            replyTo: replyToId,
+            replyToText: replyToText
+        });
+    } else {
+        socket.emit('chatMessage', { text, replyTo: replyToId, replyToText: replyToText });
+    }
 
     msgInput.value = '';
     msgInput.focus();
@@ -862,6 +978,7 @@ function outputMessage(msg) {
     // Classes
     if (msg.senderId === socket.id) div.classList.add('my-message');
     if (msg.isAdmin) div.classList.add('admin-message');
+    if (msg.isWhisper) div.classList.add('whisper-message');
     
     // Highlight if current user is mentioned in the text
     if (msg.text && currentUsername && msg.text.includes(`@${currentUsername}`)) {
@@ -879,6 +996,50 @@ function outputMessage(msg) {
     name.innerText = msg.username;
     name.style.color = msg.color || '#fff';
     meta.appendChild(name);
+
+    const msgUserId = msg.userId || msg.senderId;
+    if (msg.username !== 'System' && msgUserId && msgUserId !== 'system' && msgUserId !== currentUserId) {
+        name.style.cursor = 'pointer';
+        name.dataset.userId = msgUserId;
+        name.dataset.username = msg.username;
+        name.onclick = (e) => {
+            e.stopPropagation();
+            if (usernameContextMenu) {
+                usernameContextMenu.style.display = 'block';
+                const menuWidth = 180;
+                const menuHeight = 80;
+                let x = e.pageX;
+                let y = e.pageY;
+                if (x + menuWidth > window.innerWidth + window.scrollX) {
+                    x = window.innerWidth + window.scrollX - menuWidth - 10;
+                }
+                if (y + menuHeight > window.innerHeight + window.scrollY) {
+                    y = window.innerHeight + window.scrollY - menuHeight - 10;
+                }
+                usernameContextMenu.style.left = `${x}px`;
+                usernameContextMenu.style.top = `${y}px`;
+                usernameContextMenu.dataset.targetUserId = msgUserId;
+                usernameContextMenu.dataset.targetUsername = msg.username;
+            }
+        };
+    }
+
+    if (msg.isWhisper) {
+        // Add lock icon
+        const lock = document.createElement('span');
+        lock.className = 'whisper-lock';
+        lock.innerHTML = '<i class="fas fa-lock"></i> ';
+        lock.style.color = '#a855f7';
+        lock.style.marginRight = '4px';
+        meta.insertBefore(lock, name);
+        
+        // Change username label or text
+        if (msgUserId === currentUserId) {
+            name.innerText = `Whisper to ${msg.whisperRecipientUsername || 'user'}`;
+        } else {
+            name.innerText = `Whisper from ${msg.username}`;
+        }
+    }
 
     // Mod Badge (Checkmark) (User request 4)
     if (msg.isAdmin) {

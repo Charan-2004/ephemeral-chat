@@ -3963,3 +3963,65 @@ body::before {
     color: #ffd700;
     margin-bottom: 8px;
 }
+
+
+/* ==========================================================================
+   Whisper & Context Menu Styles
+   ========================================================================== */
+
+/* Whisper Message styling */
+.message.whisper-message {
+  background: rgba(168, 85, 247, 0.08) !important; /* light purple tint */
+  border: 1px dashed rgba(168, 85, 247, 0.4) !important;
+}
+
+.whisper-lock {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Whisper Preview Bar */
+.reply-preview.whisper-preview-bar {
+  background: rgba(168, 85, 247, 0.05);
+  border-left: 3px solid rgba(168, 85, 247, 0.5);
+}
+
+/* Context Menu styling */
+.context-menu {
+  position: absolute;
+  background: rgba(30, 30, 46, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 4px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  min-width: 180px;
+  animation: fadeIn 0.15s ease-out;
+  pointer-events: auto;
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.context-menu-item:hover {
+  background: rgba(168, 85, 247, 0.15);
+  color: #fff;
+}
+
+.context-menu-item i {
+  width: 16px;
+  text-align: center;
+  color: rgba(168, 85, 247, 0.8);
+}

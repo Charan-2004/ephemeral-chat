@@ -5,10 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="google-site-verification" content="71ix9mP1TGqL1LnAL36StwASlyAEpYvtmt3_1QsfOZw" />
-    <meta name="description"
-        content="Chat Here for free! ChatHere is the #1 anonymous chat platform - chat online with strangers, no login, no sign up. Free anonymous chat rooms for Tech, Music, Gaming and more.">
-    <meta name="keywords"
-        content="chathere, chat here, chat here online, chat here free, anonymous chat, free chat rooms, chat online free, chat with strangers, no login chat, free chat online, anonymous chat rooms, chat rooms online, online chat free, chathere.online, chat here app, chather, cht here, chathre, chat hre, chatehere, chatehr, chatheer, char here, caht here, chhat here, chathere online, chathere free, chathere app">
+    <meta name="description" content="ChatHere is the best free anonymous chat platform. Join instant online chat rooms with strangers for Tech, Music, Gaming, and more. No login required!">
+    <meta name="keywords" content="anonymous chat, free chat rooms, chat online free, chat with strangers, no login chat, chathere.online, ephemeral messaging, no registration chat">
     <meta name="author" content="ChatHere">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <link rel="canonical" href="https://chathere.online/" />
@@ -16,17 +14,15 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://chathere.online/">
-    <meta property="og:title" content="ChatHere - Chat Here Free | Anonymous Chat Rooms">
-    <meta property="og:description"
-        content="Chat Here for free! No login, no sign up. Anonymous chat rooms with strangers worldwide.">
+    <meta property="og:title" content="ChatHere | Free Anonymous Chat Rooms Online">
+    <meta property="og:description" content="Join thousands of users on ChatHere. Free, anonymous, real-time chat rooms with zero data collection. No login required!">
     <meta property="og:image" content="https://chathere.online/preview-image.png">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://chathere.online/">
-    <meta property="twitter:title" content="ChatHere - Chat Here Free | Anonymous Chat Rooms">
-    <meta property="twitter:description"
-        content="Chat Here for free! No login, no sign up. Anonymous chat rooms with strangers worldwide.">
+    <meta property="twitter:title" content="ChatHere | Free Anonymous Chat Rooms Online">
+    <meta property="twitter:description" content="Join thousands of users on ChatHere. Free, anonymous, real-time chat rooms with zero data collection. No login required!">
     <meta property="twitter:image" content="https://chathere.online/preview-image.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -45,7 +41,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/logo.png">
     <link rel="manifest" href="/manifest.json">
 
-    <title>ChatHere - Chat Here Free | Anonymous Chat Rooms Online | No Login</title>
+    <title>ChatHere | Free Anonymous Chat Rooms Online</title>
 
     <!-- Schema.org JSON-LD - Enhanced for SEO -->
     <script type="application/ld+json">
@@ -527,6 +523,12 @@
                     <button type="button" class="reply-cancel" id="reply-cancel"><i class="fas fa-times"></i></button>
                 </div>
 
+                <!-- Whisper Preview -->
+                <div class="reply-preview whisper-preview-bar" id="whisper-preview" style="display: none;">
+                    <span class="reply-text" id="whisper-text"></span>
+                    <button type="button" class="reply-cancel" id="whisper-cancel"><i class="fas fa-times"></i></button>
+                </div>
+
                 <div class="chat-form-container">
                     <div id="mention-autocomplete" class="mention-autocomplete" style="display: none;"></div>
                     <form id="chat-form">
@@ -724,6 +726,11 @@
         };
     }
     </script>
+    <!-- Username Context Menu -->
+    <div id="username-context-menu" class="context-menu" style="display: none; position: absolute; z-index: 10000;">
+        <button class="context-menu-item" id="context-whisper"><i class="fas fa-comment-alt"></i> Whisper</button>
+        <button class="context-menu-item" id="context-invite"><i class="fas fa-key"></i> Invite to Private Room</button>
+    </div>
 </body>
 
 </html>

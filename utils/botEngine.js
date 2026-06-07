@@ -139,7 +139,11 @@ const apiQueue = {
 function initGemini() {
     let count = 0;
     BOT_PROFILES.forEach(bot => {
-        const apiKey = process.env[bot.apiKeyEnv];
+        let apiKey = process.env[bot.apiKeyEnv];
+        if (!apiKey) {
+            // Fallback to GEMINI_API_KEY_1 if specific key is not found
+            apiKey = process.env.GEMINI_API_KEY_1;
+        }
         if (!apiKey) return;
         try {
             const genAI = new GoogleGenerativeAI(apiKey);

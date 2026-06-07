@@ -55,13 +55,17 @@ function getCurrentET() {
     parts.forEach(p => {
         timeObj[p.type] = p.value;
     });
+    
+    let hour = parseInt(timeObj.hour) || 0;
+    if (hour === 24) hour = 0;
+    
     return {
-        year: parseInt(timeObj.year),
-        month: parseInt(timeObj.month),
-        day: parseInt(timeObj.day),
-        hour: parseInt(timeObj.hour),
-        minute: parseInt(timeObj.minute),
-        second: parseInt(timeObj.second)
+        year: parseInt(timeObj.year) || new Date().getFullYear(),
+        month: parseInt(timeObj.month) || (new Date().getMonth() + 1),
+        day: parseInt(timeObj.day) || new Date().getDate(),
+        hour: hour,
+        minute: parseInt(timeObj.minute) || 0,
+        second: parseInt(timeObj.second) || 0
     };
 }
 
@@ -80,8 +84,14 @@ function getEpochMsFromET(year, month, day, hour, minute) {
         const formatted = formatter.formatToParts(testDate);
         const fObj = {};
         formatted.forEach(p => fObj[p.type] = p.value);
-        const diffHours = hour - parseInt(fObj.hour);
-        const diffMinutes = minute - parseInt(fObj.minute);
+        
+        let curHour = parseInt(fObj.hour) || 0;
+        if (curHour === 24) curHour = 0;
+        
+        let curMin = parseInt(fObj.minute) || 0;
+        
+        const diffHours = hour - curHour;
+        const diffMinutes = minute - curMin;
         testDate.setTime(testDate.getTime() + (diffHours * 60 + diffMinutes) * 60 * 1000);
     }
     return testDate.getTime();
