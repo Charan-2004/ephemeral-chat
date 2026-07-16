@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -16,22 +16,22 @@
     <meta property="og:url" content="https://chathere.online/">
     <meta property="og:title" content="ChatHere | Free Anonymous Chat Rooms Online">
     <meta property="og:description" content="Join thousands of users on ChatHere. Free, anonymous, real-time chat rooms with zero data collection. No login required!">
-    <meta property="og:image" content="https://chathere.online/preview-image.png">
+    <meta property="og:image" content="https://chathere.online/preview-image.jpg">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://chathere.online/">
     <meta property="twitter:title" content="ChatHere | Free Anonymous Chat Rooms Online">
     <meta property="twitter:description" content="Join thousands of users on ChatHere. Free, anonymous, real-time chat rooms with zero data collection. No login required!">
-    <meta property="twitter:image" content="https://chathere.online/preview-image.png">
+    <meta property="twitter:image" content="https://chathere.online/preview-image.jpg">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
-        integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
-    <link rel="stylesheet" href="style.css?v=16">
+         />
+    <link rel="stylesheet" href="style.css?v=20">
 
     <!-- Favicon - Google requires minimum 48x48px -->
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
@@ -161,14 +161,14 @@
     <noscript>
         <div style="max-width:800px;margin:0 auto;padding:40px 20px;font-family:sans-serif;color:#333;">
             <h1>ChatHere - Free Anonymous Chat Rooms</h1>
-            <p>Welcome to <strong>ChatHere</strong>, the #1 free anonymous chat platform. Connect instantly with people worldwide Ã¢â‚¬â€ no login required, no logs kept, completely anonymous.</p>
+            <p>Welcome to <strong>ChatHere</strong>, the #1 free anonymous chat platform. Connect instantly with people worldwide â€” no login required, no logs kept, completely anonymous.</p>
             <h2>Why Choose ChatHere?</h2>
             <ul>
-                <li><strong>100% Free</strong> Ã¢â‚¬â€ No subscriptions, no hidden fees</li>
-                <li><strong>No Registration</strong> Ã¢â‚¬â€ Just pick a name and start chatting</li>
-                <li><strong>Anonymous</strong> Ã¢â‚¬â€ No tracking, no data collection</li>
-                <li><strong>Real-Time</strong> Ã¢â‚¬â€ Instant messaging powered by WebSockets</li>
-                <li><strong>Ephemeral</strong> Ã¢â‚¬â€ Messages vanish, leaving no trace</li>
+                <li><strong>100% Free</strong> â€” No subscriptions, no hidden fees</li>
+                <li><strong>No Registration</strong> â€” Just pick a name and start chatting</li>
+                <li><strong>Anonymous</strong> â€” No tracking, no data collection</li>
+                <li><strong>Real-Time</strong> â€” Instant messaging powered by WebSockets</li>
+                <li><strong>Ephemeral</strong> â€” Messages vanish, leaving no trace</li>
             </ul>
             <h2>Available Chat Rooms</h2>
             <p>Join topic-based rooms: <strong>General</strong>, <strong>Tech</strong>, <strong>Music</strong>, <strong>Movies</strong>, <strong>Politics</strong>, and <strong>Gaming</strong>.</p>
@@ -536,6 +536,10 @@
                             <i class="fas fa-image"></i>
                         </label>
                         <input type="file" id="image-input" accept="image/*" style="display: none;" />
+                        <label for="doc-input" class="btn btn-icon" title="Upload Document">
+                            <i class="fas fa-file-alt"></i>
+                        </label>
+                        <input type="file" id="doc-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.json,.xml,.txt,.csv,.html,.css,.js,.md" style="display: none;" />
                         <input id="msg" type="text" placeholder="Type your message..." autocomplete="off" />
                         <button class="btn"><i class="fas fa-paper-plane"></i></button>
                     </form>
@@ -554,6 +558,12 @@
 
     <div class="emoji-picker" id="emoji-picker" style="display: none;">
         <!-- Emojis will be populated by JS -->
+    </div>
+                <button class="globe-close-btn" >&#x2715;</button>
+            </div>
+            <div id="globe-container" class="globe-container"></div>
+            <p class="globe-note">&#x1F512; Country-level only &bull; Zero personal data collected &bull; All anonymous</p>
+        </div>
     </div>
 
     <!-- Share Modal -->
@@ -669,7 +679,7 @@
                 <img src="logo.png" alt="Logo" style="height: 40px; width: 40px;">
                 <span>ChatHere</span>
             </div>
-            <div class="export-tagline">Anonymous Ã¢â‚¬Â¢ Encrypted Ã¢â‚¬Â¢ Vanishing</div>
+            <div class="export-tagline">Anonymous â€¢ Encrypted â€¢ Vanishing</div>
         </div>
         <div id="export-messages" class="export-messages"></div>
         <div class="export-footer">
@@ -679,7 +689,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYjYiPSqHHDb58B0yaPfYLjYEXyyp8AM5tcJHUROefWCEENgGRM1ryEL1QH2Vf11cKURn34319cCgrcDA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="script.js?v=GLASS_V5"></script>
+    <script src="script.js?v=GLASS_V6"></script>
     <script>
     // Force complete cache clearing and service worker updates on version bump (IMM_V10/GLASS_V5)
     const APP_VERSION = 'IMM_V10_GLASS_V5';

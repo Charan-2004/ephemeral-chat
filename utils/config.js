@@ -1,4 +1,4 @@
-﻿// Centralized configuration for moderator-controlled settings
+// Centralized configuration for moderator-controlled settings
 module.exports = {
     // Message auto-delete time in milliseconds (default: 0 for never delete)
     messageTTL: 0,
@@ -7,7 +7,10 @@ module.exports = {
     rateLimitSeconds: 3,
 
     // Maximum image size in bytes (500KB)
-    maxImageSize: 500 * 1024,
+    maxImageSize: 5 * 1024 * 1024,
+
+    // Maximum document size in bytes (50MB)
+    maxDocSize: 50 * 1024 * 1024,
 
     // Available reaction emojis
     reactionEmojis: ['\u{1F44D}', '\u{1F525}', '\u{1F602}', '\u{1F622}', '\u{1F62E}', '\u{1F44F}'],

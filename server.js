@@ -20,7 +20,7 @@ const registerSocketHandlers = require('./handlers/socketHandlers');
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server, {
-    maxHttpBufferSize: 3e6
+    maxHttpBufferSize: 70e6
 });
 
 // Store io reference on app for route access
@@ -100,6 +100,10 @@ app.use('/api/admin/login', loginLimiter);
 // Routes Setup
 app.use('/api', publicRoutes);
 app.use('/api/admin', adminRoutes);
+
+// /live SSR page — mounted at root for SEO (not /api prefix)
+const { createLivePage } = require('./routes/liveRoute');
+app.get('/live', (req, res) => createLivePage(req, res));
 
 // Cleanup Loop (every 5 seconds)
 setInterval(() => {

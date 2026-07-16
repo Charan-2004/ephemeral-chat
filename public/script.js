@@ -38,6 +38,7 @@ document.querySelectorAll('.type-btn').forEach(btn => {
 });
 const msgInput = document.getElementById('msg');
 const imageInput = document.getElementById('image-input');
+const docInput = document.getElementById('doc-input');
 const replyPreview = document.getElementById('reply-preview');
 const replyText = document.getElementById('reply-text');
 const replyCancelBtn = document.getElementById('reply-cancel');
@@ -368,18 +369,33 @@ function renderRooms(rooms) {
     const sidebarList = document.getElementById('sidebar-room-list');
     if (sidebarList) {
         sidebarList.innerHTML = '';
+        // Determine hot room: highest user count among unlocked public rooms
+        const hotRoomName = (() => {
+            let maxCount = 0, hotName = null;
+            rooms.forEach(r => {
+                if (r.locked || r.isPrivate) return;
+                const c = roomCounts[r.name] || 0;
+                if (c > maxCount) { maxCount = c; hotName = r.name; }
+            });
+            return maxCount > 0 ? hotName : null;
+        })();
+
         rooms.forEach((r) => {
             const li = document.createElement('li');
             li.className = 'room-item';
             if (r.name === currentRoom) li.classList.add('active');
             if (r.locked) li.classList.add('locked');
+            const isHot = !r.locked && !r.isPrivate && r.name === hotRoomName;
+            if (isHot) li.classList.add('hot-room');
 
-            const icon = r.locked ? '<i class="fas fa-lock" style="color:#ff6b6b"></i>' : '<i class="fas fa-hashtag"></i>';
+            const icon = r.locked ? '<i class="fas fa-lock" style="color:#ff6b6b"></i>' : (isHot ? '<span class="hot-fire">🔥</span>' : '<i class="fas fa-hashtag"></i>');
             const count = roomCounts[r.name] || 0;
             const unread = unreadCounts[r.name] || 0;
             let badge = '';
             if (unread > 0 && r.name !== currentRoom) {
                 badge = `<span class="unread-badge">${unread}</span>`;
+            } else if (isHot && !unread) {
+                badge = `<span class="hot-badge" style="margin-left:auto;">HOT</span>`;
             } else {
                 badge = `<span class="room-count">${count}</span>`;
             }
@@ -800,7 +816,7 @@ socket.on('message', (msg) => {
         if (!isTabFocused && msg.senderId !== socket.id && msg.senderId !== 'system') {
             playNotificationSound();
             if (Notification.permission === 'granted') {
-                new Notification(`${msg.username} in ${currentRoom}`, { body: msg.text || '[Image]', icon: '/favicon.png' });
+                new Notification(`${msg.username} in ${currentRoom}`, { body: msg.text || (msg.docData ? '[Document: ' + msg.docName + ']' : '[Image]'), icon: '/favicon.png' });
             }
         }
     }
@@ -1118,6 +1134,42 @@ function outputMessage(msg) {
         div.appendChild(wrapper);
     }
 
+    // Document
+    if (msg.docData) {
+        const docWrapper = document.createElement('div');
+        docWrapper.className = 'document-wrapper';
+        
+        const docIcon = document.createElement('i');
+        docIcon.className = 'fas fa-file-alt document-icon';
+        
+        const docInfo = document.createElement('div');
+        docInfo.className = 'document-info';
+        
+        const docName = document.createElement('div');
+        docName.className = 'document-name';
+        docName.innerText = msg.docName || 'document';
+        
+        const docSize = document.createElement('div');
+        docSize.className = 'document-size';
+        const sizeMb = msg.docSize ? (msg.docSize / 1024 / 1024).toFixed(2) : 0;
+        docSize.innerText = sizeMb + ' MB';
+        
+        docInfo.appendChild(docName);
+        docInfo.appendChild(docSize);
+        
+        const downloadBtn = document.createElement('a');
+        downloadBtn.href = msg.docData;
+        downloadBtn.download = msg.docName || 'document';
+        downloadBtn.className = 'document-download';
+        downloadBtn.innerHTML = '<i class="fas fa-download"></i>';
+        
+        docWrapper.appendChild(docIcon);
+        docWrapper.appendChild(docInfo);
+        docWrapper.appendChild(downloadBtn);
+        
+        div.appendChild(docWrapper);
+    }
+
     // Text with clickable links
     if (msg.text) {
         const p = document.createElement('p');
@@ -1141,7 +1193,7 @@ function outputMessage(msg) {
     repBtn.innerHTML = '<i class="fas fa-reply"></i>';
     repBtn.onclick = () => {
         replyToId = msg.id;
-        replyToText = msg.text || '[Image]';
+        replyToText = msg.text || (msg.docData ? '[Document]' : '[Image]');
         replyPreview.style.display = 'flex';
         replyText.innerText = `Replying: ${replyToText}`;
         msgInput.focus();
@@ -1241,14 +1293,33 @@ imageInput.onchange = function () {
     if (this.files[0]) {
         const file = this.files[0];
         // Enforce 500KB client-side limit
-        if (file.size > 512000) {
-            showError('Image too large. Max 500KB.');
+        if (file.size > 5 * 1024 * 1024) {
+            showError('Image too large. Max 5MB.');
             this.value = '';
             return;
         }
         const r = new FileReader();
         r.onload = (e) => {
             socket.emit('chatImage', { imageData: e.target.result, replyTo: replyToId, replyToText: replyToText });
+            clearReply();
+        };
+        r.readAsDataURL(file);
+    }
+    this.value = '';
+};
+
+// Document upload handler
+docInput.onchange = function () {
+    if (this.files[0]) {
+        const file = this.files[0];
+        if (file.size > 50 * 1024 * 1024) {
+            showError('Document too large. Max 50MB.');
+            this.value = '';
+            return;
+        }
+        const r = new FileReader();
+        r.onload = (e) => {
+            socket.emit('chatDocument', { docData: e.target.result, docName: file.name, docSize: file.size, replyTo: replyToId, replyToText: replyToText });
             clearReply();
         };
         r.readAsDataURL(file);
@@ -1459,19 +1530,29 @@ if (generateShareBtn) {
 
         // 2. Capture
         try {
-            exportContainer.style.visibility = 'visible'; // Make visible for capture
-            exportContainer.style.top = '0'; // Bring into viewport temporarily (off-screen sometimes fails)
+            // Bring into viewport for html2canvas (off-screen elements fail to capture)
+            exportContainer.style.visibility = 'visible';
+            exportContainer.style.top = '0';
+            exportContainer.style.left = '0';
+            exportContainer.style.zIndex = '99999';
+
+            // Small delay to allow browser to paint before capture
+            await new Promise(r => setTimeout(r, 100));
 
             const canvas = await html2canvas(exportContainer, {
                 backgroundColor: '#2c2f33',
                 scale: 2, // High res
                 logging: false,
-                useCORS: true // For images
+                useCORS: true, // For images
+                allowTaint: true,
+                foreignObjectRendering: false
             });
 
             // Hide again
             exportContainer.style.visibility = 'hidden';
             exportContainer.style.top = '-9999px';
+            exportContainer.style.left = '-9999px';
+            exportContainer.style.zIndex = '-1';
 
             // 3. Show Modal
             sharePreview.innerHTML = '';
@@ -1492,6 +1573,8 @@ if (generateShareBtn) {
             showError('Failed to generate image');
             exportContainer.style.visibility = 'hidden';
             exportContainer.style.top = '-9999px';
+            exportContainer.style.left = '-9999px';
+            exportContainer.style.zIndex = '-1';
         }
     };
 }
@@ -1944,12 +2027,12 @@ function updateEventBannerUI() {
 
     if (eventBannerData.active) {
         banner.classList.add('event-live');
-        textEl.innerHTML = `🔴 LIVE: <strong>${eventBannerData.name}</strong> hosted by <strong>${eventBannerData.host}</strong> in General!`;
+        textEl.innerHTML = `?? LIVE: <strong>${eventBannerData.name}</strong> hosted by <strong>${eventBannerData.host}</strong> in General!`;
         const ms = eventBannerData.timeRemaining;
         timerEl.textContent = formatMsToTime(ms);
     } else {
         banner.classList.remove('event-live');
-        textEl.innerHTML = `⏳ Next Event: <strong>${eventBannerData.name}</strong>`;
+        textEl.innerHTML = `? Next Event: <strong>${eventBannerData.name}</strong>`;
         const ms = eventBannerData.msUntil;
         timerEl.textContent = formatMsToTime(ms);
     }
@@ -2032,8 +2115,8 @@ if (chatContainerEl && dragOverlayEl) {
                 showError('Only images can be shared');
                 return;
             }
-            if (file.size > 512000) {
-                showError('Image too large. Max 500KB.');
+            if (file.size > 5 * 1024 * 1024) {
+                showError('Image too large. Max 5MB.');
                 return;
             }
             const reader = new FileReader();
@@ -2045,3 +2128,76 @@ if (chatContainerEl && dragOverlayEl) {
         }
     });
 }
+
+
+// ============================================
+// WEB PUSH NOTIFICATIONS
+// ============================================
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    return new Uint8Array([...rawData].map(c => c.charCodeAt(0)));
+}
+
+function showSuccess(msg) {
+    const el = document.getElementById('error-message');
+    if (!el) return;
+    const prevBg = el.style.background;
+    el.textContent = msg;
+    el.style.background = 'rgba(52,211,153,0.92)';
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; el.style.background = prevBg; }, 3000);
+}
+
+async function initPushNotifications() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    const bellBtn = document.getElementById('push-bell-btn');
+    if (!bellBtn) return;
+
+    if (Notification.permission === 'granted') {
+        bellBtn.classList.add('push-subscribed');
+        bellBtn.title = 'Notifications ON';
+    }
+
+    bellBtn.addEventListener('click', async () => {
+        if (Notification.permission === 'denied') {
+            showError('Notifications blocked. Please enable in your browser settings.');
+            return;
+        }
+        try {
+            const resp = await fetch('/api/push/vapid-public-key');
+            const { publicKey } = await resp.json();
+            const reg = await navigator.serviceWorker.ready;
+            const subscription = await reg.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(publicKey)
+            });
+            await fetch('/api/push/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(subscription)
+            });
+            bellBtn.classList.add('push-subscribed');
+            bellBtn.title = 'Notifications ON';
+            showSuccess('?? Notifications enabled! We\'ll ping you when things get busy.');
+        } catch(err) {
+            console.error('[Push] Subscribe error:', err);
+            showError('Could not enable notifications. Try again later.');
+        }
+    });
+}
+
+
+
+// ============================================
+// GLOBE — WHO'S ONLINE
+// ============================================
+socket.on('country-counts', (counts) => {
+    if (window.globeModule) window.globeModule.updateGlobe(counts);
+});
+
+window.addEventListener('mousedown', (e) => {
+    const gm = document.getElementById('globe-modal');
+    if (gm && e.target === gm) window.globeModule && window.globeModule.closeGlobe();
+});

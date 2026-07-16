@@ -4025,3 +4025,195 @@ body::before {
   text-align: center;
   color: rgba(168, 85, 247, 0.8);
 }
+
+
+/* Document styles */
+.document-wrapper {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-top: 10px;
+    gap: 15px;
+}
+
+.document-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+.document-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.document-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.document-size {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.document-download {
+    color: var(--text-light);
+    background: var(--bg-card);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.document-download:hover {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+/* ============================================
+   FEATURE: HOT ROOM BADGE
+   ============================================ */
+.room-item.hot-room {
+    background: linear-gradient(90deg, rgba(255,107,53,0.09) 0%, transparent 100%) !important;
+    border-left: 2px solid rgba(255,107,53,0.5) !important;
+    padding-left: 12px !important;
+}
+.room-item.hot-room:hover {
+    background: linear-gradient(90deg, rgba(255,107,53,0.16) 0%, transparent 100%) !important;
+}
+.hot-fire {
+    font-size: 1em;
+    display: inline-block;
+    animation: fireFlicker 1.6s ease-in-out infinite alternate;
+}
+@keyframes fireFlicker {
+    from { filter: brightness(1) hue-rotate(0deg); transform: scale(1); }
+    to   { filter: brightness(1.25) hue-rotate(12deg); transform: scale(1.12); }
+}
+.hot-badge {
+    font-size: 0.52rem;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #ff6b35;
+    background: rgba(255,107,53,0.14);
+    border: 1px solid rgba(255,107,53,0.35);
+    padding: 1px 5px;
+    border-radius: 4px;
+    margin-left: 3px;
+    animation: hotPulse 2.2s ease-in-out infinite;
+}
+.hot-count { color: #ff8c5a !important; font-weight: 700 !important; }
+@keyframes hotPulse {
+    0%,100% { opacity: 1; }
+    50%      { opacity: 0.55; }
+}
+
+/* ============================================
+   FEATURE: GLOBE MODAL — WHO'S ONLINE
+   ============================================ */
+.globe-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.78);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.globe-modal-content {
+    background: rgba(14,14,20,0.98);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 22px;
+    padding: 26px;
+    width: 100%;
+    max-width: 780px;
+    box-shadow: 0 30px 90px rgba(0,0,0,0.7), 0 0 60px rgba(52,211,153,0.04);
+    animation: globeIn 0.28s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes globeIn {
+    from { opacity: 0; transform: scale(0.92) translateY(16px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.globe-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.globe-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.globe-title-icon { font-size: 2.2rem; line-height: 1; }
+.globe-modal-title h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 2px;
+}
+.globe-subtitle {
+    font-size: 0.8rem;
+    color: #34d399;
+    margin: 0;
+    font-weight: 600;
+}
+.globe-close-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.55);
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+.globe-close-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.globe-container {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.07);
+}
+.globe-note {
+    text-align: center;
+    color: rgba(255,255,255,0.28);
+    font-size: 0.73rem;
+    margin-top: 14px;
+    letter-spacing: 0.02em;
+}
+
+/* ============================================
+   FEATURE: PUSH NOTIFICATION BELL
+   ============================================ */
+.push-bell-btn { position: relative; transition: color 0.2s; }
+.push-bell-btn.push-subscribed i { color: #ffd700 !important; }
+.push-bell-btn.push-subscribed::after {
+    content: '';
+    position: absolute;
+    top: 5px; right: 5px;
+    width: 6px; height: 6px;
+    background: #34d399;
+    border-radius: 50%;
+    border: 1.5px solid #0d0d0f;
+}

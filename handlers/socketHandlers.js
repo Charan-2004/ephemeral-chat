@@ -7,9 +7,12 @@ const { verifySession } = require('../utils/adminAuth');
 const { getRooms, findRoom, addRoom, generateUniqueRoomId, tryCleanupRoom, getPinnedMessage, broadcastRoomCounts, getPublicRooms, emitRoomUsers } = require('../utils/roomManager');
 const { recordMessage, getLeaderboard, getUserRank, getTop3, updateAndCheckTop3, getMsUntilReset } = require('../utils/leaderboard');
 const config = require('../utils/config');
+const { sendPushToAll } = require('../utils/pushNotifications');
 
 module.exports = function registerSocketHandlers(io) {
     io.on('connection', socket => {
+
+        // Geo tracking for globe feature
 
         socket.on('joinRoom', ({ username, room, password, userId }) => {
             // Resolve room by ID or name
@@ -111,15 +114,25 @@ module.exports = function registerSocketHandlers(io) {
 
             // Broadcast updated counts to all clients
             broadcastRoomCounts(io);
-            io.emit('online-count', io.engine.clientsCount + getBotStatus().botCount);
+            io.emit('online-count', io.engine.clientsCount);
 
-            // Send current active event or next event countdown to user
-            const { activeEvent, nextEvent } = eventsEngine.getNextEventInfo();
-            if (activeEvent) {
-                socket.emit('event-status', { active: true, name: activeEvent.name, host: activeEvent.host, timeRemaining: activeEvent.timeRemaining });
-            } else if (nextEvent) {
-                socket.emit('event-status', { active: false, name: nextEvent.name, host: nextEvent.host, msUntil: nextEvent.msUntil });
+            // Push notification milestone triggers
+            const onlineNow = io.engine.clientsCount;
+            if (onlineNow === 10 || onlineNow === 25 || onlineNow === 50 || onlineNow === 100) {
+                sendPushToAll(
+                    '\uD83D\uDD25 ChatHere is getting busy!',
+                    onlineNow + ' people are online right now. Come join the conversation!',
+                    '/'
+                ).catch(() => {});
             }
+
+            // Send current active event (DISABLED - bots deactivated)
+            // const { activeEvent, nextEvent } = eventsEngine.getNextEventInfo();
+            // if (activeEvent) {
+            //     socket.emit('event-status', { active: true, ... });
+            // } else if (nextEvent) {
+            //     socket.emit('event-status', { active: false, ... });
+            // }
         });
 
         // Typing Indicator (Throttle to max 1 emit per second)
@@ -217,18 +230,18 @@ module.exports = function registerSocketHandlers(io) {
                 // Notify all clients for unread badge tracking
                 io.emit('room-message', { room: user.room });
 
-                // Event message routing
-                if (user.room === 'General') {
-                    if (eventsEngine.triviaActive()) {
-                        eventsEngine.handleTriviaAnswer(user.username, user.userId, text);
-                    } else if (eventsEngine.storyActive()) {
-                        eventsEngine.handleStoryLine(user.username, text);
-                    } else if (eventsEngine.debateActive()) {
-                        eventsEngine.handleDebateComment(user.username, text);
-                    }
-                }
-                // Let bots potentially respond
-                handleRealUserMessage(user.room, message);
+                // Event message routing (DISABLED - bots deactivated)
+                // if (user.room === 'General') {
+                //     if (eventsEngine.triviaActive()) {
+                //         eventsEngine.handleTriviaAnswer(user.username, user.userId, text);
+                //     } else if (eventsEngine.storyActive()) {
+                //         eventsEngine.handleStoryLine(user.username, text);
+                //     } else if (eventsEngine.debateActive()) {
+                //         eventsEngine.handleDebateComment(user.username, text);
+                //     }
+                // }
+                // Let bots potentially respond (DISABLED)
+                // handleRealUserMessage(user.room, message);
 
                 // Leaderboard: record message for public rooms
                 if (roomConfig && !roomConfig.isPrivate) {
@@ -272,7 +285,7 @@ module.exports = function registerSocketHandlers(io) {
                     return;
                 }
                 if (!imageData || typeof imageData !== 'string' || imageData.length > config.maxImageSize) {
-                    socket.emit('error-message', 'Image too large. Max 500KB.');
+                    socket.emit('error-message', 'Image too large. Max 5MB.');
                     return;
                 }
                 // Enforce basic image format regex validation
@@ -287,6 +300,48 @@ module.exports = function registerSocketHandlers(io) {
                 io.emit('room-message', { room: user.room });
 
                 // Leaderboard: record image message for public rooms
+                const roomConfig = findRoom(user.room);
+                if (roomConfig && !roomConfig.isPrivate) {
+                    recordMessage(user.room, user.userId, user.username);
+                    const newTop3 = updateAndCheckTop3(user.room);
+                    if (newTop3) {
+                        io.to(user.room).emit('room-leaderboard-top3', newTop3);
+                    }
+                }
+            }
+        });
+
+        // --- Document Sharing ---
+        socket.on('chatDocument', ({ docData, docName, docSize, replyTo, replyToText }) => {
+            const user = getCurrentUser(socket.id);
+            if (user) {
+                const now = Date.now();
+                const timeDiff = (now - user.lastMessageTime) / 1000;
+                if (timeDiff < config.rateLimitSeconds) {
+                    const waitTime = Math.ceil(config.rateLimitSeconds - timeDiff);
+                    socket.emit('error-message', `Please wait ${waitTime}s.`);
+                    return;
+                }
+                if (!docData || typeof docData !== 'string' || docData.length > config.maxDocSize) {
+                    socket.emit('error-message', 'Document too large. Max 50MB.');
+                    return;
+                }
+                // Validate document type
+                const allowedDocTypes = /^data:(application\/(pdf|msword|vnd\.openxmlformats-officedocument\.wordprocessingml\.document|vnd\.ms-excel|vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet|vnd\.ms-powerpoint|vnd\.openxmlformats-officedocument\.presentationml\.presentation|zip|x-zip-compressed|x-rar-compressed|json|xml)|text\/(plain|csv|html|css|javascript|markdown));base64,/;
+                if (!allowedDocTypes.test(docData)) {
+                    socket.emit('error-message', 'Unsupported file type.');
+                    return;
+                }
+                updateLastMessageTime(socket.id);
+                const message = formatMessage(user.username, '', user.room, user.color, replyTo, replyToText, null, user.id, user.userId);
+                message.docData = docData;
+                message.docName = docName || 'document';
+                message.docSize = docSize || 0;
+                storeMessage(message, io);
+                io.to(user.room).emit('message', message);
+                io.emit('room-message', { room: user.room });
+
+                // Leaderboard: record doc message for public rooms
                 const roomConfig = findRoom(user.room);
                 if (roomConfig && !roomConfig.isPrivate) {
                     recordMessage(user.room, user.userId, user.username);
@@ -389,7 +444,7 @@ module.exports = function registerSocketHandlers(io) {
                 }
                 broadcastRoomCounts(io);
             }
-            io.emit('online-count', io.engine.clientsCount + getBotStatus().botCount);
+            io.emit('online-count', io.engine.clientsCount);
         });
     });
 };
