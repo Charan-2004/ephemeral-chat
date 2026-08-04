@@ -106,7 +106,7 @@ router.get('/live', (req, res) => {
 <meta property="og:title" content="Live Chat &mdash; ChatHere">
 <meta property="og:description" content="${onlineCount} people chatting right now. Anonymous, no login needed.">
 <meta property="og:url" content="https://chathere.online/live">
-<meta property="og:image" content="https://chathere.online/preview-image.jpg">
+<meta property="og:image" content="https://chathere.online/preview-image.jpg?v=3">
 <link rel="icon" href="/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">

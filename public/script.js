@@ -2027,7 +2027,7 @@ function updateEventBannerUI() {
 
     if (eventBannerData.active) {
         banner.classList.add('event-live');
-        textEl.innerHTML = `?? LIVE: <strong>${eventBannerData.name}</strong> hosted by <strong>${eventBannerData.host}</strong> in General!`;
+        textEl.innerHTML = `🔴 LIVE: <strong>${eventBannerData.name}</strong> hosted by <strong>${eventBannerData.host}</strong> in General!`;
         const ms = eventBannerData.timeRemaining;
         timerEl.textContent = formatMsToTime(ms);
     } else {
@@ -2180,7 +2180,7 @@ async function initPushNotifications() {
             });
             bellBtn.classList.add('push-subscribed');
             bellBtn.title = 'Notifications ON';
-            showSuccess('?? Notifications enabled! We\'ll ping you when things get busy.');
+            showSuccess('🔔 Notifications enabled! We\'ll ping you when things get busy.');
         } catch(err) {
             console.error('[Push] Subscribe error:', err);
             showError('Could not enable notifications. Try again later.');

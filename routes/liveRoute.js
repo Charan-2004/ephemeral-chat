@@ -48,7 +48,7 @@ function createLivePage(req, res) {
             '<span class="lv-time">' + escHtml(m.time) + '</span>' +
             '</div>'
         ).join('')
-        : '<div class="lv-empty">No messages yet — <a href="/">be the first to chat!</a></div>';
+        : '<div class="lv-empty">No messages yet  <a href="/">be the first to chat!</a></div>';
 
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -56,13 +56,13 @@ function createLivePage(req, res) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="refresh" content="30">
-<title>Live Chat Feed — ChatHere |  People Online Now</title>
+<title>Live Chat Feed  ChatHere |  People Online Now</title>
 <meta name="description" content="Real-time anonymous chat on ChatHere.  people online now in General, Tech, Music, Movies, Gaming & Politics. No login required.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://chathere.online/live">
-<meta property="og:title" content="Live Chat — ChatHere">
+<meta property="og:title" content="Live Chat  ChatHere">
 <meta property="og:description" content=" people chatting right now. Anonymous, no login needed.">
-<meta property="og:image" content="https://chathere.online/preview-image.jpg">
+<meta property="og:image" content="https://chathere.online/preview-image.jpg?v=3">
 <link rel="icon" href="/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
