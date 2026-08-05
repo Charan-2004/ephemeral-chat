@@ -4271,3 +4271,20 @@ body.in-chat {
   will-change: scroll-position;
   -webkit-overflow-scrolling: touch;
 }
+
+
+/* Ensure landing wrapper is block when active */
+#landing-wrapper {
+  width: 100%;
+}
+
+/* Prevent scroll chaining & rubber-band overscroll */
+.chat-messages {
+  overscroll-behavior: contain !important;
+  overscroll-behavior-y: contain !important;
+}
+
+body.in-chat {
+  overscroll-behavior: none !important;
+  touch-action: none;
+}

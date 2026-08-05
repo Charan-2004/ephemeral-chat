@@ -690,6 +690,8 @@ joinForm.addEventListener('submit', (e) => {
 
 function enterChatRoom(roomName, roomId, password) {
     document.body.classList.add('in-chat');
+    const landingWrapper = document.getElementById('landing-wrapper');
+    if (landingWrapper) landingWrapper.style.display = 'none';
     joinScreen.style.display = 'none';
     chatScreen.style.display = 'flex';
     
@@ -937,6 +939,8 @@ socket.on('room-not-found', () => {
 
 function rollbackToJoinScreen() {
     document.body.classList.remove('in-chat');
+    const landingWrapper = document.getElementById('landing-wrapper');
+    if (landingWrapper) landingWrapper.style.display = 'block';
     joinScreen.style.display = 'block';
     chatScreen.style.display = 'none';
     const siteFooter = document.getElementById('site-footer');
