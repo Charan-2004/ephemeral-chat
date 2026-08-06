@@ -4215,8 +4215,7 @@ body::before {
     width: 6px; height: 6px;
     background: #34d399;
     border-radius: 50%;
-    border: 1.5px solid #0d0d0f;
-}
+
 /* Lock Body & Chat Container during active chat to prevent page scrolling */
 body.in-chat {
   overflow: hidden !important;
@@ -4230,9 +4229,10 @@ body.in-chat {
   bottom: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
+  overscroll-behavior: none !important;
 }
 
-.chat-container {
+body.in-chat .chat-container {
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
@@ -4241,8 +4241,6 @@ body.in-chat {
   width: 100vw !important;
   height: 100vh !important;
   height: 100dvh !important;
-  display: flex !important;
-  flex-direction: column !important;
   background: #0c0c10 !important;
   backdrop-filter: blur(35px);
   -webkit-backdrop-filter: blur(35px);
@@ -4269,33 +4267,16 @@ body.in-chat {
   flex: 1 !important;
   min-height: 0 !important;
   will-change: scroll-position;
-  -webkit-overflow-scrolling: touch;
-}
-
-
-/* Ensure landing wrapper is block when active */
-#landing-wrapper {
-  width: 100%;
-}
-
-/* Prevent scroll chaining & rubber-band overscroll */
-.chat-messages {
+  -webkit-overflow-scrolling: touch !important;
   overscroll-behavior: contain !important;
   overscroll-behavior-y: contain !important;
+  touch-action: pan-y !important;
 }
 
-body.in-chat {
-  overscroll-behavior: none !important;
-  
-}
-
-
-/* Safe touch action rules for chat interface */
 button, input, label, form {
   touch-action: manipulation !important;
 }
 
-.chat-messages {
-  touch-action: pan-y !important;
-  -webkit-overflow-scrolling: touch !important;
+#landing-wrapper {
+  width: 100%;
 }
