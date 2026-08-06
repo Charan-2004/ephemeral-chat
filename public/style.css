@@ -4286,5 +4286,16 @@ body.in-chat {
 
 body.in-chat {
   overscroll-behavior: none !important;
-  touch-action: none;
+  
+}
+
+
+/* Safe touch action rules for chat interface */
+button, input, label, form {
+  touch-action: manipulation !important;
+}
+
+.chat-messages {
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch !important;
 }
