@@ -15,7 +15,19 @@
   padding: 0;
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+  touch-action: none;
+}
+
 body {
+  background-color: #0d0d0f;
   font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
   color: #fff;
   line-height: 1.6;
@@ -23,14 +35,6 @@ body {
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  /* Fixed prevents jumpy background on mobile */
-  margin: 0;
-  height: 100vh;
-  height: 100dvh;
-  /* Mobile fix */
-  overflow-x: hidden;
-  overflow-y: auto;
-  /* Removed flex centering to prevent mobile jitter */
 }
 
 /* ... existing styles ... */
@@ -111,7 +115,7 @@ body::before {
 .join-screen-immersive {
   position: relative;
   width: 100%;
-  min-height: 100dvh;
+  height: 100dvh; min-height: 100dvh;
   display: flex;
   flex-direction: column;
   z-index: 100;
