@@ -2209,3 +2209,10 @@ window.addEventListener('mousedown', (e) => {
     const gm = document.getElementById('globe-modal');
     if (gm && e.target === gm) window.globeModule && window.globeModule.closeGlobe();
 });
+
+// Hard lock window scroll position to (0, 0) whenever in chat mode
+window.addEventListener('scroll', () => {
+    if (document.body.classList.contains('in-chat') && (window.scrollY !== 0 || window.scrollX !== 0)) {
+        window.scrollTo(0, 0);
+    }
+}, { passive: true });
