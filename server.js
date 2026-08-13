@@ -15,6 +15,7 @@ const { initLeaderboardScheduler } = require('./utils/leaderboard');
 const { initEventsEngine } = require('./utils/eventsEngine');
 const publicRoutes = require('./routes/publicRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const seoRoutes = require('./routes/seoRoutes');
 const registerSocketHandlers = require('./handlers/socketHandlers');
 
 const app = express();
@@ -53,6 +54,9 @@ app.use((req, res, next) => {
     }
     next();
 });
+
+// Programmatic & Technical SEO Engine Routes (/sitemap.xml, /rss.xml, /chat/*, /vs/*)
+app.use('/', seoRoutes);
 
 // Static folder with conservative caching (updates propagate fast)
 app.use(express.static(path.join(__dirname, 'public'), {
@@ -101,7 +105,9 @@ app.use('/api/admin/login', loginLimiter);
 app.use('/api', publicRoutes);
 app.use('/api/admin', adminRoutes);
 
-// /live SSR page — mounted at root for SEO (not /api prefix)
+
+
+// /live SSR page ï¿½ mounted at root for SEO (not /api prefix)
 const { createLivePage } = require('./routes/liveRoute');
 app.get('/live', (req, res) => createLivePage(req, res));
 

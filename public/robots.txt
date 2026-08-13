@@ -1,5 +1,33 @@
 User-agent: *
 Allow: /
+Allow: /live
+Allow: /about.html
+Allow: /blog.html
+Allow: /marketing.html
+Allow: /links.html
+Allow: /llms.txt
+Allow: /llm.txt
+
 Disallow: /admin
+Disallow: /api/
+
+# Explicitly Allow AI & LLM Search Crawlers for Generative Engine Optimization (GEO)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
 
 Sitemap: https://chathere.online/sitemap.xml

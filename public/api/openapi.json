@@ -1,0 +1,70 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ChatHere Ephemeral Chat API",
+    "description": "API for programmatically querying rooms and active user counts on ChatHere (chathere.online).",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://chathere.online/api",
+      "description": "Production Server"
+    }
+  ],
+  "paths": {
+    "/rooms": {
+      "get": {
+        "operationId": "getPublicRooms",
+        "summary": "Get available public chat rooms",
+        "description": "Returns a list of active public chat rooms and user counts on ChatHere.",
+        "responses": {
+          "200": {
+            "description": "Active rooms list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "count": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/online-count": {
+      "get": {
+        "operationId": "getOnlineUserCount",
+        "summary": "Get total active user count",
+        "description": "Returns total count of online users across all ChatHere chat rooms.",
+        "responses": {
+          "200": {
+            "description": "Live online user count.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
