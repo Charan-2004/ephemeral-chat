@@ -1296,12 +1296,18 @@ body::before {
 
 /* SEO Footer */
 .site-footer {
-  margin-top: 16px;
-  padding: 12px 0 0 0;
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
   font-size: 0.78rem;
   color: rgba(255, 255, 255, 0.25);
   text-align: center;
   width: 100%;
+  z-index: 10;
+  pointer-events: auto;
 }
 
 .footer-content {
@@ -2375,8 +2381,8 @@ body::before {
 /* Responsive Overrides */
 @media (max-width: 900px) {
   .join-screen-immersive {
-    padding-top: calc(56px + 1.5rem); padding-bottom: 2rem;
-    overflow-y: auto;
+    padding-top: calc(56px + 0.5rem); padding-bottom: 0.5rem;
+    overflow: hidden !important;
   }
   
   .hero-main-title {
@@ -4340,4 +4346,21 @@ body.in-chat .glow-orbs {
   overscroll-behavior: contain !important;
   overscroll-behavior-y: contain !important;
   touch-action: pan-y !important;
+}
+
+
+/* Absolute Zero Page Scroll Lock */
+html, body, #landing-wrapper, .join-screen-immersive, #chat-screen, .chat-container, .chat-main {
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+  touch-action: none;
+}
+
+body {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
 }

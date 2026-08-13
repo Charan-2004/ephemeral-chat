@@ -2216,3 +2216,14 @@ window.addEventListener('scroll', () => {
         window.scrollTo(0, 0);
     }
 }, { passive: true });
+
+
+// Prevent all wheel & touchmove scrolling on the document except inside allowed scrollable containers
+['touchmove', 'wheel'].forEach(eventType => {
+    document.addEventListener(eventType, function(e) {
+        const allowedScrollable = e.target.closest('.chat-messages, .active-rooms-grid, .modal-content, .users-list-panel, .panel-users-list');
+        if (!allowedScrollable) {
+            if (e.cancelable) e.preventDefault();
+        }
+    }, { passive: false });
+});
