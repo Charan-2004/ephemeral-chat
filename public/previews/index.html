@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatHere Design System Previews | Real Designer Aesthetics</title>
+    <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #07080b;
+            color: #e2e8f0;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 1. LINEAR OBSIDIAN */
+        .theme-linear {
+            --canvas-bg: #090a0f;
+            --surface-bg: #111319;
+            --surface-elevated: #161822;
+            --input-bg: #0c0d12;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.16);
+            --accent: #10b981;
+            --accent-rgb: 16, 185, 129;
+            --accent-text: #090a0f;
+            --text-heading: #f8fafc;
+            --text-body: #a1a1aa;
+            --text-dim: #71717a;
+            --font-family-display: 'Inter', -apple-system, sans-serif;
+            --font-family-mono: 'JetBrains Mono', monospace;
+            --radius-outer: 14px;
+            --radius-inner: 8px;
+            --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 20px 40px -15px rgba(0, 0, 0, 0.75);
+            --cta-bg: #ffffff;
+            --cta-text: #090a0f;
+            --cta-hover: #e2e8f0;
+        }
+
+        /* 2. TEENAGE HARDWARE */
+        .theme-hardware {
+            --canvas-bg: #050505;
+            --surface-bg: #101010;
+            --surface-elevated: #181818;
+            --input-bg: #090909;
+            --border: #282828;
+            --border-hover: #444444;
+            --accent: #ff5500;
+            --accent-rgb: 255, 85, 0;
+            --accent-text: #000000;
+            --text-heading: #ffffff;
+            --text-body: #999999;
+            --text-dim: #5c5c5c;
+            --font-family-display: 'JetBrains Mono', 'Space Mono', monospace;
+            --font-family-mono: 'JetBrains Mono', monospace;
+            --radius-outer: 4px;
+            --radius-inner: 2px;
+            --shadow-card: 0 0 0 2px #222222, 0 12px 28px rgba(0, 0, 0, 0.95);
+            --cta-bg: #ff5500;
+            --cta-text: #000000;
+            --cta-hover: #ff6f22;
+        }
+
+        /* 3. MIDNIGHT EDITORIAL */
+        .theme-editorial {
+            --canvas-bg: #0b0d14;
+            --surface-bg: rgba(18, 22, 34, 0.75);
+            --surface-elevated: rgba(28, 34, 52, 0.85);
+            --input-bg: rgba(11, 14, 22, 0.65);
+            --border: rgba(255, 255, 255, 0.09);
+            --border-hover: rgba(255, 255, 255, 0.2);
+            --accent: #818cf8;
+            --accent-rgb: 129, 140, 248;
+            --accent-text: #0b0d14;
+            --text-heading: #f8fafc;
+            --text-body: #94a3b8;
+            --text-dim: #64748b;
+            --font-family-display: 'Inter', -apple-system, sans-serif;
+            --font-family-mono: 'JetBrains Mono', monospace;
+            --radius-outer: 22px;
+            --radius-inner: 12px;
+            --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 24px 48px -12px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            --cta-bg: #6366f1;
+            --cta-text: #ffffff;
+            --cta-hover: #4f46e5;
+        }
+
+        .preview-stage.theme-linear {
+            background-color: #090a0f;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .preview-stage.theme-hardware {
+            background-color: #050505;
+            background-image: linear-gradient(to right, #111111 1px, transparent 1px),
+                              linear-gradient(to bottom, #111111 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+        .preview-stage.theme-editorial {
+            background-color: #0b0d14;
+            background-image: radial-gradient(ellipse at 50% -10%, rgba(99, 102, 241, 0.14), transparent 70%);
+        }
+
+        .stage-canvas.mobile-view {
+            max-width: 410px !important;
+            border: 10px solid #20242e;
+            border-radius: 44px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            background: #000;
+        }
+
+        .theme-linear .cockpit-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 20%;
+            right: 20%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+        }
+
+        .screw { display: none; }
+        .theme-hardware .screw {
+            display: flex;
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #252525;
+            border: 1px solid #3a3a3a;
+            align-items: center;
+            justify-content: center;
+            font-size: 7px;
+            color: #555;
+            font-family: monospace;
+        }
+        .theme-hardware .screw.tl { top: 6px; left: 6px; }
+        .theme-hardware .screw.tr { top: 6px; right: 6px; }
+        .theme-hardware .screw.bl { bottom: 6px; left: 6px; }
+        .theme-hardware .screw.br { bottom: 6px; right: 6px; }
+
+        .hardware-stamp { display: none; }
+        .theme-hardware .hardware-stamp { display: block; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-[#07080b]">
+
+    <!-- PREVIEW HEADER CONTROL BAR -->
+    <header class="sticky top-0 z-50 bg-[#0c0e14]/90 backdrop-blur-md border-b border-white/10 px-6 py-3 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-white text-black flex items-center justify-center font-bold text-sm">
+                <i class="fas fa-ghost"></i>
+            </div>
+            <div>
+                <h1 class="text-sm font-bold text-white tracking-tight">ChatHere UI Concepts</h1>
+                <p class="text-xs font-mono text-zinc-400">Curated Designer Direction Previews</p>
+            </div>
+        </div>
+
+        <!-- 3 Direction Selectors -->
+        <div class="flex items-center gap-1.5 bg-white/5 p-1 rounded-xl border border-white/10">
+            <button id="t-linear" class="theme-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all bg-white text-zinc-950 shadow-sm" onclick="setTheme('linear')">
+                <span class="w-2 h-2 rounded-full bg-[#10b981]"></span> Linear Obsidian
+            </button>
+            <button id="t-hardware" class="theme-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all text-zinc-400 hover:text-white" onclick="setTheme('hardware')">
+                <span class="w-2 h-2 rounded-full bg-[#ff5500]"></span> Teenage Hardware
+            </button>
+            <button id="t-editorial" class="theme-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all text-zinc-400 hover:text-white" onclick="setTheme('editorial')">
+                <span class="w-2 h-2 rounded-full bg-[#818cf8]"></span> Midnight Editorial
+            </button>
+        </div>
+
+        <!-- Viewport & Screen Toggles -->
+        <div class="flex items-center gap-2">
+            <div class="flex items-center bg-white/5 p-1 rounded-lg border border-white/10 text-xs">
+                <button id="v-landing" class="px-2.5 py-1 rounded font-medium bg-white/10 text-white" onclick="setView('landing')">
+                    <i class="fas fa-id-badge mr-1"></i> Join Screen
+                </button>
+                <button id="v-chat" class="px-2.5 py-1 rounded font-medium text-zinc-400 hover:text-white" onclick="setView('chat')">
+                    <i class="fas fa-comments mr-1"></i> Live Chat
+                </button>
+                <button id="v-split" class="px-2.5 py-1 rounded font-medium text-zinc-400 hover:text-white" onclick="setView('split')">
+                    <i class="fas fa-columns mr-1"></i> Compare
+                </button>
+            </div>
+
+            <div class="flex items-center bg-white/5 p-1 rounded-lg border border-white/10 text-xs">
+                <button id="d-desktop" class="px-2.5 py-1 rounded font-medium bg-white/10 text-white" onclick="setDevice('desktop')">
+                    <i class="fas fa-desktop"></i>
+                </button>
+                <button id="d-mobile" class="px-2.5 py-1 rounded font-medium text-zinc-400 hover:text-white" onclick="setDevice('mobile')">
+                    <i class="fas fa-mobile-screen"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- INTENT & SPEC SUB-BANNER -->
+    <div class="bg-[#0e1118] border-b border-white/5 px-6 py-2 flex flex-wrap items-center justify-between text-xs text-zinc-400 gap-4">
+        <div id="spec-text" class="flex items-center gap-2 font-mono text-zinc-300">
+            <span class="text-[#10b981]"><i class="fas fa-circle-check"></i></span>
+            <span>Concept 1: High-precision matte obsidian, 1px micro-border perimeter, Electric Emerald (#10b981) live heartbeat.</span>
+        </div>
+        <div class="flex items-center gap-3 text-zinc-500 font-mono text-[11px]">
+            <span><i class="fas fa-hand-pointer mr-1"></i> Fully interactive</span>
+            <span>&bull;</span>
+            <span>No AI gradients or watermarks</span>
+        </div>
+    </div>
+
+    <!-- PREVIEW STAGE CANVAS -->
+    <main id="preview-stage" class="preview-stage theme-linear flex-1 p-6 md:p-12 flex justify-center items-start transition-all">
+        <div id="stage-canvas" class="stage-canvas w-full max-w-5xl transition-all duration-300">
+
+            <!-- ===================== VIEW 1: JOIN LANDING SCREEN ===================== -->
+            <div id="view-landing" class="flex flex-col items-center w-full">
+                <!-- Nav -->
+                <div class="w-full max-w-[480px] flex items-center justify-between mb-6 px-1">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-[var(--radius-inner)] bg-white text-black flex items-center justify-center font-black text-xs">
+                            <i class="fas fa-ghost"></i>
+                        </div>
+                        <span class="font-bold text-sm tracking-tight text-[var(--text-heading)]">ChatHere</span>
+                    </div>
+                    <div class="flex items-center gap-4 text-xs font-mono text-[var(--text-dim)]">
+                        <span class="hover:text-[var(--text-heading)] cursor-pointer"><i class="fas fa-shield-halved mr-1"></i> Zero Logs</span>
+                        <span class="hover:text-[var(--text-heading)] cursor-pointer"><i class="fas fa-bolt mr-1"></i> Live</span>
+                    </div>
+                </div>
+
+                <!-- Hero Title -->
+                <div class="text-center max-w-[500px] mb-6">
+                    <div class="hardware-stamp text-[10px] tracking-widest text-[#ff5500] font-mono mb-2">PROTOCOL: SECURE_MESH // VERSION 2.4 // HARDWARE ENCRYPTED</div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-mono bg-[var(--surface-elevated)] border border-[var(--border)] text-[var(--text-heading)] mb-3">
+                        <span class="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse shadow-[0_0_8px_var(--accent)]"></span>
+                        <span>● 84 CONNECTED USERS</span>
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--text-heading)] leading-tight mb-2">
+                        Drop in. Speak freely. <span class="text-[var(--accent)] italic">Disappear.</span>
+                    </h2>
+                    <p class="text-xs md:text-sm text-[var(--text-body)] leading-relaxed">
+                        Pure ephemeral real-time rooms. No sign-up, zero database storage. Every conversation dissolves into thin air.
+                    </p>
+                </div>
+
+                <!-- Cockpit Card -->
+                <div class="cockpit-card w-full max-w-[460px] bg-[var(--surface-bg)] border border-[var(--border)] rounded-[var(--radius-outer)] p-6 shadow-[var(--shadow-card)] relative backdrop-blur-xl">
+                    <div class="screw tl">+</div>
+                    <div class="screw tr">+</div>
+                    <div class="screw bl">+</div>
+                    <div class="screw br">+</div>
+
+                    <!-- Callsign / Alias Field -->
+                    <div class="mb-5">
+                        <div class="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-[var(--text-dim)] mb-2 font-semibold">
+                            <span>Your Callsign / Alias</span>
+                            <span class="opacity-60 text-[10px]">Click shuffle</span>
+                        </div>
+                        <div class="flex items-center gap-3 bg-[var(--input-bg)] border border-[var(--border)] rounded-[var(--radius-inner)] px-3.5 py-2.5 transition-colors focus-within:border-[var(--accent)]">
+                            <i class="fas fa-terminal text-[var(--accent)] text-xs"></i>
+                            <input id="demo-alias" type="text" value="neon-phantom-42" class="flex-1 bg-transparent text-[var(--text-heading)] font-mono font-semibold text-sm outline-none tracking-tight" />
+                            <button onclick="rerollAlias()" class="w-7 h-7 rounded-[var(--radius-inner)] bg-white/5 hover:bg-white/10 border border-white/10 text-[var(--text-body)] hover:text-white flex items-center justify-center text-xs transition-all hover:rotate-45" title="Generate new alias">
+                                <i class="fas fa-shuffle"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Room Mode Segmented Tabs -->
+                    <div class="grid grid-cols-3 bg-[var(--input-bg)] border border-[var(--border)] rounded-[var(--radius-inner)] p-1 gap-1 mb-5">
+                        <button id="tab-btn-topics" class="tab-btn py-1.5 text-xs font-semibold rounded-[calc(var(--radius-inner)-2px)] bg-[var(--surface-elevated)] text-[var(--text-heading)] border border-[var(--border)] flex items-center justify-center gap-1.5 transition-all" onclick="setFormTab('topics')">
+                            <i class="fas fa-compass"></i> Topics
+                        </button>
+                        <button id="tab-btn-create" class="tab-btn py-1.5 text-xs font-semibold rounded-[calc(var(--radius-inner)-2px)] text-[var(--text-dim)] hover:text-white flex items-center justify-center gap-1.5 transition-all" onclick="setFormTab('create')">
+                            <i class="fas fa-plus"></i> Create
+                        </button>
+                        <button id="tab-btn-join" class="tab-btn py-1.5 text-xs font-semibold rounded-[calc(var(--radius-inner)-2px)] text-[var(--text-dim)] hover:text-white flex items-center justify-center gap-1.5 transition-all" onclick="setFormTab('join')">
+                            <i class="fas fa-key"></i> Key ID
+                        </button>
+                    </div>
+
+                    <!-- Dynamic Form Sections -->
+                    <div id="form-sec-topics" class="mb-5">
+                        <div class="text-[11px] font-mono uppercase tracking-wider text-[var(--text-dim)] mb-2 font-semibold">Public Channel</div>
+                        <select id="demo-room-select" class="w-full bg-[var(--input-bg)] border border-[var(--border)] rounded-[var(--radius-inner)] px-3.5 py-2.5 text-sm text-[var(--text-heading)] outline-none focus:border-[var(--accent)]">
+                            <option value="General"># general (38 active nodes)</option>
+                            <option value="Tech"># tech-stack (22 active nodes)</option>
+                            <option value="Gaming"># gaming-lounge (14 active nodes)</option>
+                            <option value="Music"># music-production (8 active nodes)</option>
+                        </select>
+                        <button onclick="setView('chat')" class="w-full mt-3 py-2 px-3 rounded-[var(--radius-inner)] bg-white/5 hover:bg-white/10 border border-dashed border-[var(--border)] text-xs text-[var(--text-body)] hover:text-white flex items-center justify-center gap-2 transition-all">
+                            <i class="fas fa-compass"></i> Browse 12 Live Public Channels
+                        </button>
+                    </div>
+
+                    <div id="form-sec-create" class="mb-5 hidden">
+                        <div class="text-[11px] font-mono uppercase tracking-wider text-[var(--text-dim)] mb-2 font-semibold">Custom Room Name</div>
+                        <input type="text" placeholder="e.g. stealth-sprint" class="w-full bg-[var(--input-bg)] border border-[var(--border)] rounded-[var(--radius-inner)] px-3.5 py-2.5 text-sm text-[var(--text-heading)] outline-none focus:border-[var(--accent)] mb-3" />
+                        <div class="flex gap-2">
+                            <button class="flex-1 py-1.5 rounded-[var(--radius-inner)] text-xs font-semibold bg-[var(--surface-elevated)] border border-[var(--border)] text-white">Public</button>
+                            <button class="flex-1 py-1.5 rounded-[var(--radius-inner)] text-xs font-semibold bg-[var(--input-bg)] border border-[var(--border)] text-[var(--text-dim)]">Private (Key)</button>
+                        </div>
+                    </div>
+
+                    <div id="form-sec-join" class="mb-5 hidden">
+                        <div class="text-[11px] font-mono uppercase tracking-wider text-[var(--text-dim)] mb-2 font-semibold">8-Character Room Key</div>
+                        <input type="text" placeholder="ABC-123-XY" class="w-full bg-[var(--input-bg)] border border-[var(--border)] rounded-[var(--radius-inner)] px-3.5 py-2.5 text-sm text-[var(--text-heading)] font-mono uppercase outline-none focus:border-[var(--accent)]" />
+                    </div>
+
+                    <!-- Terms -->
+                    <div class="flex items-center gap-2 text-xs text-[var(--text-dim)] mb-5">
+                        <input type="checkbox" id="terms-box" checked class="accent-[var(--accent)] cursor-pointer" />
+                        <label for="terms-box" class="cursor-pointer">Zero data logging protocol accepted</label>
+                    </div>
+
+                    <!-- CTA Join Button -->
+                    <button onclick="enterChat()" class="w-full py-3.5 px-4 rounded-[var(--radius-inner)] bg-[var(--cta-bg)] text-[var(--cta-text)] font-bold text-sm tracking-tight hover:opacity-90 flex items-center justify-center gap-2 transition-all transform active:translate-y-0.5 shadow-lg">
+                        <span>Enter Live Channel</span>
+                        <i class="fas fa-arrow-right text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- Footer -->
+                <div class="mt-6 text-center text-xs font-mono text-[var(--text-dim)]">
+                    &copy; 2026 ChatHere &bull; Zero Server Storage &bull; In-Memory Only
+                </div>
+            </div>
+
+            <!-- ===================== VIEW 2: ACTIVE LIVE CHAT ROOM ===================== -->
+            <div id="view-chat" class="hidden flex-col items-center w-full">
+                <div class="chat-app-window w-full max-w-[840px] h-[580px] bg-[var(--surface-bg)] border border-[var(--border)] rounded-[var(--radius-outer)] shadow-[var(--shadow-card)] flex flex-col overflow-hidden backdrop-blur-xl">
+                    
+                    <!-- Header -->
+                    <div class="px-5 py-3.5 bg-[var(--surface-elevated)] border-b border-[var(--border)] flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[var(--accent)] shadow-[0_0_8px_var(--accent)]"></span>
+                            <div>
+                                <span id="chat-title-display" class="font-bold text-sm text-[var(--text-heading)]"># general</span>
+                                <span class="ml-2 text-[10px] font-mono bg-white/5 border border-white/10 px-2 py-0.5 rounded text-zinc-400">38 ONLINE</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="alert('Room link copied!')" class="px-3 py-1.5 rounded-[var(--radius-inner)] bg-[var(--input-bg)] border border-[var(--border)] text-xs text-[var(--text-body)] hover:text-white flex items-center gap-1.5 transition-colors">
+                                <i class="fas fa-share-nodes text-[10px]"></i> Share
+                            </button>
+                            <button onclick="leaveChat()" class="px-3 py-1.5 rounded-[var(--radius-inner)] bg-red-500/10 border border-red-500/20 text-xs text-red-400 hover:bg-red-500/20 flex items-center gap-1.5 transition-colors">
+                                <i class="fas fa-door-open text-[10px]"></i> Leave
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Ephemeral Stream Notice -->
+                    <div class="bg-[var(--input-bg)] border-b border-[var(--border)] px-4 py-2 text-center text-[11px] font-mono text-[var(--text-dim)] flex items-center justify-center gap-2">
+                        <i class="fas fa-fire-flame-curved text-[var(--accent)]"></i>
+                        <span>EPHEMERAL ROOM: Active in RAM only. Messages dissolve when everyone disconnects.</span>
+                    </div>
+
+                    <!-- Message Feed -->
+                    <div id="messages-container" class="flex-1 p-5 overflow-y-auto space-y-4 bg-[var(--canvas-bg)]">
+                        <!-- Incoming 1 -->
+                        <div class="flex items-start gap-3 max-w-[80%]">
+                            <div class="w-8 h-8 rounded-[var(--radius-inner)] bg-[var(--surface-elevated)] border border-[var(--border)] text-[var(--accent)] flex items-center justify-center font-mono font-bold text-xs flex-shrink-0">
+                                CS
+                            </div>
+                            <div>
+                                <div class="text-[11px] font-mono text-[var(--text-dim)] mb-1 flex items-center gap-2">
+                                    <span>cipher-samurai</span>
+                                    <span>&bull;</span>
+                                    <span>14:10</span>
+                                </div>
+                                <div class="bg-[var(--surface-elevated)] border border-[var(--border)] text-[var(--text-heading)] text-xs md:text-sm px-3.5 py-2.5 rounded-[var(--radius-inner)] leading-relaxed">
+                                    The new design direction is crisp. Eliminates that noisy background text and feels like a real precision tool now.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Incoming 2 -->
+                        <div class="flex items-start gap-3 max-w-[80%]">
+                            <div class="w-8 h-8 rounded-[var(--radius-inner)] bg-[var(--surface-elevated)] border border-[var(--border)] text-[#38bdf8] flex items-center justify-center font-mono font-bold text-xs flex-shrink-0">
+                                VX
+                            </div>
+                            <div>
+                                <div class="text-[11px] font-mono text-[var(--text-dim)] mb-1 flex items-center gap-2">
+                                    <span>void-pulse</span>
+                                    <span>&bull;</span>
+                                    <span>14:12</span>
+                                </div>
+                                <div class="bg-[var(--surface-elevated)] border border-[var(--border)] text-[var(--text-heading)] text-xs md:text-sm px-3.5 py-2.5 rounded-[var(--radius-inner)] leading-relaxed">
+                                    Agreed. Dark matte backgrounds with subtle 1px border highlights are timeless. Very Linear / Raycast quality.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Outgoing User Message -->
+                        <div class="flex items-start gap-3 max-w-[80%] ml-auto flex-row-reverse">
+                            <div id="my-chat-avatar" class="w-8 h-8 rounded-[var(--radius-inner)] bg-[var(--accent)] text-[var(--accent-text)] flex items-center justify-center font-mono font-bold text-xs flex-shrink-0">
+                                NP
+                            </div>
+                            <div class="text-right">
+                                <div class="text-[11px] font-mono text-[var(--text-dim)] mb-1 flex items-center justify-end gap-2">
+                                    <span>You</span>
+                                    <span>&bull;</span>
+                                    <span>14:15</span>
+                                </div>
+                                <div class="bg-[var(--accent)]/15 border border-[var(--accent)]/30 text-[var(--text-heading)] text-xs md:text-sm px-3.5 py-2.5 rounded-[var(--radius-inner)] leading-relaxed text-left">
+                                    Testing this out live. Zero login, zero cookies, clean typography.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input Bar -->
+                    <div class="p-3.5 bg-[var(--surface-elevated)] border-t border-[var(--border)] flex items-center gap-3">
+                        <div class="flex-1 flex items-center gap-2 bg-[var(--input-bg)] border border-[var(--border)] rounded-[var(--radius-inner)] px-3 py-1.5 focus-within:border-[var(--accent)]">
+                            <button class="text-zinc-500 hover:text-white text-xs"><i class="fas fa-paperclip"></i></button>
+                            <input id="demo-chat-msg" type="text" placeholder="Type a vanishing message..." class="flex-1 bg-transparent text-xs text-[var(--text-heading)] outline-none" onkeydown="if(event.key==='Enter') sendMsg()" />
+                            <button class="text-zinc-500 hover:text-white text-xs"><i class="far fa-face-smile"></i></button>
+                        </div>
+                        <button onclick="sendMsg()" class="w-8 h-8 rounded-[var(--radius-inner)] bg-[var(--accent)] text-[var(--accent-text)] flex items-center justify-center text-xs font-bold hover:opacity-90">
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- LOGIC -->
+    <script>
+        const specs = {
+            linear: {
+                name: 'Linear Obsidian',
+                dot: '#10b981',
+                text: 'Concept 1: High-precision matte obsidian, 1px micro-border perimeter, Electric Emerald (#10b981) live heartbeat.'
+            },
+            hardware: {
+                name: 'Teenage Hardware',
+                dot: '#ff5500',
+                text: 'Concept 2: Stark matte black, Safety Orange (#ff5500), mechanical corner screws, tactile uppercase stamps.'
+            },
+            editorial: {
+                name: 'Midnight Editorial',
+                dot: '#818cf8',
+                text: 'Concept 3: Midnight sapphire glassmorphism, optical blur depth, Iris Violet (#818cf8), refined serif accents.'
+            }
+        };
+
+        const aliases = ['neon-phantom-42', 'cyber-samurai', 'void-pulse', 'zero-echo-9', 'stealth-pilot', 'quantum-drift'];
+
+        function setTheme(t) {
+            document.querySelectorAll('.theme-tab-btn').forEach(b => {
+                b.className = 'theme-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all text-zinc-400 hover:text-white';
+            });
+            const activeBtn = document.getElementById('t-' + t);
+            if (activeBtn) {
+                activeBtn.className = 'theme-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all bg-white text-zinc-950 shadow-sm';
+            }
+
+            const stage = document.getElementById('preview-stage');
+            stage.className = 'preview-stage theme-' + t + ' flex-1 p-6 md:p-12 flex justify-center items-start transition-all';
+
+            const s = specs[t];
+            document.getElementById('spec-text').innerHTML = '<span style="color:' + s.dot + '"><i class="fas fa-circle-check"></i></span><span>' + s.text + '</span>';
+        }
+
+        function setView(v) {
+            document.querySelectorAll('#v-landing, #v-chat, #v-split').forEach(b => {
+                b.className = 'px-2.5 py-1 rounded font-medium text-zinc-400 hover:text-white';
+            });
+            document.getElementById('v-' + v).className = 'px-2.5 py-1 rounded font-medium bg-white/10 text-white';
+
+            const landing = document.getElementById('view-landing');
+            const chat = document.getElementById('view-chat');
+            const canvas = document.getElementById('stage-canvas');
+
+            if (v === 'landing') {
+                landing.classList.remove('hidden');
+                landing.classList.add('flex');
+                chat.classList.add('hidden');
+                chat.classList.remove('flex');
+                canvas.className = 'stage-canvas w-full max-w-5xl transition-all duration-300';
+            } else if (v === 'chat') {
+                landing.classList.add('hidden');
+                landing.classList.remove('flex');
+                chat.classList.remove('hidden');
+                chat.classList.add('flex');
+                canvas.className = 'stage-canvas w-full max-w-5xl transition-all duration-300';
+            } else if (v === 'split') {
+                landing.classList.remove('hidden');
+                landing.classList.add('flex');
+                chat.classList.remove('hidden');
+                chat.classList.add('flex');
+                canvas.className = 'stage-canvas w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-start transition-all duration-300';
+            }
+        }
+
+        function setDevice(d) {
+            document.querySelectorAll('#d-desktop, #d-mobile').forEach(b => {
+                b.className = 'px-2.5 py-1 rounded font-medium text-zinc-400 hover:text-white';
+            });
+            document.getElementById('d-' + d).className = 'px-2.5 py-1 rounded font-medium bg-white/10 text-white';
+
+            const canvas = document.getElementById('stage-canvas');
+            if (d === 'mobile') {
+                canvas.classList.add('mobile-view');
+            } else {
+                canvas.classList.remove('mobile-view');
+            }
+        }
+
+        function rerollAlias() {
+            const next = aliases[Math.floor(Math.random() * aliases.length)];
+            document.getElementById('demo-alias').value = next;
+            const initials = next.split('-').map(s => s[0].toUpperCase()).join('').slice(0, 2);
+            document.getElementById('my-chat-avatar').textContent = initials;
+        }
+
+        function setFormTab(tab) {
+            ['topics', 'create', 'join'].forEach(t => {
+                const b = document.getElementById('tab-btn-' + t);
+                const s = document.getElementById('form-sec-' + t);
+                if (t === tab) {
+                    b.className = 'tab-btn py-1.5 text-xs font-semibold rounded-[calc(var(--radius-inner)-2px)] bg-[var(--surface-elevated)] text-[var(--text-heading)] border border-[var(--border)] flex items-center justify-center gap-1.5 transition-all';
+                    s.classList.remove('hidden');
+                } else {
+                    b.className = 'tab-btn py-1.5 text-xs font-semibold rounded-[calc(var(--radius-inner)-2px)] text-[var(--text-dim)] hover:text-white flex items-center justify-center gap-1.5 transition-all';
+                    s.classList.add('hidden');
+                }
+            });
+        }
+
+        function enterChat() {
+            const room = document.getElementById('demo-room-select').value;
+            document.getElementById('chat-title-display').textContent = '# ' + room.toLowerCase();
+            setView('chat');
+        }
+
+        function leaveChat() {
+            setView('landing');
+        }
+
+        function sendMsg() {
+            const input = document.getElementById('demo-chat-msg');
+            const val = input.value.trim();
+            if (!val) return;
+
+            const container = document.getElementById('messages-container');
+            const alias = document.getElementById('demo-alias').value;
+            const initials = alias.split('-').map(s => s[0].toUpperCase()).join('').slice(0, 2) || 'NP';
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            const div = document.createElement('div');
+            div.className = 'flex items-start gap-3 max-w-[80%] ml-auto flex-row-reverse';
+            div.innerHTML = \`
+                <div class="w-8 h-8 rounded-[var(--radius-inner)] bg-[var(--accent)] text-[var(--accent-text)] flex items-center justify-center font-mono font-bold text-xs flex-shrink-0">
+                    \${initials}
+                </div>
+                <div class="text-right">
+                    <div class="text-[11px] font-mono text-[var(--text-dim)] mb-1 flex items-center justify-end gap-2">
+                        <span>You</span>
+                        <span>&bull;</span>
+                        <span>\${time}</span>
+                    </div>
+                    <div class="bg-[var(--accent)]/15 border border-[var(--accent)]/30 text-[var(--text-heading)] text-xs md:text-sm px-3.5 py-2.5 rounded-[var(--radius-inner)] leading-relaxed text-left">
+                        \${val}
+                    </div>
+                </div>
+            \`;
+            container.appendChild(div);
+            input.value = '';
+            container.scrollTop = container.scrollHeight;
+        }
+    </script>
+</body>
+</html>
