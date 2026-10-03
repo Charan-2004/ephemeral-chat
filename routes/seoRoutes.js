@@ -54,7 +54,7 @@ router.get('/use-cases', (req, res) => {
 });
 
 // /blog & /blog.html - Blog Hub
-router.get(['/blog', '/blog.html'], (req, res) => {
+router.get('/blog', (req, res) => {
     const io = req.app.get('io');
     setCache(res, 300);
     res.send(renderHubPage('blog', blogs, io));
@@ -150,14 +150,8 @@ router.get('/sitemap.xml', (req, res) => {
         { loc: `${baseUrl}/use-cases`, priority: '0.9', changefreq: 'weekly' },
         { loc: `${baseUrl}/blog`, priority: '0.9', changefreq: 'weekly' },
         { loc: `${baseUrl}/about.html`, priority: '0.8', changefreq: 'monthly' },
-        { loc: `${baseUrl}/marketing.html`, priority: '0.8', changefreq: 'monthly' },
-        { loc: `${baseUrl}/links.html`, priority: '0.7', changefreq: 'monthly' }
+        { loc: `${baseUrl}/marketing.html`, priority: '0.8', changefreq: 'monthly' }
     ];
-
-    // Core rooms
-    ['General', 'Tech', 'Gaming', 'Music', 'Movies', 'Politics'].forEach(r => {
-        urls.push({ loc: `${baseUrl}/?room=${encodeURIComponent(r)}`, priority: '0.85', changefreq: 'daily' });
-    });
 
     // 30 Topics
     topics.forEach(t => {
