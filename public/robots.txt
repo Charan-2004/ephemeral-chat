@@ -1,12 +1,24 @@
 User-agent: *
 Allow: /
 Allow: /live
+Allow: /chat
+Allow: /chat/
+Allow: /cities
+Allow: /vs
+Allow: /vs/
+Allow: /use-cases
+Allow: /use-cases/
+Allow: /blog
+Allow: /blog/
 Allow: /about.html
 Allow: /blog.html
 Allow: /marketing.html
 Allow: /links.html
 Allow: /llms.txt
+Allow: /llms-full.txt
 Allow: /llm.txt
+Allow: /sitemap.xml
+Allow: /rss.xml
 
 Disallow: /admin
 Disallow: /api/

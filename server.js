@@ -133,6 +133,22 @@ setInterval(() => {
 registerSocketHandlers(io);
 
 // Server startup
+
+// Global Express Error Handler (Prevents 5xx crashes and provides clean responses)
+app.use((err, req, res, next) => {
+    console.error(`[Server Error] ${req.method} ${req.url}:`, err);
+    if (res.headersSent) return next(err);
+    res.status(500).send('<!DOCTYPE html><html><head><title>ChatHere - Service Notice</title></head><body style="font-family:sans-serif;background:#0d0d0f;color:#eee;text-align:center;padding:60px 20px;"><h1>Temporary Service Notice</h1><p>Our real-time engine is cycling. Please <a href="/" style="color:#5865f2;">refresh the page</a> in a few moments.</p></body></html>');
+});
+
+// Process-level crash prevention guards
+process.on('uncaughtException', (err) => {
+    console.error('[Uncaught Exception]:', err);
+});
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('[Unhandled Rejection]:', reason);
+});
+
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
