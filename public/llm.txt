@@ -11,7 +11,7 @@ ChatHere is a browser-based chat service with public rooms organized by topic. V
 - [About](https://chathere.online/about.html): Information about ChatHere.
 - [Sitemap](https://chathere.online/sitemap.xml): Canonical public URLs.
 
-City-themed pages and competitor comparison pages remain excluded from search because ChatHere does not currently provide verified local rooms and those comparisons need product-by-product source review.
+City-themed pages and competitor comparison pages remain excluded from search because ChatHere does not currently provide verified local rooms and those comparisons need product-by-product source review. A workplace page is also excluded because ChatHere is not a confidential whistleblower channel.
 
 ## Topic rooms
 - [Tech & Gadgets](https://chathere.online/chat/topic/tech)
@@ -54,7 +54,6 @@ City-themed pages and competitor comparison pages remain excluded from search be
 - [Low-Stress Socializing for Introverts Without Video](https://chathere.online/use-cases/introverts-chat)
 - [Fast Gaming Squad Finder & Matchmaking](https://chathere.online/use-cases/gaming-lfg)
 - [Live Sports Match Reactions & Banter](https://chathere.online/use-cases/sports-fans)
-- [Sharing Honest Opinions Safely](https://chathere.online/use-cases/whistleblower-privacy)
 - [Virtual Watercooler for Remote Workers](https://chathere.online/use-cases/remote-work-watercooler)
 - [Live TV & Streaming Episode Reactions](https://chathere.online/use-cases/tv-watch-along)
 - [Unfiltered Intellectual & Ethical Debates](https://chathere.online/use-cases/debate-hub)

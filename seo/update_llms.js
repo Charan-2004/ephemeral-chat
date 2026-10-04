@@ -20,13 +20,13 @@ ChatHere is a browser-based chat service with public rooms organized by topic. V
 - [About](${baseUrl}/about.html): Information about ChatHere.
 - [Sitemap](${baseUrl}/sitemap.xml): Canonical public URLs.
 
-City-themed pages and competitor comparison pages remain excluded from search because ChatHere does not currently provide verified local rooms and those comparisons need product-by-product source review.
+City-themed pages and competitor comparison pages remain excluded from search because ChatHere does not currently provide verified local rooms and those comparisons need product-by-product source review. A workplace page is also excluded because ChatHere is not a confidential whistleblower channel.
 
 ## Topic rooms
 ${linkList(topics, t => `- [${t.name}](${baseUrl}/chat/topic/${t.slug})`)}
 
 ## Use-case guides
-${linkList(useCases, u => `- [${u.name}](${baseUrl}/use-cases/${u.slug})`)}
+${linkList(useCases.filter(u => !u.editorialHold), u => `- [${u.name}](${baseUrl}/use-cases/${u.slug})`)}
 
 ## Source-linked guides
 ${linkList(editorialBlogs, b => `- [${b.title}](${baseUrl}/blog/${b.slug})`)}

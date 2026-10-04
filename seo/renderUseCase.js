@@ -50,7 +50,7 @@ function renderUseCasePage(uc, io) {
       const relatedUseCase = useCases.find(item => item.slug === slug);
       const relatedTopic = topics.find(item => item.slug === slug);
       const href = relatedUseCase ? `/use-cases/${slug}` : relatedTopic ? `/chat/topic/${slug}` : null;
-      return href ? `<a href="${href}" class="link-pill">${escHtml(slug.replace(/-/g, ' '))}</a>` : '';
+      return href && !relatedUseCase?.editorialHold ? `<a href="${href}" class="link-pill">${escHtml(slug.replace(/-/g, ' '))}</a>` : '';
     }).join('');
 
     return `<!DOCTYPE html>
@@ -60,6 +60,7 @@ function renderUseCasePage(uc, io) {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${escHtml(uc.title)}</title>
 <meta name="description" content="${escHtml(uc.metaDescription)}">
+${uc.editorialHold ? '<meta name="robots" content="noindex,follow">' : ''}
 <link rel="canonical" href="https://chathere.online/use-cases/${uc.slug}">
 <meta property="og:type" content="website">
 <meta property="og:title" content="${escHtml(uc.title)}">

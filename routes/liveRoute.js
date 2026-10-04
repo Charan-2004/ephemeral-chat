@@ -159,7 +159,7 @@ footer a:hover{color:rgba(255,255,255,.6)}
     <h2>Join the Conversation</h2>
     <p>Anonymous, ephemeral, and completely free. Pick a name and start chatting in seconds.</p>
     <a href="/">Start Chatting Now &rarr;</a>
-    <p class="cta-note">No login &bull; No registration &bull; 100% anonymous</p>
+    <p class="cta-note">No account required &bull; Public room messages &bull; Avoid sharing sensitive details</p>
   </div>
 </main>
 <footer>

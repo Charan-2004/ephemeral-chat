@@ -126,7 +126,7 @@ function renderHubPage(type, items, io) {
         meta = "Explore how people use ChatHere for emotional venting, insomnia companionship, developer pair debugging, language practice, and more.";
         h1 = "Real-World Use Cases";
         subhead = "Explore practical guides for using ChatHere in different situations, from coding discussions to late-night conversation.";
-        cardsHtml = items.map(u => `
+        cardsHtml = items.filter(u => !u.editorialHold).map(u => `
           <a href="/use-cases/${u.slug}" class="card" style="display:block;text-decoration:none">
             <div style="font-size:1.6rem;margin-bottom:8px">${u.icon}</div>
             <h3 style="color:#fff;font-size:1.15rem;margin-bottom:6px">${escHtml(u.name)}</h3>

@@ -143,13 +143,13 @@ async function main() {
                 }
 
                 const path = group.path(item);
-                if (group.type !== 'blog') assert.ok(directoryHtml.includes(`href="${path}"`), `${path}: not linked from its directory hub`);
+                if (group.type !== 'blog' && !item.editorialHold) assert.ok(directoryHtml.includes(`href="${path}"`), `${path}: not linked from its directory hub`);
                 const response = await fetch(`${base}${path}`);
                 assert.equal(response.status, 200, `${path}: expected 200`);
                 const html = await response.text();
                 const schemas = inspectHtml(html, path, { detail: group.type === 'topic' || group.type === 'use case', requireBreadcrumb: true });
                 assert.equal(new URL(canonicalUrl(html)).pathname, path, `${path}: malformed canonical`);
-                if (editorialHoldTypes.has(group.type)) {
+                if (editorialHoldTypes.has(group.type) || item.editorialHold) {
                     assert.match(html, /<meta\b(?=[^>]*\bname=["']robots["'])[^>]*\bcontent=["'][^"']*noindex/i, `${path}: expected editorial-hold noindex`);
                 }
                 if (group.type === 'blog') {
@@ -204,12 +204,13 @@ async function main() {
             'https://chathere.online/', 'https://chathere.online/live',
             'https://chathere.online/about.html', 'https://chathere.online/marketing.html',
             ...hubs.filter(([path]) => !editorialHoldHubs.has(path)).map(([path]) => `https://chathere.online${path}`),
-            ...collections.filter(group => !editorialHoldTypes.has(group.type)).flatMap(group => group.items.map(item => `https://chathere.online${group.path(item)}`))
+            ...collections.filter(group => !editorialHoldTypes.has(group.type)).flatMap(group => group.items.filter(item => !item.editorialHold).map(item => `https://chathere.online${group.path(item)}`))
         ]);
         for (const url of expectedUrls) assert.ok(sitemapUrls.includes(url), `sitemap: missing ${url}`);
         for (const url of sitemapUrls) assert.ok(expectedUrls.has(url), `sitemap: unexpected/non-canonical URL ${url}`);
-        for (const group of collections.filter(item => editorialHoldTypes.has(item.type))) {
+        for (const group of collections) {
             for (const item of group.items) {
+                if (!editorialHoldTypes.has(group.type) && !item.editorialHold) continue;
                 const url = `https://chathere.online${group.path(item)}`;
                 assert.ok(!sitemapUrls.includes(url), `${url}: editorial-hold page must not be in the sitemap`);
             }

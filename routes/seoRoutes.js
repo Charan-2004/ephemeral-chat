@@ -172,7 +172,7 @@ router.get('/sitemap.xml', (req, res) => {
     });
 
     // 15 Use Cases
-    useCases.forEach(u => {
+    useCases.filter(u => !u.editorialHold).forEach(u => {
         urls.push(`${baseUrl}/use-cases/${u.slug}`);
     });
     editorialBlogs.forEach(blog => urls.push(`${baseUrl}/blog/${blog.slug}`));

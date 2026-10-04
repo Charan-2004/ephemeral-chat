@@ -10,7 +10,7 @@ const urls = [
 ];
 
 topics.forEach(t => urls.push(`${baseUrl}/chat/topic/${t.slug}`));
-useCases.forEach(u => urls.push(`${baseUrl}/use-cases/${u.slug}`));
+useCases.filter(u => !u.editorialHold).forEach(u => urls.push(`${baseUrl}/use-cases/${u.slug}`));
 editorialBlogs.forEach(blog => urls.push(`${baseUrl}/blog/${blog.slug}`));
 
 const xmlLines = urls.map(loc =>

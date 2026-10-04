@@ -366,35 +366,36 @@ module.exports = [
     "slug": "whistleblower-privacy",
     "name": "Sharing Honest Opinions Safely",
     "icon": "🕶️",
-    "title": "Sharing Honest Opinions Safely | Free Anonymous Chat Online - ChatHere",
-    "metaDescription": "Express candid organizational feedback, workplace realities, and whistleblower insights without corporate tracking.",
-    "headline": "Express Honest Opinions Safely: Zero-Log Privacy for Critical Truths",
-    "subheadline": "A digital clean room for voicing concerns without leaving an identifiable paper trail.",
-    "overview": "In environments where speaking truth to power carries severe personal or professional retaliation, true anonymity is essential. ChatHere does not store IP addresses, device fingerprints, or chat histories, providing a safe conduit for candid observations.",
+    "editorialHold": true,
+    "title": "Workplace Chat Is Not a Confidential Reporting Channel | ChatHere",
+    "metaDescription": "ChatHere rooms are public and do not guarantee anonymity. Do not use this service for whistleblowing or confidential workplace reports.",
+    "headline": "Do Not Use Public Chat for Whistleblowing",
+    "subheadline": "ChatHere is not a confidential reporting channel and cannot guarantee anonymity from an employer or other third party.",
+    "overview": "ChatHere is a public chat service. Other participants can read room messages, the service processes connection information, and a display name is not a guarantee that a person cannot be identified. Do not use ChatHere to share confidential workplace information, identify an employer, or make a whistleblower disclosure. If you need to report misconduct, use an appropriate official channel and review its confidentiality protections before sharing information.",
     "coreBenefits": [
-      "Complete absence of user accounts and identity bindings",
-      "Ephemeral memory buffers wipe conversations regularly",
-      "No corporate network monitoring or tracking cookie beacons",
-      "Equal platform for voices that are suppressed elsewhere"
+      "Public rooms are visible to their participants",
+      "A display name does not guarantee anonymity",
+      "Messages are held in server memory for delivery and may remain until restart or storage-limit cleanup",
+      "This service is not designed for confidential disclosures"
     ],
     "stepByStepGuide": [
-      "1. Access the site via a private, non-work device and secure network",
-      "2. Choose an untraceable handle",
-      "3. Discuss systemic realities objectively",
-      "4. Close the session when finished"
+      "1. Do not post confidential documents, names, or identifying details here",
+      "2. Do not treat a private device or pseudonym as a guarantee of anonymity",
+      "3. Use an official reporting channel suited to the information and risk",
+      "4. Review that channel's confidentiality policy before submitting a report"
     ],
     "safetyTips": [
-      "Never use your company-issued laptop, phone, or corporate VPN to share sensitive feedback",
-      "Sanitize all documents and remove metadata before referencing them"
+      "Do not disclose confidential workplace information in a public chat room",
+      "ChatHere cannot guarantee that an employer or third party will not identify you"
     ],
     "faqs": [
       {
-        "question": "Do you log user IP addresses?",
-        "answer": "ChatHere does not require an account. Messages are held in server memory for live delivery and may remain until a restart or storage-limit cleanup."
+        "question": "Is ChatHere a safe whistleblower channel?",
+        "answer": "No. ChatHere is not a confidential reporting channel and does not guarantee anonymity. Do not submit whistleblower disclosures or confidential workplace information here."
       },
       {
-        "question": "Can company IT see what I type?",
-        "answer": "They cannot read HTTPS encrypted traffic, but use personal devices to prevent endpoint keylogging."
+        "question": "Can ChatHere guarantee my employer cannot identify me?",
+        "answer": "No. A display name is not a guarantee of anonymity. Do not use this public service for confidential workplace reports."
       }
     ],
     "relatedSlugs": [
