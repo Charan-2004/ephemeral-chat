@@ -1973,21 +1973,21 @@ body::before {
 }
 
 .select-wrapper::after {
-  content: '\f078';
-  font-family: 'Font Awesome 5 Free';
-  font-weight: 900;
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.4);
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-right: 1.8px solid rgba(255, 255, 255, 0.55);
+  border-bottom: 1.8px solid rgba(255, 255, 255, 0.55);
   position: absolute;
   right: 18px;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translateY(-70%) rotate(45deg);
   pointer-events: none;
-  transition: all 0.3s ease;
+  transition: border-color 0.2s ease;
 }
 
 .select-wrapper:focus-within::after {
-  color: #5865f2;
+  border-color: #5865f2;
 }
 
 .terms-checkbox {
@@ -4611,7 +4611,8 @@ body::before,
 .select-wrapper select,
 .input-wrapper input { color: var(--lounge-ink) !important; text-align: left !important; }
 .select-wrapper select option { color: var(--lounge-ink); background: #fff; }
-.select-wrapper::after { color: #77766e !important; }
+.select-wrapper::after { border-color: #77766e !important; }
+.select-wrapper:focus-within::after { border-color: var(--lounge-accent) !important; }
 .onboarding-tabs {
   margin: 4px 0 20px !important;
   padding: 4px !important;
