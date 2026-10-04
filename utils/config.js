@@ -6,10 +6,10 @@ module.exports = {
     // Rate limit: minimum seconds between messages per user
     rateLimitSeconds: 3,
 
-    // Maximum image size in bytes (500KB)
+    // Maximum decoded image size in bytes (5 MiB)
     maxImageSize: 5 * 1024 * 1024,
 
-    // Maximum document size in bytes (50MB)
+    // Maximum decoded document size in bytes (50 MiB)
     maxDocSize: 50 * 1024 * 1024,
 
     // Available reaction emojis

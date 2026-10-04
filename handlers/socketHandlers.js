@@ -1,4 +1,4 @@
-﻿const { formatMessage, storeMessage, addReaction, getRoomMessages } = require('../utils/messages');
+const { formatMessage, storeMessage, addReaction, getMessage, getRoomMessages } = require('../utils/messages');
 const eventsEngine = require('../utils/eventsEngine');
 const { userJoin, getCurrentUser, userLeave, getRoomUsers, getRoomUserCount, updateLastMessageTime } = require('../utils/users');
 const { isMessageSafe } = require('../utils/moderation');
@@ -9,12 +9,22 @@ const { recordMessage, getLeaderboard, getUserRank, getTop3, updateAndCheckTop3,
 const config = require('../utils/config');
 const { sendPushToAll } = require('../utils/pushNotifications');
 
+function decodedDataUrlByteLength(dataUrl) {
+    const separator = dataUrl.indexOf(',');
+    if (separator < 0) return -1;
+    const base64 = dataUrl.slice(separator + 1);
+    if (base64.length % 4 !== 0 || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(base64)) {
+        return -1;
+    }
+    return Buffer.byteLength(base64, 'base64');
+}
+
 module.exports = function registerSocketHandlers(io) {
     io.on('connection', socket => {
 
         // Geo tracking for globe feature
 
-        socket.on('joinRoom', ({ username, room, password, userId }) => {
+        socket.on('joinRoom', ({ username, room, password, adminToken }) => {
             // Resolve room by ID or name
             const roomConfig = findRoom(room);
             if (!roomConfig) {
@@ -31,7 +41,8 @@ module.exports = function registerSocketHandlers(io) {
                 }
             }
 
-            if (roomConfig.locked && username !== 'AdminMonitor') {
+            const adminSession = verifySession(adminToken);
+            if (roomConfig.locked && !adminSession) {
                 socket.emit('error-message', `LOCKED: ${roomConfig.reason}`);
                 socket.emit('room-locked');
                 return;
@@ -44,6 +55,7 @@ module.exports = function registerSocketHandlers(io) {
             }
 
             const resolvedRoomId = roomConfig.id;
+            socket.adminSessionToken = adminSession ? adminToken : null;
 
             // Leave previous room to prevent cross-room message leakage
             const existingUser = getCurrentUser(socket.id);
@@ -58,7 +70,7 @@ module.exports = function registerSocketHandlers(io) {
                 }
             }
 
-            const user = userJoin(socket.id, username, resolvedRoomId, false, userId);
+            const user = userJoin(socket.id, username, resolvedRoomId);
             socket.join(user.room);
 
             const history = getRoomMessages(user.room);
@@ -212,7 +224,7 @@ module.exports = function registerSocketHandlers(io) {
             const user = getCurrentUser(socket.id);
             if (user) {
                 const roomConfig = findRoom(user.room);
-                if (roomConfig && roomConfig.locked && user.username !== 'AdminMonitor') {
+                if (roomConfig && roomConfig.locked && !verifySession(socket.adminSessionToken)) {
                     socket.emit('error-message', 'This room is locked.');
                     return;
                 }
@@ -284,13 +296,18 @@ module.exports = function registerSocketHandlers(io) {
                     socket.emit('error-message', `Please wait ${waitTime}s.`);
                     return;
                 }
-                if (!imageData || typeof imageData !== 'string' || imageData.length > config.maxImageSize) {
+                if (!imageData || typeof imageData !== 'string') {
                     socket.emit('error-message', 'Image too large. Max 5MB.');
                     return;
                 }
                 // Enforce basic image format regex validation
                 if (!/^data:image\/(jpeg|png|gif|webp);base64,/.test(imageData)) {
                     socket.emit('error-message', 'Invalid image format. Only JPEG, PNG, GIF, and WEBP supported.');
+                    return;
+                }
+                const imageSize = decodedDataUrlByteLength(imageData);
+                if (imageSize < 0 || imageSize > config.maxImageSize) {
+                    socket.emit('error-message', 'Image too large or invalid. Max 5MB.');
                     return;
                 }
                 updateLastMessageTime(socket.id);
@@ -322,7 +339,7 @@ module.exports = function registerSocketHandlers(io) {
                     socket.emit('error-message', `Please wait ${waitTime}s.`);
                     return;
                 }
-                if (!docData || typeof docData !== 'string' || docData.length > config.maxDocSize) {
+                if (!docData || typeof docData !== 'string') {
                     socket.emit('error-message', 'Document too large. Max 50MB.');
                     return;
                 }
@@ -330,6 +347,11 @@ module.exports = function registerSocketHandlers(io) {
                 const allowedDocTypes = /^data:(application\/(pdf|msword|vnd\.openxmlformats-officedocument\.wordprocessingml\.document|vnd\.ms-excel|vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet|vnd\.ms-powerpoint|vnd\.openxmlformats-officedocument\.presentationml\.presentation|zip|x-zip-compressed|x-rar-compressed|json|xml)|text\/(plain|csv|html|css|javascript|markdown));base64,/;
                 if (!allowedDocTypes.test(docData)) {
                     socket.emit('error-message', 'Unsupported file type.');
+                    return;
+                }
+                const documentSize = decodedDataUrlByteLength(docData);
+                if (documentSize < 0 || documentSize > config.maxDocSize) {
+                    socket.emit('error-message', 'Document too large or invalid. Max 50MB.');
                     return;
                 }
                 updateLastMessageTime(socket.id);
@@ -366,7 +388,11 @@ module.exports = function registerSocketHandlers(io) {
                 }
                 socket.reactionWindow.push(now);
 
-                const updatedMsg = addReaction(messageId, emoji);
+                const targetMessage = getMessage(messageId);
+                const updatedMsg = targetMessage && targetMessage.room === user.room &&
+                    config.reactionEmojis.includes(emoji)
+                    ? addReaction(messageId, emoji)
+                    : null;
                 if (updatedMsg) {
                     io.to(user.room).emit('reactionAdded', { messageId, reactions: updatedMsg.reactions });
                 }
@@ -394,6 +420,22 @@ module.exports = function registerSocketHandlers(io) {
         // Create custom public or private rooms
         socket.on('createRoom', ({ roomName, isPrivate, password }) => {
             try {
+                if (typeof roomName !== 'string' || roomName.trim().length > 30) {
+                    socket.emit('error-message', 'Room name must be 30 characters or fewer.');
+                    return;
+                }
+                if (isPrivate && (typeof password !== 'string' || password.length < 8 || password.length > 128)) {
+                    socket.emit('error-message', 'Private room passwords must be between 8 and 128 characters.');
+                    return;
+                }
+                const requestedName = roomName.trim();
+                if (requestedName && getRooms().some(room =>
+                    room.name.toLowerCase() === requestedName.toLowerCase() ||
+                    room.id.toLowerCase() === requestedName.toLowerCase()
+                )) {
+                    socket.emit('error-message', 'A room with that name already exists.');
+                    return;
+                }
                 const rooms = getRooms();
                 const currentCustomCount = rooms.filter(r => r.isCustom).length;
                 if (currentCustomCount >= config.maxCustomRooms) {
@@ -412,8 +454,9 @@ module.exports = function registerSocketHandlers(io) {
                 socket.lastRoomCreatedTime = now;
 
                 const roomId = generateUniqueRoomId();
+                const normalizedName = requestedName || `Room ${roomId}`;
                 const newRoom = {
-                    name: roomName ? roomName.trim().substring(0, 30) : `Room ${roomId}`,
+                    name: normalizedName,
                     id: roomId,
                     isCustom: true,
                     isPrivate: !!isPrivate,

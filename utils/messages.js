@@ -3,6 +3,15 @@ const config = require('./config');
 
 const messages = new Map();
 const roomIndex = new Map(); // room -> Set<messageId> for O(1) room lookups
+const messageSizes = new Map();
+const MAX_STORED_MESSAGE_COUNT = 5000;
+const MAX_STORED_MESSAGE_BYTES = 160 * 1024 * 1024;
+let storedMessageBytes = 0;
+
+function estimateMessageBytes(message) {
+    const fields = [message.text, message.imageData, message.docData, message.docName, message.replyToText];
+    return fields.reduce((total, value) => total + (typeof value === 'string' ? Buffer.byteLength(value, 'utf8') * 2 : 0), 512);
+}
 
 function formatMessage(username, text, room, color = null, replyTo = null, replyToText = null, imageData = null, senderId = null, userId = null) {
     return {
@@ -23,9 +32,19 @@ function formatMessage(username, text, room, color = null, replyTo = null, reply
 }
 
 function storeMessage(message, io) {
+    const size = estimateMessageBytes(message);
+    if (size > MAX_STORED_MESSAGE_BYTES) return false;
     messages.set(message.id, message);
+    messageSizes.set(message.id, size);
+    storedMessageBytes += size;
     if (!roomIndex.has(message.room)) roomIndex.set(message.room, new Set());
     roomIndex.get(message.room).add(message.id);
+    while (messages.size > MAX_STORED_MESSAGE_COUNT || storedMessageBytes > MAX_STORED_MESSAGE_BYTES) {
+        const oldestId = messages.keys().next().value;
+        if (oldestId === undefined) break;
+        deleteMessage(oldestId, io);
+    }
+    return true;
 }
 
 // Called periodically to clean up. TTL=0 means never delete.
@@ -48,6 +67,8 @@ function deleteMessage(id, io) {
         const msg = messages.get(id);
         const roomSet = roomIndex.get(msg.room);
         if (roomSet) roomSet.delete(id);
+        storedMessageBytes -= messageSizes.get(id) || 0;
+        messageSizes.delete(id);
         messages.delete(id);
         if (io) {
             io.to(msg.room).emit('message-expired', id);

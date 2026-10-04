@@ -30,7 +30,7 @@ function generateColor() {
 }
 
 // Join user to chat
-function userJoin(id, username, room, isBot = false, userId = null) {
+function userJoin(id, username, room, isBot = false) {
     // Remove from old room if re-joining
     if (usersById.has(id)) {
         const old = usersById.get(id);
@@ -44,7 +44,9 @@ function userJoin(id, username, room, isBot = false, userId = null) {
         color: generateColor(),
         lastMessageTime: 0,
         isBot,
-        userId: userId || id
+        // The socket ID is assigned by Socket.IO. Never trust a client-provided
+        // identity here: it is used to authorize private-message history.
+        userId: id
     };
     usersById.set(id, user);
     if (!roomUsersMap.has(room)) roomUsersMap.set(room, new Set());

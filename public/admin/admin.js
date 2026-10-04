@@ -3,6 +3,12 @@ const loginForm = document.getElementById('admin-login-form');
 const loginScreen = document.getElementById('admin-login-screen');
 const dashboard = document.getElementById('admin-dashboard');
 
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[character]);
+}
+
 let adminToken = localStorage.getItem('adminToken');
 let adminUsername = localStorage.getItem('adminUsername') || 'Moderator';
 let currentMonitorRoom = '';
@@ -130,7 +136,7 @@ async function loadRooms() {
         const safeName = encodeURIComponent(r.name);
 
         li.innerHTML = `
-            <span>${r.name} ${r.locked ? '<span style="color:red">[LOCKED]</span>' : ''}</span>
+            <span>${escapeHtml(r.name)} ${r.locked ? '<span style="color:red">[LOCKED]</span>' : ''}</span>
             <div>
                  <button class="action-btn-lock" data-room="${safeName}" data-locked="${r.locked}">
                     ${r.locked ? 'Unlock' : 'Lock'}
@@ -215,7 +221,7 @@ document.getElementById('monitor-room-select').addEventListener('change', (e) =>
         } else {
             document.getElementById('admin-chat-input').placeholder = 'Message as Moderator...';
         }
-        socket.emit('joinRoom', { username: 'AdminMonitor', room: currentMonitorRoom });
+        socket.emit('joinRoom', { username: 'AdminMonitor', room: currentMonitorRoom, adminToken });
     }
 });
 
@@ -475,7 +481,7 @@ if (monitorPrivateBtn) {
             document.getElementById('admin-chat-input').placeholder = 'Message as Moderator...';
         }
         
-        socket.emit('joinRoom', { username: 'AdminMonitor', room: roomId, password: password });
+        socket.emit('joinRoom', { username: 'AdminMonitor', room: roomId, password, adminToken });
         
         // Clear inputs
         document.getElementById('monitor-private-id').value = '';

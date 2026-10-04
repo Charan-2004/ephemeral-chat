@@ -1,7 +1,7 @@
 ﻿const express = require('express');
 const router = express.Router();
 const { isAdmin, getAdminAccounts, createSession } = require('../utils/adminAuth');
-const { getRooms, findRoom, addRoom, removeRoomByName, getPublicRooms, getPinnedMessage, setPinnedMessage } = require('../utils/roomManager');
+const { getRooms, findRoom, addRoom, removeRoomByName, generateUniqueRoomId, getPublicRooms, getPinnedMessage, setPinnedMessage } = require('../utils/roomManager');
 const { getRoomUserCount } = require('../utils/users');
 const { getMessage, deleteMessage } = require('../utils/messages');
 const { enableBots, disableBots, getBotStatus } = require('../utils/botEngine');
@@ -40,26 +40,42 @@ router.post('/rooms', isAdmin, (req, res) => {
     const io = req.app.get('io');
 
     if (action === 'create') {
-        if (!findRoom(roomName)) {
-            addRoom({ name: roomName, locked: false, reason: '' });
-            io.emit('rooms-updated', getRooms());
+        if (typeof roomName !== 'string' || !roomName.trim() || roomName.trim().length > 30) {
+            return res.status(400).json({ error: 'Room name must be between 1 and 30 characters.' });
         }
+        const normalizedName = roomName.trim();
+        if (getRooms().some(room =>
+            room.name.toLowerCase() === normalizedName.toLowerCase() ||
+            room.id.toLowerCase() === normalizedName.toLowerCase()
+        )) {
+            return res.status(409).json({ error: 'A room with that name already exists.' });
+        }
+        addRoom({
+            name: normalizedName,
+            id: generateUniqueRoomId(),
+            isCustom: false,
+            isPrivate: false,
+            password: null,
+            locked: false,
+            reason: ''
+        });
+        io.emit('rooms-updated', getPublicRooms());
     } else if (action === 'delete') {
         removeRoomByName(roomName);
-        io.emit('rooms-updated', getRooms());
+        io.emit('rooms-updated', getPublicRooms());
     } else if (action === 'lock') {
         const room = findRoom(roomName);
         if (room) {
             room.locked = true;
             room.reason = reason || 'Room locked by moderator';
-            io.emit('rooms-updated', getRooms());
+            io.emit('rooms-updated', getPublicRooms());
         }
     } else if (action === 'unlock') {
         const room = findRoom(roomName);
         if (room) {
             room.locked = false;
             room.reason = '';
-            io.emit('rooms-updated', getRooms());
+            io.emit('rooms-updated', getPublicRooms());
         }
     }
 
@@ -69,8 +85,20 @@ router.post('/rooms', isAdmin, (req, res) => {
 // Config Update
 router.post('/config', isAdmin, (req, res) => {
     const { ttl, spam } = req.body;
-    if (ttl !== undefined) config.ttlSeconds = parseInt(ttl);
-    if (spam) config.rateLimitSeconds = parseInt(spam);
+    if (ttl !== undefined) {
+        const ttlSeconds = Number(ttl);
+        if (!Number.isInteger(ttlSeconds) || ttlSeconds < 0 || ttlSeconds > 604800) {
+            return res.status(400).json({ error: 'TTL must be an integer from 0 to 604800 seconds.' });
+        }
+        config.ttlSeconds = ttlSeconds;
+    }
+    if (spam !== undefined) {
+        const rateLimitSeconds = Number(spam);
+        if (!Number.isInteger(rateLimitSeconds) || rateLimitSeconds < 1 || rateLimitSeconds > 60) {
+            return res.status(400).json({ error: 'Message rate limit must be an integer from 1 to 60 seconds.' });
+        }
+        config.rateLimitSeconds = rateLimitSeconds;
+    }
     res.json({ success: true });
 });
 

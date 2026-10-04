@@ -21,7 +21,8 @@ const registerSocketHandlers = require('./handlers/socketHandlers');
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server, {
-    maxHttpBufferSize: 70e6
+    // Leave room for base64 expansion on the largest supported 50 MiB file.
+    maxHttpBufferSize: 80 * 1024 * 1024
 });
 
 // Store io reference on app for route access
@@ -152,7 +153,7 @@ process.on('unhandledRejection', (reason, promise) => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
-    // initBots(io, getRooms());
+    initBots(io, getRooms());
     initLeaderboardScheduler(io);
     // initEventsEngine(io);
 });

@@ -10,17 +10,17 @@ function getAdminAccounts() {
         return process.env.ADMIN_ACCOUNTS.split(',').map(item => {
             const [username, password, secret] = item.split(':');
             return {
-                username: username.trim(),
-                password: password.trim(),
-                secret: secret ? secret.trim() : process.env.ADMIN_SECRET
+                username: (username || '').trim(),
+                password: (password || '').trim(),
+                secret: (secret || process.env.ADMIN_SECRET || '').trim()
             };
-        });
+        }).filter(account => account.username && account.password && account.secret);
     }
     return [{
-        username: process.env.ADMIN_USERNAME,
-        password: process.env.ADMIN_PASSWORD,
-        secret: process.env.ADMIN_SECRET
-    }];
+        username: (process.env.ADMIN_USERNAME || '').trim(),
+        password: (process.env.ADMIN_PASSWORD || '').trim(),
+        secret: (process.env.ADMIN_SECRET || '').trim()
+    }].filter(account => account.username && account.password && account.secret);
 }
 
 function verifySession(token) {

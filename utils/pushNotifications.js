@@ -8,9 +8,7 @@ if (!vapidPublicKey || !vapidPrivateKey) {
     const keys = webpush.generateVAPIDKeys();
     vapidPublicKey = keys.publicKey;
     vapidPrivateKey = keys.privateKey;
-    console.log('[Push] Generated VAPID keys (add to .env to persist):');
-    console.log('[Push] VAPID_PUBLIC_KEY=' + vapidPublicKey);
-    console.log('[Push] VAPID_PRIVATE_KEY=' + vapidPrivateKey);
+    console.warn('[Push] VAPID keys were generated for this process. Configure VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY to keep subscriptions valid across restarts.');
 }
 
 webpush.setVapidDetails(

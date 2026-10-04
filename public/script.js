@@ -69,7 +69,13 @@ if (contextWhisperBtn) {
         const targetUsername = usernameContextMenu.dataset.targetUsername;
         if (targetUserId && targetUsername) {
             activeWhisperRecipient = { userId: targetUserId, username: targetUsername };
-            whisperText.innerHTML = `<i class="fas fa-user-secret"></i> Whispering to <strong>@${targetUsername}</strong>`;
+            whisperText.replaceChildren();
+            const whisperIcon = document.createElement('i');
+            whisperIcon.className = 'fas fa-user-secret';
+            whisperText.appendChild(whisperIcon);
+            const whisperLabel = document.createElement('strong');
+            whisperLabel.textContent = ` Whispering to @${targetUsername}`;
+            whisperText.appendChild(whisperLabel);
             whisperPreview.style.display = 'flex';
             clearReply();
             msgInput.focus();
@@ -84,7 +90,8 @@ if (contextInviteBtn) {
         const targetUserId = usernameContextMenu.dataset.targetUserId;
         const targetUsername = usernameContextMenu.dataset.targetUsername;
         if (targetUserId && targetUsername) {
-            const tempPassword = Math.floor(100000 + Math.random() * 900000).toString();
+            const randomBytes = crypto.getRandomValues(new Uint8Array(16));
+            const tempPassword = Array.from(randomBytes, byte => byte.toString(16).padStart(2, '0')).join('');
             inviteTarget = { userId: targetUserId, username: targetUsername, password: tempPassword };
             socket.emit('createRoom', {
                 roomName: `Chat w/ ${targetUsername}`,
@@ -128,11 +135,14 @@ document.addEventListener('click', (e) => {
 
 const socket = io();
 
-let currentUserId = localStorage.getItem('chathere_userId');
-if (!currentUserId) {
-    currentUserId = 'usr_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-    localStorage.setItem('chathere_userId', currentUserId);
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[character]);
 }
+
+let currentUserId = null;
+socket.on('connect', () => { currentUserId = socket.id; });
 let currentUsername = '';
 let currentRoom = '';
 let isCurrentRoomPrivate = false;
@@ -399,7 +409,7 @@ function renderRooms(rooms) {
             } else {
                 badge = `<span class="room-count">${count}</span>`;
             }
-            li.innerHTML = `${icon} <span>${r.name}</span>${badge}`;
+            li.innerHTML = `${icon} <span>${escapeHtml(r.name)}</span>${badge}`;
 
             li.onclick = () => {
                 if (r.locked && currentUsername !== 'AdminMonitor') {
@@ -515,7 +525,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Auto-join if room parameter is present in URL query
     const urlParams = new URLSearchParams(window.location.search);
     const roomParam = urlParams.get('room');
-    const passwordParam = urlParams.get('password');
+    const hashParams = new URLSearchParams(window.location.hash.slice(1));
+    const passwordParam = urlParams.get('password') || hashParams.get('password');
+    if (urlParams.has('password') || hashParams.has('password')) {
+        urlParams.delete('password');
+        hashParams.delete('password');
+        const safeQuery = urlParams.toString();
+        const safeHash = hashParams.toString();
+        history.replaceState(history.state, '', `${window.location.pathname}${safeQuery ? `?${safeQuery}` : ''}${safeHash ? `#${safeHash}` : ''}`);
+    }
     if (roomParam) {
         const termsCheck = document.getElementById('terms-check');
         if (termsCheck) termsCheck.checked = true;
@@ -530,7 +548,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 username: user,
                 room: roomParam,
                 password: passwordParam || null,
-                userId: currentUserId
             });
             enterChatRoom(roomParam, roomParam, passwordParam);
         }, 400); // 400ms delay to allow socket to fully connect
@@ -562,7 +579,7 @@ function renderActiveRooms(rooms) {
             grid.innerHTML = `
                 <div class="active-rooms-empty">
                     <i class="fas fa-search"></i>
-                    <span>No public rooms match "${searchQuery}" â€” try creating one!</span>
+                    <span>No public rooms match "${escapeHtml(searchQuery)}" â€” try creating one!</span>
                 </div>`;
         } else {
             grid.innerHTML = `
@@ -586,13 +603,13 @@ function renderActiveRooms(rooms) {
         card.innerHTML = `
             <div class="room-card-header">
                 <i class="fas ${icon} room-card-icon"></i>
-                <span class="room-card-name">${r.name}</span>
+                <span class="room-card-name">${escapeHtml(r.name)}</span>
             </div>
             <div class="room-card-stats">
                 ${pulseHtml}
-                <span class="room-card-count">${count} ${count === 1 ? 'chatter' : 'chatters'}</span>
+            <span class="room-card-count">${count} ${count === 1 ? 'chatter' : 'chatters'}</span>
             </div>
-            <button class="room-card-join-btn" data-room="${r.id || r.name}" data-room-name="${r.name}">
+            <button class="room-card-join-btn" data-room="${escapeHtml(r.id || r.name)}" data-room-name="${escapeHtml(r.name)}">
                 <i class="fas fa-sign-in-alt"></i> Join
             </button>`;
 
@@ -634,7 +651,7 @@ function instantJoinRoom(roomId, roomName) {
     currentUsername = user;
     currentRoom = roomId;
 
-    socket.emit('joinRoom', { username: user, room: roomId, userId: currentUserId });
+    socket.emit('joinRoom', { username: user, room: roomId });
     enterChatRoom(roomName || roomId);
 }
 
@@ -659,7 +676,7 @@ joinForm.addEventListener('submit', (e) => {
         localStorage.setItem('chathere_room', room);
         currentRoom = room;
         
-        socket.emit('joinRoom', { username: user, room, userId: currentUserId });
+        socket.emit('joinRoom', { username: user, room });
         enterChatRoom(room);
     } 
     else if (activeTab === 'create') {
@@ -667,8 +684,8 @@ joinForm.addEventListener('submit', (e) => {
         const password = document.getElementById('create-room-password').value;
         
         const isPrivate = selectedRoomType === 'private';
-        if (isPrivate && !password) {
-            return showError('Password is required for private rooms');
+        if (isPrivate && password.length < 8) {
+            return showError('Private room passwords must be at least 8 characters');
         }
         
         // Emit room creation event
@@ -683,7 +700,7 @@ joinForm.addEventListener('submit', (e) => {
         }
         
         currentRoom = roomId;
-        socket.emit('joinRoom', { username: user, room: roomId, password, userId: currentUserId });
+        socket.emit('joinRoom', { username: user, room: roomId, password });
         enterChatRoom(roomId, roomId, password);
     }
 });
@@ -741,7 +758,7 @@ function switchRoom(newRoom) {
     const infoBadge = document.getElementById('room-info-badge');
     if (infoBadge) infoBadge.style.display = 'none';
     
-    socket.emit('joinRoom', { username: currentUsername, room: newRoom, userId: currentUserId });
+    socket.emit('joinRoom', { username: currentUsername, room: newRoom });
     typingUsers.clear();
     if (typingIndicator) typingIndicator.style.display = 'none';
     fetchRooms(); // Refresh UI state
@@ -898,7 +915,7 @@ socket.on('error-message', (msg) => showError(msg));
 socket.on('roomCreated', ({ roomId, roomName }) => {
     if (inviteTarget) {
         // We are in the middle of inviting someone to a private room!
-        const inviteLink = `${window.location.origin}/?room=${roomId}&password=${inviteTarget.password}`;
+        const inviteLink = `${window.location.origin}/?room=${encodeURIComponent(roomId)}#password=${encodeURIComponent(inviteTarget.password)}`;
         const inviteMessage = `Hey, I created a private room for us to chat! Click here to join: ${inviteLink}`;
         
         // Send the whisper in the current room before switching
@@ -916,7 +933,6 @@ socket.on('roomCreated', ({ roomId, roomName }) => {
             username: currentUsername,
             room: roomId,
             password: pwd,
-            userId: currentUserId
         });
         enterChatRoom(roomName, roomId, pwd);
     } else {
@@ -924,7 +940,7 @@ socket.on('roomCreated', ({ roomId, roomName }) => {
         const isPrivate = selectedRoomType === 'private';
         const password = document.getElementById('create-room-password').value;
         
-        socket.emit('joinRoom', { username: currentUsername, room: roomId, password: isPrivate ? password : null, userId: currentUserId });
+        socket.emit('joinRoom', { username: currentUsername, room: roomId, password: isPrivate ? password : null });
         enterChatRoom(roomName, roomId, isPrivate ? password : null);
     }
 });
