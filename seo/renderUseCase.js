@@ -1,10 +1,10 @@
 
-const { escHtml, COMMON_CSS, renderHeader, renderFooter } = require('./seoStyles');
+const { escHtml, COMMON_CSS, renderHeader, renderFooter, getOnlineCount } = require('./seoStyles');
 const useCases = require('../data/seoUseCases');
 const topics = require('../data/seoTopics');
 
 function renderUseCasePage(uc, io) {
-    const onlineCount = io ? io.engine.clientsCount : 42;
+    const onlineCount = getOnlineCount(io);
     const breadcrumbsJson = {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",

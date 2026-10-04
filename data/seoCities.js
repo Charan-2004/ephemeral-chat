@@ -34,7 +34,7 @@ module.exports = [
       },
       {
         "question": "Are New York City chat conversations saved on servers?",
-        "answer": "No. All messages are completely ephemeral and wiped continuously from memory. No chat logs or IP records are stored."
+        "answer": "Messages are held in server memory for delivery. They may remain until a server restart or storage-limit cleanup; public-room messages are visible to room participants."
       },
       {
         "question": "What time is the New York City room most active?",
@@ -84,7 +84,7 @@ module.exports = [
       },
       {
         "question": "Are London chat conversations saved on servers?",
-        "answer": "No. All messages are completely ephemeral and wiped continuously from memory. No chat logs or IP records are stored."
+        "answer": "Messages are held in server memory for delivery. They may remain until a server restart or storage-limit cleanup; public-room messages are visible to room participants."
       },
       {
         "question": "What time is the London room most active?",
@@ -133,7 +133,7 @@ module.exports = [
       },
       {
         "question": "Are Los Angeles chat conversations saved on servers?",
-        "answer": "No. All messages are completely ephemeral and wiped continuously from memory. No chat logs or IP records are stored."
+        "answer": "Messages are held in server memory for delivery. They may remain until a server restart or storage-limit cleanup; public-room messages are visible to room participants."
       },
       {
         "question": "What time is the Los Angeles room most active?",
@@ -182,7 +182,7 @@ module.exports = [
       },
       {
         "question": "Are Toronto chat conversations saved on servers?",
-        "answer": "No. All messages are completely ephemeral and wiped continuously from memory. No chat logs or IP records are stored."
+        "answer": "Messages are held in server memory for delivery. They may remain until a server restart or storage-limit cleanup; public-room messages are visible to room participants."
       },
       {
         "question": "What time is the Toronto room most active?",
@@ -232,7 +232,7 @@ module.exports = [
       },
       {
         "question": "Are Tokyo chat conversations saved on servers?",
-        "answer": "No. All messages are completely ephemeral and wiped continuously from memory. No chat logs or IP records are stored."
+        "answer": "Messages are held in server memory for delivery. They may remain until a server restart or storage-limit cleanup; public-room messages are visible to room participants."
       },
       {
         "question": "What time is the Tokyo room most active?",
@@ -281,7 +281,7 @@ module.exports = [
       },
       {
         "question": "Are Berlin chat conversations saved on servers?",
-        "answer": "No. All messages are completely ephemeral and wiped continuously from memory. No chat logs or IP records are stored."
+        "answer": "Messages are held in server memory for delivery. They may remain until a server restart or storage-limit cleanup; public-room messages are visible to room participants."
       },
       {
         "question": "What time is the Berlin room most active?",
@@ -331,7 +331,7 @@ module.exports = [
       },
       {
         "question": "Are Paris chat conversations saved on servers?",
-        "answer": "No. All messages are completely ephemeral and wiped continuously from memory. No chat logs or IP records are stored."
+        "answer": "Messages are held in server memory for delivery. They may remain until a server restart or storage-limit cleanup; public-room messages are visible to room participants."
       },
       {
         "question": "What time is the Paris room most active?",
@@ -381,7 +381,7 @@ module.exports = [
       },
       {
         "question": "Are Sydney chat conversations saved on servers?",
-        "answer": "No. All messages are completely ephemeral and wiped continuously from memory. No chat logs or IP records are stored."
+        "answer": "Messages are held in server memory for delivery. They may remain until a server restart or storage-limit cleanup; public-room messages are visible to room participants."
       },
       {
         "question": "What time is the Sydney room most active?",
@@ -429,7 +429,7 @@ module.exports = [
       },
       {
         "question": "Are Chicago chat conversations saved on servers?",
-        "answer": "No. All messages are completely ephemeral and wiped continuously from memory. No chat logs or IP records are stored."
+        "answer": "Messages are held in server memory for delivery. They may remain until a server restart or storage-limit cleanup; public-room messages are visible to room participants."
       },
       {
         "question": "What time is the Chicago room most active?",
@@ -479,7 +479,7 @@ module.exports = [
       },
       {
         "question": "Are San Francisco & Bay Area chat conversations saved on servers?",
-        "answer": "No. All messages are completely ephemeral and wiped continuously from memory. No chat logs or IP records are stored."
+        "answer": "Messages are held in server memory for delivery. They may remain until a server restart or storage-limit cleanup; public-room messages are visible to room participants."
       },
       {
         "question": "What time is the San Francisco & Bay Area room most active?",
@@ -525,7 +525,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Austin?",
@@ -572,7 +572,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Melbourne?",
@@ -620,7 +620,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Singapore?",
@@ -669,7 +669,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Amsterdam?",
@@ -717,7 +717,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Dublin?",
@@ -764,7 +764,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Seattle?",
@@ -812,7 +812,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Miami?",
@@ -860,7 +860,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Mumbai?",
@@ -909,7 +909,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for New Delhi?",
@@ -958,7 +958,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Bangalore?",
@@ -1007,7 +1007,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Seoul?",
@@ -1055,7 +1055,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Vancouver?",
@@ -1103,7 +1103,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Montreal?",
@@ -1152,7 +1152,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Madrid?",
@@ -1200,7 +1200,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Barcelona?",
@@ -1249,7 +1249,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Rome?",
@@ -1297,7 +1297,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for São Paulo?",
@@ -1344,7 +1344,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Mexico City?",
@@ -1391,7 +1391,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Dubai?",
@@ -1439,7 +1439,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Bangkok?",
@@ -1487,7 +1487,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Stockholm?",
@@ -1533,7 +1533,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Zurich?",
@@ -1580,7 +1580,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Vienna?",
@@ -1627,7 +1627,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Hong Kong?",
@@ -1675,7 +1675,7 @@ module.exports = [
       },
       {
         "question": "Is my IP address or personal data logged?",
-        "answer": "Zero data logging. ChatHere does not store IP addresses, personal identifiers, or message histories."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Public-room messages are visible to room participants."
       },
       {
         "question": "Can I ask for travel recommendations for Boston?",

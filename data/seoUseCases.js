@@ -4,7 +4,7 @@ module.exports = [
     "name": "Anonymous Venting to Strangers",
     "icon": "🛡️",
     "title": "Anonymous Venting to Strangers Chat | Free Anonymous Online Support - ChatHere",
-    "metaDescription": "Need to vent without judgment? Chat anonymously with empathetic strangers. Zero login, zero logs, complete emotional release and privacy on ChatHere.",
+    "metaDescription": "Need to vent without judgment? Chat anonymously with empathetic strangers. Join ChatHere without an account. Messages are held in server memory for live delivery.",
     "headline": "Vent to Strangers Anonymously: A Judgment-Free Space to Clear Your Mind",
     "subheadline": "When life gets overwhelming, speak your mind to empathetic listeners in real-time. No profiles, no consequences, 100% ephemeral.",
     "overview": "We all experience days where work stress, relationship turmoil, or personal disappointments feel unbearable. Yet confiding in close friends or family can sometimes feel daunting because we worry about burdening them, being misunderstood, or having our vulnerabilities remembered indefinitely.\n\nChatHere provides an emotional safety valve. By opening a chat room under a temporary alias, you can express what is truly on your mind. Strangers offer compassionate, neutral listening without preconceived judgments. When you close the browser tab, your words disappear cleanly.",
@@ -28,7 +28,7 @@ module.exports = [
     "faqs": [
       {
         "question": "Is anonymous venting safe on ChatHere?",
-        "answer": "Yes. ChatHere collects no personal data, requires no accounts, and wipes chat memory periodically to protect your privacy."
+        "answer": "ChatHere does not require an account. Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup."
       },
       {
         "question": "Will people judge what I share?",
@@ -40,7 +40,7 @@ module.exports = [
       },
       {
         "question": "How long do messages stay visible?",
-        "answer": "Messages exist only while active in memory and are regularly cleared; they are never permanently recorded in a database."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup; they are not written to a persistent message database by the chat application."
       }
     ],
     "relatedSlugs": [
@@ -142,7 +142,7 @@ module.exports = [
       },
       {
         "question": "Are code discussions recorded?",
-        "answer": "No, all messages are ephemeral and vanish from memory."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup."
       }
     ],
     "relatedSlugs": [
@@ -390,7 +390,7 @@ module.exports = [
     "faqs": [
       {
         "question": "Do you log user IP addresses?",
-        "answer": "No. ChatHere operates on a zero-log policy."
+        "answer": "ChatHere does not require an account. Messages are held in server memory for live delivery and may remain until a restart or storage-limit cleanup."
       },
       {
         "question": "Can company IT see what I type?",

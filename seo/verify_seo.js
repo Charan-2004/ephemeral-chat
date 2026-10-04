@@ -9,18 +9,21 @@ const cities = require('../data/seoCities');
 const comparisons = require('../data/seoComparisons');
 const useCases = require('../data/seoUseCases');
 const blogs = require('../data/seoBlogs');
+const editorialBlogs = require('../data/seoEditorial');
 
 const collections = [
     { items: topics, path: item => `/chat/topic/${item.slug}`, type: 'topic', relatedKey: 'relatedSlugs' },
     { items: cities, path: item => `/chat/city/${item.slug}`, type: 'city', relatedKey: 'relatedCities' },
     { items: comparisons, path: item => `/vs/${item.slug}`, type: 'comparison', relatedKey: 'relatedComparisons' },
     { items: useCases, path: item => `/use-cases/${item.slug}`, type: 'use case', relatedKey: 'relatedSlugs' },
-    { items: blogs, path: item => `/blog/${item.slug}`, type: 'blog', relatedKey: 'relatedBlogs' }
+    { items: editorialBlogs, path: item => `/blog/${item.slug}`, type: 'blog', relatedKey: 'relatedBlogs' }
 ];
 const hubs = [
     ['/chat', 'topics'], ['/cities', 'cities'], ['/vs', 'comparisons'],
     ['/use-cases', 'use-cases'], ['/blog', 'blog']
 ];
+const editorialHoldTypes = new Set(['city', 'comparison']);
+const editorialHoldHubs = new Set(['/cities', '/vs']);
 
 function metaContent(html, name) {
     const tag = html.match(new RegExp(`<meta\\b(?=[^>]*\\bname=["']${name}["'])[^>]*>`, 'i'))?.[0];
@@ -113,6 +116,9 @@ async function main() {
             const html = await response.text();
             hubHtml.set(path, html);
             inspectHtml(html, path, { requireBreadcrumb: true });
+            if (editorialHoldHubs.has(path)) {
+                assert.match(html, /<meta\b(?=[^>]*\bname=["']robots["'])[^>]*\bcontent=["'][^"']*noindex/i, `${path}: expected editorial-hold noindex`);
+            }
             assert.equal(new URL(canonicalUrl(html)).pathname, path, `${path}: malformed hub canonical`);
             const ogUrl = html.match(/<meta\b(?=[^>]*\bproperty=["']og:url["'])[^>]*\bcontent=["']([^"']*)["'][^>]*>/i)?.[1];
             assert.equal(ogUrl, `https://chathere.online${path}`, `${path}: Open Graph URL mismatch`);
@@ -137,15 +143,20 @@ async function main() {
                 }
 
                 const path = group.path(item);
-                assert.ok(directoryHtml.includes(`href="${path}"`), `${path}: not linked from its directory hub`);
+                if (group.type !== 'blog') assert.ok(directoryHtml.includes(`href="${path}"`), `${path}: not linked from its directory hub`);
                 const response = await fetch(`${base}${path}`);
                 assert.equal(response.status, 200, `${path}: expected 200`);
                 const html = await response.text();
-                const schemas = inspectHtml(html, path, { detail: true, requireBreadcrumb: true });
+                const schemas = inspectHtml(html, path, { detail: group.type === 'topic' || group.type === 'use case', requireBreadcrumb: true });
                 assert.equal(new URL(canonicalUrl(html)).pathname, path, `${path}: malformed canonical`);
+                if (editorialHoldTypes.has(group.type)) {
+                    assert.match(html, /<meta\b(?=[^>]*\bname=["']robots["'])[^>]*\bcontent=["'][^"']*noindex/i, `${path}: expected editorial-hold noindex`);
+                }
                 if (group.type === 'blog') {
-                    assert.ok(walkSchema(schemas, 'Article').length, `${path}: missing Article schema`);
-                    assert.match(html, /href=["']\/about\.html#editorial-team["']/, `${path}: author bio link missing`);
+                    assert.match(html, /name=["']robots["'][^>]*content=["']index,follow/i, `${path}: reviewed guide should be indexable`);
+                    assert.match(html, /Sources and further reading/);
+                    assert.ok(item.sources?.length, `${path}: missing source list`);
+                    for (const source of item.sources) assert.ok(html.includes(escapeHtml(source.url)), `${path}: source link missing from page`);
                 }
                 if (group.relatedKey) {
                     const hrefPrefix = group.type === 'topic' ? '/chat/topic/' :
@@ -168,6 +179,17 @@ async function main() {
             }
         }
 
+        const publishedSlugs = new Set(editorialBlogs.map(article => article.slug));
+        for (const legacyBlog of blogs.filter(article => !publishedSlugs.has(article.slug))) {
+            const path = `/blog/${legacyBlog.slug}`;
+            const response = await fetch(`${base}${path}`);
+            assert.equal(response.status, 200, `${path}: held legacy guide should remain reachable`);
+            const html = await response.text();
+            assert.match(html, /name=["']robots["'][^>]*content=["'][^"']*noindex/i, `${path}: unsupported legacy guide should remain noindex`);
+            assert.match(html, /This guide is temporarily unavailable/);
+            checked++;
+        }
+
         const sitemapResponse = await fetch(`${base}/sitemap.xml`);
         assert.equal(sitemapResponse.status, 200, 'sitemap: expected 200');
         const sitemap = await sitemapResponse.text();
@@ -181,11 +203,17 @@ async function main() {
         const expectedUrls = new Set([
             'https://chathere.online/', 'https://chathere.online/live',
             'https://chathere.online/about.html', 'https://chathere.online/marketing.html',
-            ...hubs.map(([path]) => `https://chathere.online${path}`),
-            ...collections.flatMap(group => group.items.map(item => `https://chathere.online${group.path(item)}`))
+            ...hubs.filter(([path]) => !editorialHoldHubs.has(path)).map(([path]) => `https://chathere.online${path}`),
+            ...collections.filter(group => !editorialHoldTypes.has(group.type)).flatMap(group => group.items.map(item => `https://chathere.online${group.path(item)}`))
         ]);
         for (const url of expectedUrls) assert.ok(sitemapUrls.includes(url), `sitemap: missing ${url}`);
         for (const url of sitemapUrls) assert.ok(expectedUrls.has(url), `sitemap: unexpected/non-canonical URL ${url}`);
+        for (const group of collections.filter(item => editorialHoldTypes.has(item.type))) {
+            for (const item of group.items) {
+                const url = `https://chathere.online${group.path(item)}`;
+                assert.ok(!sitemapUrls.includes(url), `${url}: editorial-hold page must not be in the sitemap`);
+            }
+        }
         const staticSitemap = fs.readFileSync(path.join(__dirname, '..', 'public', 'sitemap.xml'), 'utf8');
         const staticSitemapUrls = [...staticSitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
         assert.deepEqual(new Set(staticSitemapUrls), new Set(sitemapUrls), 'static and live sitemap URLs differ');

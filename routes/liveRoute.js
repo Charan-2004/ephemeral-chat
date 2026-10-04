@@ -15,7 +15,8 @@ function escHtml(str) {
 function createLivePage(req, res) {
     try {
         const io = req.app.get('io');
-        const onlineCount = (io && io.engine && typeof io.engine.clientsCount === 'number') ? io.engine.clientsCount : 42;
+        const onlineCount = Number.isFinite(io?.engine?.clientsCount) ? io.engine.clientsCount : null;
+        const liveCountText = Number.isFinite(onlineCount) ? `${onlineCount} people online right now` : 'Live chat activity';
         const publicRooms = getPublicRooms().filter(r => !r.isPrivate && !r.locked && !r.isCustom);
 
         let allMessages = [];
@@ -60,12 +61,12 @@ function createLivePage(req, res) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live Chat Feed &bull; ChatHere | ${onlineCount} People Online Now</title>
-<meta name="description" content="Real-time anonymous chat on ChatHere. ${onlineCount} people online now in General, Tech, Music, Movies, Gaming & Politics. No login required.">
+<title>Live Chat Feed &bull; ChatHere</title>
+<meta name="description" content="See current public chat activity on ChatHere. Join topic-based conversations without creating an account.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://chathere.online/live">
 <meta property="og:title" content="Live Chat Feed &bull; ChatHere">
-<meta property="og:description" content="${onlineCount} people chatting right now. Anonymous, no login needed.">
+<meta property="og:description" content="See current public chat activity and join a conversation without creating an account.">
 <meta property="og:url" content="https://chathere.online/live">
 <meta property="og:image" content="https://chathere.online/preview-image.jpg?v=3">
 <link rel="icon" href="/favicon.png">
@@ -127,7 +128,7 @@ footer a:hover{color:rgba(255,255,255,.6)}
   "@context": "https://schema.org",
   "@type": "WebPage",
   "name": "Live Anonymous Chat Feed - ChatHere",
-  "description": "Real-time anonymous chat activity on ChatHere. ${onlineCount} people online now across General, Tech, Music, Movies, Gaming and Politics. No login required.",
+  "description": "Current public chat activity on ChatHere. Join topic-based conversations without creating an account.",
   "url": "https://chathere.online/live",
   "publisher": { "@type": "Organization", "name": "ChatHere", "url": "https://chathere.online" }
 }
@@ -148,7 +149,7 @@ footer a:hover{color:rgba(255,255,255,.6)}
 <div class="hero">
   <h1>What People Are Saying Right Now</h1>
   <p>Real-time anonymous conversations across ChatHere's public rooms. No account needed.</p>
-  <div class="online-pill">🟢 ${onlineCount} people online right now</div>
+  <div class="online-pill">🟢 ${liveCountText}</div>
   <div class="rooms-bar">${roomPills}</div>
 </div>
 <main>
@@ -172,7 +173,7 @@ footer a:hover{color:rgba(255,255,255,.6)}
     <a href="/about.html">About</a>
     <a href="/sitemap.xml">Sitemap</a>
   </div>
-  <p>&copy; 2026 ChatHere &mdash; Anonymous chat, zero data collection.</p>
+  <p>&copy; 2026 ChatHere &mdash; Anonymous chat with temporary message storage.</p>
 </footer>
 </body></html>`;
 

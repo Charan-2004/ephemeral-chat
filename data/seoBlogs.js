@@ -39,7 +39,7 @@ module.exports = [
       },
       {
         "question": "Does ChatHere save any server logs?",
-        "answer": "No. ChatHere operates on a strict zero-log architecture where messages are held only in volatile memory and cleared periodically."
+        "answer": "Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup."
       },
       {
         "question": "Why is text chat preferred over video roulette in 2026?",

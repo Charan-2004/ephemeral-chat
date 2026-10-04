@@ -21,7 +21,7 @@ module.exports = [
       },
       {
         "feature": "Message Logging Policy?",
-        "chatHere": "Zero logs — Wiped continuously from memory",
+        "chatHere": "Messages held in server memory for live delivery",
         "competitor": "Historically logged transcripts and IP addresses"
       },
       {
@@ -471,7 +471,7 @@ module.exports = [
       },
       {
         "feature": "Data Retention Policy?",
-        "chatHere": "Ephemeral — Zero logs saved",
+        "chatHere": "Messages held in server memory for live delivery",
         "competitor": "Stores user profiles & logs"
       },
       {
@@ -541,7 +541,7 @@ module.exports = [
       },
       {
         "feature": "Data Retention Policy?",
-        "chatHere": "Ephemeral — Zero logs saved",
+        "chatHere": "Messages held in server memory for live delivery",
         "competitor": "Stores user profiles & logs"
       },
       {
@@ -611,7 +611,7 @@ module.exports = [
       },
       {
         "feature": "Data Retention Policy?",
-        "chatHere": "Ephemeral — Zero logs saved",
+        "chatHere": "Messages held in server memory for live delivery",
         "competitor": "Stores user profiles & logs"
       },
       {
@@ -681,7 +681,7 @@ module.exports = [
       },
       {
         "feature": "Data Retention Policy?",
-        "chatHere": "Ephemeral — Zero logs saved",
+        "chatHere": "Messages held in server memory for live delivery",
         "competitor": "Stores user profiles & logs"
       },
       {
@@ -751,7 +751,7 @@ module.exports = [
       },
       {
         "feature": "Data Retention Policy?",
-        "chatHere": "Ephemeral — Zero logs saved",
+        "chatHere": "Messages held in server memory for live delivery",
         "competitor": "Stores user profiles & logs"
       },
       {
@@ -821,7 +821,7 @@ module.exports = [
       },
       {
         "feature": "Data Retention Policy?",
-        "chatHere": "Ephemeral — Zero logs saved",
+        "chatHere": "Messages held in server memory for live delivery",
         "competitor": "Stores user profiles & logs"
       },
       {
@@ -891,7 +891,7 @@ module.exports = [
       },
       {
         "feature": "Data Retention Policy?",
-        "chatHere": "Ephemeral — Zero logs saved",
+        "chatHere": "Messages held in server memory for live delivery",
         "competitor": "Stores user profiles & logs"
       },
       {
@@ -961,7 +961,7 @@ module.exports = [
       },
       {
         "feature": "Data Retention Policy?",
-        "chatHere": "Ephemeral — Zero logs saved",
+        "chatHere": "Messages held in server memory for live delivery",
         "competitor": "Stores user profiles & logs"
       },
       {
@@ -1031,7 +1031,7 @@ module.exports = [
       },
       {
         "feature": "Data Retention Policy?",
-        "chatHere": "Ephemeral — Zero logs saved",
+        "chatHere": "Messages held in server memory for live delivery",
         "competitor": "Stores user profiles & logs"
       },
       {
@@ -1101,7 +1101,7 @@ module.exports = [
       },
       {
         "feature": "Data Retention Policy?",
-        "chatHere": "Ephemeral — Zero logs saved",
+        "chatHere": "Messages held in server memory for live delivery",
         "competitor": "Stores user profiles & logs"
       },
       {
@@ -1171,7 +1171,7 @@ module.exports = [
       },
       {
         "feature": "Data Retention Policy?",
-        "chatHere": "Ephemeral — Zero logs saved",
+        "chatHere": "Messages held in server memory for live delivery",
         "competitor": "Stores user profiles & logs"
       },
       {
@@ -1241,7 +1241,7 @@ module.exports = [
       },
       {
         "feature": "Data Retention Policy?",
-        "chatHere": "Ephemeral — Zero logs saved",
+        "chatHere": "Messages held in server memory for live delivery",
         "competitor": "Stores user profiles & logs"
       },
       {
@@ -1311,7 +1311,7 @@ module.exports = [
       },
       {
         "feature": "Data Retention Policy?",
-        "chatHere": "Ephemeral — Zero logs saved",
+        "chatHere": "Messages held in server memory for live delivery",
         "competitor": "Stores user profiles & logs"
       },
       {
@@ -1381,7 +1381,7 @@ module.exports = [
       },
       {
         "feature": "Data Retention Policy?",
-        "chatHere": "Ephemeral — Zero logs saved",
+        "chatHere": "Messages held in server memory for live delivery",
         "competitor": "Stores user profiles & logs"
       },
       {

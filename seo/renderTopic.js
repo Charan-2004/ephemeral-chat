@@ -1,8 +1,8 @@
 
-const { escHtml, COMMON_CSS, renderHeader, renderFooter } = require('./seoStyles');
+const { escHtml, COMMON_CSS, renderHeader, renderFooter, getOnlineCount } = require('./seoStyles');
 
 function renderTopicPage(topic, io) {
-    const onlineCount = io ? io.engine.clientsCount : 42;
+    const onlineCount = getOnlineCount(io);
     const breadcrumbsJson = {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
@@ -82,7 +82,7 @@ ${renderHeader(onlineCount)}
     <p class="subhead">${escHtml(topic.subheadline)}</p>
     <div class="online-indicator">
       <span class="nav-live-dot"></span>
-      ${onlineCount} chatters online now across ChatHere
+      ${Number.isFinite(onlineCount) ? `${onlineCount} chatters online now across ChatHere` : 'Live activity updates as people join'}
     </div>
     <div>
       <a href="/?room=${encodeURIComponent(topic.room)}" class="btn-cta-large">

@@ -9,6 +9,11 @@ function escHtml(str) {
         .replace(/'/g, '&#039;');
 }
 
+function getOnlineCount(io) {
+    const count = io?.engine?.clientsCount;
+    return Number.isFinite(count) ? count : null;
+}
+
 const COMMON_CSS = `
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -405,6 +410,9 @@ footer{
 `;
 
 function renderHeader(onlineCount) {
+    const liveStatus = Number.isFinite(onlineCount)
+        ? `${onlineCount} Online`
+        : 'Live chat';
     return `
 <header>
   <a href="/" class="brand">
@@ -420,7 +428,7 @@ function renderHeader(onlineCount) {
     <a href="/blog">Blog</a>
     <a href="/live" class="nav-live-pill">
       <span class="nav-live-dot"></span>
-      ${onlineCount} Online
+      ${liveStatus}
     </a>
   </nav>
 </header>`;
@@ -441,8 +449,8 @@ function renderFooter() {
     <a href="/marketing.html">Marketing</a>
     <a href="/sitemap.xml">Sitemap</a>
   </div>
-  <p>&copy; 2026 ChatHere &mdash; Free, anonymous, 100% ephemeral real-time chat platform. Zero data collection, zero accounts, no logs.</p>
+  <p>&copy; 2026 ChatHere &mdash; Free, real-time topic chat rooms. No account is required.</p>
 </footer>`;
 }
 
-module.exports = { escHtml, COMMON_CSS, renderHeader, renderFooter };
+module.exports = { escHtml, COMMON_CSS, renderHeader, renderFooter, getOnlineCount };
