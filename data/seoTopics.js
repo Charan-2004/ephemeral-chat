@@ -46,7 +46,7 @@ module.exports = [
       "crypto",
       "startups",
       "science",
-      "diy"
+      "movies"
     ]
   },
   {
@@ -750,7 +750,7 @@ module.exports = [
       "travel",
       "students",
       "books",
-      "culture"
+      "diy"
     ]
   },
   {

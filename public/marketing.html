@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="ChatHere is the best free anonymous chat platform. Join instant online chat rooms with strangers for Tech, Music, Gaming, and more. No login required!">
+    <meta name="description" content="Join free anonymous chat rooms on ChatHere. Talk in real time across Tech, Music, Gaming, and other topic rooms without creating an account.">
     <meta name="keywords" content="anonymous chat, free chat rooms, chat online free, chat with strangers, no login chat, chathere.online, ephemeral messaging, no registration chat">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://chathere.online/marketing.html" />
@@ -13,6 +13,17 @@
     <meta property="og:title" content="ChatHere | Free Anonymous Chat Rooms Online">
     <meta property="og:description" content="Join thousands of users on ChatHere. Free, anonymous, real-time chat rooms with zero data collection. No login required!">
     <meta property="og:image" content="https://chathere.online/preview-image.jpg?v=3">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://chathere.online/" },
+        { "@type": "ListItem", "position": 2, "name": "Marketing", "item": "https://chathere.online/marketing.html" }
+      ]
+    }
+    </script>
 
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -46,6 +57,8 @@
         
         .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 100px 20px 40px; background: radial-gradient(circle at center, rgba(88, 101, 242, 0.15) 0%, transparent 70%); }
         .hero-ghost { width: 120px; margin-bottom: 24px; animation: float 4s ease-in-out infinite; }
+        .breadcrumbs { max-width: 1200px; margin: 16px auto 0; padding: 0 24px; color: rgba(255,255,255,.58); font-size: .85rem; }
+        .breadcrumbs a { color: #a5b1fc; }
         .hero h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 900; margin-bottom: 24px; max-width: 800px; }
         .tagline { font-size: clamp(1.2rem, 3vw, 1.5rem); color: var(--accent-color); font-weight: 600; margin-bottom: 40px; }
         .hero-btn { background: var(--primary-color); color: white; text-decoration: none; padding: 18px 48px; border-radius: 12px; font-size: 1.25rem; font-weight: 700; display: inline-flex; align-items: center; gap: 12px; transition: transform 0.2s; }
@@ -83,15 +96,16 @@
 
     <header class="nav">
         <a href="/" class="nav-logo">
-            <img src="/logo.png" alt="ChatHere Logo">
+            <img src="/logo.webp" alt="ChatHere logo" width="192" height="192">
             ChatHere
         </a>
         <a href="/" class="nav-cta">Join a Room</a>
     </header>
 
     <main>
+        <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <span>Marketing</span></nav>
         <section class="hero">
-            <img src="/logo.png" alt="Ghost Logo" class="hero-ghost">
+            <img src="/logo.webp" alt="ChatHere ghost logo" width="192" height="192" class="hero-ghost">
             <h1>Talk Freely. Stay Anonymous.</h1>
             <p class="tagline">Connect instantly. No strings attached.</p>
             <a href="/" class="hero-btn">
@@ -248,11 +262,11 @@
 
     <footer>
         <div style="margin-bottom: 20px;">
-            <img src="/logo.png" alt="ChatHere" style="width: 30px; opacity: 0.5;">
+            <img src="/logo.webp" alt="ChatHere logo" width="192" height="192" style="width: 30px; height: 30px; opacity: 0.5;">
         </div>
         <div style="margin-bottom: 20px;">
             <a href="/about.html">About</a>
-            <a href="/blog.html">Blog</a>
+            <a href="/blog">Blog</a>
             <a href="mailto:admin@chathere.online">Contact</a>
         </div>
         <p>&copy; 2026 ChatHere. All rights reserved.</p>

@@ -1,5 +1,6 @@
 
 const { escHtml, COMMON_CSS, renderHeader, renderFooter } = require('./seoStyles');
+const allCities = require('../data/seoCities');
 
 function renderCityPage(city, io) {
     const onlineCount = io ? io.engine.clientsCount : 42;
@@ -38,7 +39,7 @@ function renderCityPage(city, io) {
       </details>
     `).join('');
 
-    const relatedHtml = (city.relatedCities || []).map(c => `
+    const relatedHtml = (city.relatedCities || []).filter(slug => allCities.some(item => item.slug === slug)).map(c => `
       <a href="/chat/city/${c}" class="link-pill">${escHtml(c.replace(/-/g, ' ').toUpperCase())}</a>
     `).join('');
 

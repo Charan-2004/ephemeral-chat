@@ -1,5 +1,7 @@
 
 const { escHtml, COMMON_CSS, renderHeader, renderFooter } = require('./seoStyles');
+const useCases = require('../data/seoUseCases');
+const topics = require('../data/seoTopics');
 
 function renderUseCasePage(uc, io) {
     const onlineCount = io ? io.engine.clientsCount : 42;
@@ -44,9 +46,12 @@ function renderUseCasePage(uc, io) {
       </details>
     `).join('');
 
-    const relatedHtml = (uc.relatedSlugs || []).map(r => `
-      <a href="/use-cases/${r}" class="link-pill">${escHtml(r.replace(/-/g, ' '))}</a>
-    `).join('');
+    const relatedHtml = (uc.relatedSlugs || []).map(slug => {
+      const relatedUseCase = useCases.find(item => item.slug === slug);
+      const relatedTopic = topics.find(item => item.slug === slug);
+      const href = relatedUseCase ? `/use-cases/${slug}` : relatedTopic ? `/chat/topic/${slug}` : null;
+      return href ? `<a href="${href}" class="link-pill">${escHtml(slug.replace(/-/g, ' '))}</a>` : '';
+    }).join('');
 
     return `<!DOCTYPE html>
 <html lang="en">

@@ -6,7 +6,7 @@
   --glass-bg: rgba(255, 255, 255, 0.08);
   --glass-border: rgba(255, 255, 255, 0.15);
   --success-color: #43b581;
-  --bg-image: url('bg.png');
+  --bg-image: url('bg.webp');
 }
 
 * {

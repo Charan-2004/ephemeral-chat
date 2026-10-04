@@ -18,7 +18,11 @@ function renderBlogPage(blog, io) {
         "@type": "Article",
         "headline": blog.title,
         "description": blog.metaDescription,
-        "author": { "@type": "Person", "name": blog.author },
+        "author": {
+            "@type": "Organization",
+            "name": blog.author,
+            "url": "https://chathere.online/about.html#editorial-team"
+        },
         "publisher": {
             "@type": "Organization",
             "name": "ChatHere",
@@ -107,8 +111,8 @@ ${renderHeader(onlineCount)}
       <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px">
         <div style="font-size:1.2rem">✍️</div>
         <div>
-          <strong style="color:#fff;font-size:0.9rem">${escHtml(blog.author)}</strong>
-          <div style="color:var(--text-faint);font-size:0.75rem">Privacy & Systems Research @ ChatHere</div>
+          <strong style="color:#fff;font-size:0.9rem"><a href="/about.html#editorial-team">${escHtml(blog.author)}</a></strong>
+          <div style="color:var(--text-faint);font-size:0.75rem">Publisher of ChatHere guides on privacy and online communities</div>
         </div>
       </div>
     </div>
@@ -225,6 +229,23 @@ function renderHubPage(type, items, io) {
         `).join('');
     }
 
+    const hubRoutes = {
+        topics: { path: '/chat', name: 'Topics' },
+        cities: { path: '/cities', name: 'Cities' },
+        comparisons: { path: '/vs', name: 'Comparisons' },
+        'use-cases': { path: '/use-cases', name: 'Use Cases' },
+        blog: { path: '/blog', name: 'Blog' }
+    };
+    const hub = hubRoutes[type];
+    const breadcrumbsJson = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://chathere.online/' },
+            { '@type': 'ListItem', position: 2, name: hub.name, item: `https://chathere.online${hub.path}` }
+        ]
+    };
+
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -232,21 +253,23 @@ function renderHubPage(type, items, io) {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${escHtml(title)}</title>
 <meta name="description" content="${escHtml(meta)}">
-<link rel="canonical" href="https://chathere.online/${type === 'blog' ? 'blog' : (type === 'topics' ? 'chat' : type)}">
+<link rel="canonical" href="https://chathere.online${hub.path}">
 <meta property="og:type" content="website">
 <meta property="og:title" content="${escHtml(title)}">
 <meta property="og:description" content="${escHtml(meta)}">
-<meta property="og:url" content="https://chathere.online/${type}">
+<meta property="og:url" content="https://chathere.online${hub.path}">
 <meta property="og:image" content="https://chathere.online/preview-image.jpg?v=3">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escHtml(title)}">
 <meta name="twitter:description" content="${escHtml(meta)}">
 <link rel="icon" type="image/png" href="/favicon.png">
 <style>${COMMON_CSS}</style>
+<script type="application/ld+json">${JSON.stringify(breadcrumbsJson)}</script>
 </head>
 <body>
 ${renderHeader(onlineCount)}
 <div class="container">
+  <div class="breadcrumbs"><a href="/">Home</a><span class="sep">/</span><span>${escHtml(hub.name)}</span></div>
   <div class="hero">
     <div class="hero-badge">Directory Hub</div>
     <h1>${escHtml(h1)}</h1>

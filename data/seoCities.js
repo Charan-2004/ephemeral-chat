@@ -92,7 +92,6 @@ module.exports = [
       }
     ],
     "relatedCities": [
-      "manchester",
       "dublin",
       "paris",
       "berlin",
@@ -143,7 +142,6 @@ module.exports = [
     ],
     "relatedCities": [
       "san-francisco",
-      "san-diego",
       "austin",
       "new-york",
       "seattle"
@@ -245,8 +243,7 @@ module.exports = [
       "seoul",
       "singapore",
       "hong-kong",
-      "bangkok",
-      "taipei"
+      "bangkok"
     ]
   },
   {
@@ -393,8 +390,6 @@ module.exports = [
     ],
     "relatedCities": [
       "melbourne",
-      "brisbane",
-      "auckland",
       "singapore",
       "london"
     ]
@@ -542,8 +537,6 @@ module.exports = [
       }
     ],
     "relatedCities": [
-      "dallas",
-      "houston",
       "san-francisco",
       "chicago"
     ]
@@ -592,7 +585,6 @@ module.exports = [
     ],
     "relatedCities": [
       "sydney",
-      "auckland",
       "london",
       "singapore"
     ]
@@ -691,8 +683,7 @@ module.exports = [
     "relatedCities": [
       "berlin",
       "dublin",
-      "london",
-      "brussels"
+      "london"
     ]
   },
   {
@@ -739,9 +730,7 @@ module.exports = [
     ],
     "relatedCities": [
       "london",
-      "edinburgh",
-      "amsterdam",
-      "belfast"
+      "amsterdam"
     ]
   },
   {
@@ -789,7 +778,6 @@ module.exports = [
     "relatedCities": [
       "vancouver",
       "san-francisco",
-      "portland",
       "chicago"
     ]
   },
@@ -836,7 +824,6 @@ module.exports = [
       }
     ],
     "relatedCities": [
-      "orlando",
       "new-york",
       "austin",
       "sao-paulo"
@@ -1034,8 +1021,7 @@ module.exports = [
     "relatedCities": [
       "tokyo",
       "singapore",
-      "hong-kong",
-      "taipei"
+      "hong-kong"
     ]
   },
   {
@@ -1083,7 +1069,6 @@ module.exports = [
     "relatedCities": [
       "seattle",
       "toronto",
-      "calgary",
       "montreal"
     ]
   },
@@ -1180,7 +1165,6 @@ module.exports = [
     ],
     "relatedCities": [
       "barcelona",
-      "valencia",
       "paris",
       "rome"
     ]
@@ -1277,7 +1261,6 @@ module.exports = [
       }
     ],
     "relatedCities": [
-      "milan",
       "madrid",
       "paris",
       "barcelona"
@@ -1326,9 +1309,7 @@ module.exports = [
       }
     ],
     "relatedCities": [
-      "rio-de-janeiro",
       "mexico-city",
-      "buenos-aires",
       "miami"
     ]
   },
@@ -1375,9 +1356,7 @@ module.exports = [
       }
     ],
     "relatedCities": [
-      "guadalajara",
       "sao-paulo",
-      "bogota",
       "miami"
     ]
   },
@@ -1424,7 +1403,6 @@ module.exports = [
       }
     ],
     "relatedCities": [
-      "doha",
       "singapore",
       "london",
       "mumbai"
@@ -1475,7 +1453,6 @@ module.exports = [
     "relatedCities": [
       "singapore",
       "tokyo",
-      "kuala-lumpur",
       "seoul"
     ]
   },
@@ -1522,9 +1499,6 @@ module.exports = [
       }
     ],
     "relatedCities": [
-      "oslo",
-      "copenhagen",
-      "helsinki",
       "berlin"
     ]
   },
@@ -1571,9 +1545,7 @@ module.exports = [
       }
     ],
     "relatedCities": [
-      "geneva",
       "vienna",
-      "munich",
       "berlin"
     ]
   },
@@ -1621,9 +1593,7 @@ module.exports = [
     ],
     "relatedCities": [
       "berlin",
-      "zurich",
-      "budapest",
-      "prague"
+      "zurich"
     ]
   },
   {
@@ -1671,7 +1641,6 @@ module.exports = [
     "relatedCities": [
       "singapore",
       "tokyo",
-      "taipei",
       "london"
     ]
   },
@@ -1720,7 +1689,6 @@ module.exports = [
     "relatedCities": [
       "new-york",
       "chicago",
-      "philadelphia",
       "toronto"
     ]
   }

@@ -20,7 +20,6 @@ Allow: /llm.txt
 Allow: /sitemap.xml
 Allow: /rss.xml
 
-Disallow: /admin
 Disallow: /api/
 
 # Explicitly Allow AI & LLM Search Crawlers for Generative Engine Optimization (GEO)
@@ -41,5 +40,9 @@ Allow: /
 
 User-agent: Applebot-Extended
 Allow: /
+
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
 
 Sitemap: https://chathere.online/sitemap.xml

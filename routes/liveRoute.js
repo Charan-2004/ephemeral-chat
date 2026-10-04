@@ -115,6 +115,16 @@ footer a:hover{color:rgba(255,255,255,.6)}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://chathere.online/" },
+    { "@type": "ListItem", "position": 2, "name": "Live Feed", "item": "https://chathere.online/live" }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
   "@type": "WebPage",
   "name": "Live Anonymous Chat Feed - ChatHere",
   "description": "Real-time anonymous chat activity on ChatHere. ${onlineCount} people online now across General, Tech, Music, Movies, Gaming and Politics. No login required.",
@@ -134,6 +144,7 @@ footer a:hover{color:rgba(255,255,255,.6)}
     <div class="live-pill"><div class="live-dot"></div>LIVE</div>
   </nav>
 </header>
+<div style="max-width:880px;margin:16px auto 0;padding:0 24px;color:rgba(255,255,255,.58);font-size:.85rem"><a href="/" style="color:#a5b1fc">Home</a> &rsaquo; <span>Live Feed</span></div>
 <div class="hero">
   <h1>What People Are Saying Right Now</h1>
   <p>Real-time anonymous conversations across ChatHere's public rooms. No account needed.</p>

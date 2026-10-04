@@ -1,9 +1,10 @@
-const CACHE_NAME = 'chathere-v20';
+const CACHE_NAME = 'chathere-v21';
 const OFFLINE_URL = '/';
 
 const PRECACHE_ASSETS = [
   '/',
   '/logo.png',
+  '/logo.webp',
   '/favicon.png',
   '/manifest.json'
 ];

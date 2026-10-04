@@ -66,7 +66,7 @@ app.use(express.static(path.join(__dirname, 'public'), {
     lastModified: true,
     setHeaders: (res, filepath) => {
         // Images/fonts: moderate cache with revalidation
-        if (filepath.match(/\.(png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+        if (filepath.match(/\.(png|jpg|jpeg|webp|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
             res.setHeader('Cache-Control', 'public, max-age=86400, must-revalidate'); // 1 day
         }
         // HTML: always revalidate

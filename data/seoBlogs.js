@@ -5,7 +5,7 @@ module.exports = [
     "metaDescription": "Explore why anonymous chat rooms are surging in popularity in 2026. Learn how digital surveillance fatigue and zero-log platforms are reshaping online connection.",
     "date": "2026-08-10",
     "readTime": "8 min read",
-    "author": "Alex Vance, Privacy Advocate",
+    "author": "ChatHere Editorial Team",
     "category": "Digital Privacy",
     "tags": [
       "Anonymous Chat",
@@ -58,7 +58,7 @@ module.exports = [
     "metaDescription": "Discover the 10 best safe Omegle alternatives in 2026. Enjoy instant anonymous text chat with zero sign-ups, no webcams, and complete privacy protection.",
     "date": "2026-07-28",
     "readTime": "10 min read",
-    "author": "Elena Rostova, Cybersecurity Researcher",
+    "author": "ChatHere Editorial Team",
     "category": "Alternatives & Reviews",
     "tags": [
       "Omegle Alternatives",
@@ -111,7 +111,7 @@ module.exports = [
     "metaDescription": "Learn how ephemeral messaging protects your digital privacy. Discover why auto-wiping chats beat permanent logs for mental well-being and security.",
     "date": "2026-07-15",
     "readTime": "7 min read",
-    "author": "Marcus Sterling, InfoSec Consultant",
+    "author": "ChatHere Editorial Team",
     "category": "Security & Architecture",
     "tags": [
       "Ephemeral Messaging",
@@ -156,7 +156,7 @@ module.exports = [
     "metaDescription": "Detailed comparison of Discord vs anonymous chat rooms. Compare onboarding friction, phone verification, privacy, and community engagement in 2026.",
     "date": "2026-06-30",
     "readTime": "8 min read",
-    "author": "Alex Vance, Privacy Advocate",
+    "author": "ChatHere Editorial Team",
     "category": "Platform Comparison",
     "tags": [
       "Discord Alternative",
@@ -196,7 +196,7 @@ module.exports = [
     "metaDescription": "Discover the psychological science behind online anonymity. Learn why talking to strangers reduces social anxiety and encourages authentic vulnerability.",
     "date": "2026-06-18",
     "readTime": "7 min read",
-    "author": "Dr. Sarah Lin, Behavioral Psychologist",
+    "author": "ChatHere Editorial Team",
     "category": "Psychology & Culture",
     "tags": [
       "Psychology of Anonymity",
@@ -236,7 +236,7 @@ module.exports = [
     "metaDescription": "Master the essential rules of online privacy when chatting with strangers. Protect your digital identity with our expert cybersecurity checklist.",
     "date": "2026-06-02",
     "readTime": "9 min read",
-    "author": "Marcus Sterling, InfoSec Consultant",
+    "author": "ChatHere Editorial Team",
     "category": "Security & Guides",
     "tags": [
       "Online Safety",
@@ -280,7 +280,7 @@ module.exports = [
     "metaDescription": "Why modern internet users are rejecting registration walls in favor of zero-data web apps. The technical and cultural revolution of account-free software.",
     "date": "2026-05-20",
     "readTime": "8 min read",
-    "author": "Alex Vance, Privacy Advocate",
+    "author": "ChatHere Editorial Team",
     "category": "Tech & Trends",
     "tags": [
       "Zero Data",
@@ -320,7 +320,7 @@ module.exports = [
     "metaDescription": "Discover why Gen Z is leaving traditional social media for ephemeral, account-free chat spaces. An in-depth look at digital fatigue and genuine connection.",
     "date": "2026-05-08",
     "readTime": "7 min read",
-    "author": "Chloe Moreau, Cultural Anthropologist",
+    "author": "ChatHere Editorial Team",
     "category": "Youth Culture & Media",
     "tags": [
       "Gen Z Trends",
@@ -360,7 +360,7 @@ module.exports = [
     "metaDescription": "How low-stakes anonymous conversations help break the isolation cycle in an increasingly lonely world. The science of spontaneous digital connection.",
     "date": "2026-04-22",
     "readTime": "8 min read",
-    "author": "Dr. Sarah Lin, Behavioral Psychologist",
+    "author": "ChatHere Editorial Team",
     "category": "Mental Health",
     "tags": [
       "Loneliness Epidemic",
@@ -400,7 +400,7 @@ module.exports = [
     "metaDescription": "A practical, non-technical checklist to protect your digital footprint in 2026. Browser hardening, VPN usage, and zero-log communication tips.",
     "date": "2026-04-10",
     "readTime": "9 min read",
-    "author": "Marcus Sterling, InfoSec Consultant",
+    "author": "ChatHere Editorial Team",
     "category": "Privacy & Security",
     "tags": [
       "Privacy Checklist",
@@ -440,7 +440,7 @@ module.exports = [
     "metaDescription": "A nostalgic and technical journey through the history of digital chat rooms: from IRC in 1988 to AIM, Omegle, Discord, and modern ephemeral WebSockets.",
     "date": "2026-03-25",
     "readTime": "11 min read",
-    "author": "Alex Vance, Privacy Advocate",
+    "author": "ChatHere Editorial Team",
     "category": "Tech History",
     "tags": [
       "Internet History",
@@ -480,7 +480,7 @@ module.exports = [
     "metaDescription": "Why remote workers need unmonitored spaces to vent, share honest feedback, and maintain mental balance away from corporate Slack tracking.",
     "date": "2026-03-12",
     "readTime": "7 min read",
-    "author": "Dr. Sarah Lin, Behavioral Psychologist",
+    "author": "ChatHere Editorial Team",
     "category": "Workplace & Remote Work",
     "tags": [
       "Remote Work",
