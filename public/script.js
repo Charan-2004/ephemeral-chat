@@ -489,6 +489,7 @@ function showView(viewId) {
 // Set up UI triggers and event handlers on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
     const btnBrowseInline = document.getElementById('btn-browse-active-inline');
+    const homeBrowseRooms = document.getElementById('home-browse-rooms');
     const backFromBrowse = document.getElementById('back-to-selection-from-browse');
     const roomsSearchInput = document.getElementById('rooms-search-input');
     const termsCheck = document.getElementById('terms-check');
@@ -503,6 +504,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             showView('onboarding-browse-view');
         });
+    }
+
+    if (homeBrowseRooms && btnBrowseInline) {
+        homeBrowseRooms.addEventListener('click', () => btnBrowseInline.click());
     }
 
     if (backFromBrowse) {
@@ -556,8 +561,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Render Active Rooms on onboarding page
 function renderActiveRooms(rooms) {
-    const grid = document.getElementById('active-rooms-grid');
-    if (!grid) return;
+    const grids = [
+        { element: document.getElementById('featured-rooms-grid'), featured: true },
+        { element: document.getElementById('active-rooms-grid'), featured: false },
+    ].filter(({ element }) => element);
+    if (!grids.length) return;
 
     // Filter to public rooms only (already filtered from server, but be safe)
     const publicRooms = rooms.filter(r => !r.isPrivate);
@@ -573,26 +581,7 @@ function renderActiveRooms(rooms) {
     const searchQuery = (document.getElementById('rooms-search-input')?.value || '').toLowerCase().trim();
     const filteredRooms = publicRooms.filter(r => r.name.toLowerCase().includes(searchQuery));
 
-    // Check if any room matches
-    if (filteredRooms.length === 0) {
-        if (searchQuery) {
-            grid.innerHTML = `
-                <div class="active-rooms-empty">
-                    <i class="fas fa-search"></i>
-                    <span>No public rooms match "${escapeHtml(searchQuery)}" â€” try creating one!</span>
-                </div>`;
-        } else {
-            grid.innerHTML = `
-                <div class="active-rooms-empty">
-                    <i class="fas fa-moon"></i>
-                    <span>All rooms are quiet â€” be the first to start a conversation!</span>
-                </div>`;
-        }
-        return;
-    }
-
-    grid.innerHTML = '';
-    filteredRooms.forEach(r => {
+    const createCard = (r) => {
         const count = r.userCount || roomCounts[r.id] || roomCounts[r.name] || 0;
         const card = document.createElement('div');
         card.className = 'active-room-card' + (count > 0 ? ' has-users' : '');
@@ -620,7 +609,19 @@ function renderActiveRooms(rooms) {
             instantJoinRoom(r.id || r.name, r.name);
         });
 
-        grid.appendChild(card);
+        return card;
+    };
+
+    grids.forEach(({ element: grid, featured }) => {
+        const visibleRooms = featured ? filteredRooms.slice(0, 3) : filteredRooms;
+        if (!visibleRooms.length) {
+            grid.innerHTML = searchQuery
+                ? '<div class="active-rooms-empty"><i class="fas fa-search" aria-hidden="true"></i><span>No public rooms match that search. Try another topic.</span></div>'
+                : '<div class="active-rooms-empty"><i class="fas fa-comments" aria-hidden="true"></i><span>No public rooms are active right now. Start one and be the first to say hello.</span></div>';
+            return;
+        }
+
+        grid.replaceChildren(...visibleRooms.map(createCard));
     });
 }
 

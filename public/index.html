@@ -36,7 +36,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"></noscript>
-    <link rel="stylesheet" href="style.css?v=25">
+    <link rel="stylesheet" href="style.css?v=29-open-lounge">
 
     <!-- Favicon - Google requires minimum 48x48px -->
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
@@ -97,7 +97,7 @@
         <div class="glow-orb glow-orb-2"></div>
     </div>
 
-    <div class="animated-background">
+    <div class="animated-background" aria-hidden="true">
         <!-- Row 1 -->
         <div class="marquee-row">
             <span>People drop in throughout the day</span>
@@ -198,13 +198,24 @@
             
             <!-- Hero Header Segment -->
             <div class="hero-header-segment">
-                <h1 class="hero-main-title">Drop in. Speak freely. <span class="text-gradient">Disappear.</span></h1>
-                <p class="hero-subtagline">Join public topic chats without an account. Messages are held in memory for delivery, not saved to a persistent chat database.</p>
+                <p class="hero-eyebrow"><span class="hero-eyebrow-dot"></span> A little more human, a little less profile</p>
+                <h1 class="hero-main-title">Drop in.<br>Find your <span class="text-gradient">people.</span></h1>
+                <p class="hero-subtagline">Talk with real people in public topic rooms. Free forever, with no account to create.</p>
+                <ul class="hero-benefits" aria-label="ChatHere benefits">
+                    <li><span class="hero-benefit-mark" aria-hidden="true">✓</span><span>Choose a topic and join in seconds</span></li>
+                    <li><span class="hero-benefit-mark" aria-hidden="true">✓</span><span>Meet people who are here to talk</span></li>
+                    <li><span class="hero-benefit-mark" aria-hidden="true">✓</span><span>Free forever. No signup.</span></li>
+                </ul>
             </div>
 
-            <!-- Join Form Section (No containers/boxes!) -->
+            <!-- Join Form Section -->
             <div class="join-form-wrapper">
                 <form id="join-form">
+                    <div class="join-card-heading">
+                        <span class="join-step-label">START A CONVERSATION</span>
+                        <h2>Where should we meet?</h2>
+                        <p>Pick a topic, make a room, or use an invite ID.</p>
+                    </div>
                     
                     <!-- Your Alias (Common to all views, shown at the top of the card!) -->
                     <div class="form-row-group" id="alias-form-group">
@@ -344,6 +355,20 @@
 
                 </form>
             </div>
+
+            <section class="home-room-section" aria-labelledby="home-rooms-title">
+                <div class="home-room-heading">
+                    <div>
+                        <p class="home-room-eyebrow">OPEN ROOMS</p>
+                        <h2 id="home-rooms-title">Explore public rooms</h2>
+                    </div>
+                    <button type="button" class="home-room-browse" id="home-browse-rooms">Explore all rooms <i class="fas fa-arrow-right" aria-hidden="true"></i></button>
+                </div>
+                <div class="active-rooms-grid home-active-rooms-grid" id="featured-rooms-grid" aria-live="polite">
+                    <div class="active-rooms-empty"><i class="fas fa-circle-notch fa-spin" aria-hidden="true"></i><span>Finding the rooms people are in…</span></div>
+                </div>
+                <p class="home-room-note"><i class="fas fa-eye" aria-hidden="true"></i> Public rooms are visible to everyone in them. Messages stay in memory while a room is running; they aren’t saved to a persistent chat database.</p>
+            </section>
 
             <!-- SEO Footer - Minimal -->
             <footer id="site-footer" class="site-footer">
@@ -604,10 +629,10 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYjYiPSqHHDb58B0yaPfYLjYEXyyp8AM5tcJHUROefWCEENgGRM1ryEL1QH2Vf11cKURn34319cCgrcDA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="script.js?v=GLASS_V11"></script>
+    <script src="script.js?v=28-open-lounge"></script>
     <script>
     // Force complete cache clearing and service worker updates on version bump (IMM_V10/GLASS_V5)
-    const APP_VERSION = 'IMM_V10_GLASS_V5';
+    const APP_VERSION = 'OPEN_LOUNGE_UI_V1';
     const cachedVersion = localStorage.getItem('chathere_app_version');
     if (cachedVersion !== APP_VERSION) {
         if ('caches' in window) {
