@@ -113,6 +113,7 @@ footer a{color:rgba(255,255,255,.35);text-decoration:none;margin:0 10px}
 footer a:hover{color:rgba(255,255,255,.6)}
 @media(max-width:640px){.hero h1{font-size:1.6rem}.lv-time{display:none}}
 </style>
+<link rel="stylesheet" href="/site-theme.css?v=1">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -149,7 +150,7 @@ footer a:hover{color:rgba(255,255,255,.6)}
 <div class="hero">
   <h1>What People Are Saying Right Now</h1>
   <p>Real-time anonymous conversations across ChatHere's public rooms. No account needed.</p>
-  <div class="online-pill">🟢 ${liveCountText}</div>
+  <div class="online-pill"><span class="live-dot" aria-hidden="true"></span> ${liveCountText}</div>
   <div class="rooms-bar">${roomPills}</div>
 </div>
 <main>
@@ -158,7 +159,7 @@ footer a:hover{color:rgba(255,255,255,.6)}
   <div class="cta">
     <h2>Join the Conversation</h2>
     <p>Anonymous, ephemeral, and completely free. Pick a name and start chatting in seconds.</p>
-    <a href="/">Start Chatting Now &rarr;</a>
+    <a href="/">Start Chatting Now <svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-arrow-right"></use></svg></a>
     <p class="cta-note">No account required &bull; Public room messages &bull; Avoid sharing sensitive details</p>
   </div>
 </main>

@@ -14,7 +14,6 @@
     <meta property="og:image" content="https://chathere.online/preview-image.jpg?v=3">
     <link rel="icon" type="image/png" href="/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         :root { --bg: #121417; --text: #f0f0f0; --primary: #5865F2; --card: #1e2126; --accent: #d4a127; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: 50px 20px; text-align: center; margin: 0; min-height: 100vh; }
@@ -28,6 +27,7 @@
         .link-btn.featured:hover { background: #4752C4; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     </style>
+    <link rel="stylesheet" href="/site-theme.css?v=1">
 </head>
 <body>
 
@@ -37,19 +37,19 @@
 
     <div class="link-container">
         <a href="/" class="link-btn featured">
-            <i class="fas fa-comment-dots"></i> Start Chatting Now
+            <svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-chat"></use></svg> Start Chatting Now
         </a>
         <a href="/marketing.html" class="link-btn">
-            <i class="fas fa-rocket"></i> Why ChatHere?
+            <svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-spark"></use></svg> Why ChatHere?
         </a>
         <a href="/blog" class="link-btn">
-            <i class="fas fa-newspaper"></i> Read Our Blog
+            <svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-info"></use></svg> Read Our Blog
         </a>
         <a href="/about.html" class="link-btn">
-            <i class="fas fa-info-circle"></i> About Us
+            <svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-info"></use></svg> About Us
         </a>
         <a href="mailto:admin@chathere.online" class="link-btn">
-            <i class="fas fa-envelope"></i> Contact Support
+            <svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-mail"></use></svg> Contact Support
         </a>
     </div>
 

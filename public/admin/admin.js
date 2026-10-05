@@ -9,6 +9,10 @@ function escapeHtml(value) {
     })[character]);
 }
 
+function svgIcon(name, className = 'ui-icon') {
+    return `<svg class="${className}" aria-hidden="true"><use href="/icons.svg#icon-${name}"></use></svg>`;
+}
+
 let adminToken = localStorage.getItem('adminToken');
 let adminUsername = localStorage.getItem('adminUsername') || 'Moderator';
 let currentMonitorRoom = '';
@@ -263,8 +267,8 @@ socket.on('message', (msg) => {
 
             controlsHtml = `
             <div class="admin-controls">
-                <button class="action-btn-delete" data-id="${msg.id}" title="Delete" style="background:none; border:none; color:#f04747; cursor:pointer;"><i class="fas fa-trash"></i></button>
-                <button class="action-btn-pin" data-id="${msg.id}" data-text="${safeText}" title="Pin" style="background:none; border:none; color:#f5a623; cursor:pointer;"><i class="fas fa-thumbtack"></i></button>
+                <button class="action-btn-delete" data-id="${msg.id}" title="Delete" style="background:none; border:none; color:#f04747; cursor:pointer;">${svgIcon('trash')}</button>
+                <button class="action-btn-pin" data-id="${msg.id}" data-text="${safeText}" title="Pin" style="background:none; border:none; color:#f5a623; cursor:pointer;">${svgIcon('pin')}</button>
             </div>`;
         }
 
@@ -364,15 +368,10 @@ if (mobileMenuBtn) {
         e.stopPropagation(); // Prevent immediate close
         sidebar.classList.toggle('active');
 
-        // Toggle icon
-        const icon = mobileMenuBtn.querySelector('i');
-        if (sidebar.classList.contains('active')) {
-            icon.classList.remove('fa-bars');
-            icon.classList.add('fa-times');
-        } else {
-            icon.classList.remove('fa-times');
-            icon.classList.add('fa-bars');
-        }
+        const expanded = sidebar.classList.contains('active');
+        mobileMenuBtn.querySelector('use')?.setAttribute('href', expanded ? '/icons.svg#icon-close' : '/icons.svg#icon-menu');
+        mobileMenuBtn.setAttribute('aria-expanded', String(expanded));
+        mobileMenuBtn.setAttribute('aria-label', expanded ? 'Close navigation' : 'Open navigation');
     });
 }
 
@@ -384,9 +383,9 @@ document.addEventListener('click', (e) => {
         e.target !== mobileMenuBtn) {
 
         sidebar.classList.remove('active');
-        const icon = mobileMenuBtn.querySelector('i');
-        icon.classList.remove('fa-times');
-        icon.classList.add('fa-bars');
+        mobileMenuBtn.querySelector('use')?.setAttribute('href', '/icons.svg#icon-menu');
+        mobileMenuBtn.setAttribute('aria-expanded', 'false');
+        mobileMenuBtn.setAttribute('aria-label', 'Open navigation');
     }
 });
 
@@ -410,14 +409,14 @@ async function loadBotStatus() {
         text.innerText = data.enabled ? `Active (${data.botCount} bots)` : 'Disabled';
         btn.innerText = data.enabled ? 'Disable Bots' : 'Enable Bots';
         btn.style.background = data.enabled ? '#ff4757' : '#e94560';
-        gemini.innerText = data.hasGemini ? '🟢 Gemini AI connected' : '🟡 Scripted mode (no API key)';
+        gemini.innerHTML = `${svgIcon(data.hasGemini ? 'check' : 'alert')} ${data.hasGemini ? 'Gemini AI connected' : 'Scripted mode (no API key)'}`;
 
         list.innerHTML = '';
         if (data.bots && data.bots.length > 0) {
             data.bots.forEach(b => {
                 const li = document.createElement('li');
                 li.style.cssText = 'background:#222;padding:10px;margin-bottom:5px;display:flex;justify-content:space-between;border-radius:6px;';
-                li.innerHTML = `<span><i class="fas fa-robot" style="color:#e94560;margin-right:8px;"></i>${b.name}</span><span style="color:#888;font-size:0.85rem;">${b.rooms.join(', ')}</span>`;
+                li.innerHTML = `<span>${svgIcon('robot')} ${escapeHtml(b.name)}</span><span style="color:#888;font-size:0.85rem;">${escapeHtml(b.rooms.join(', '))}</span>`;
                 list.appendChild(li);
             });
         } else {
@@ -494,7 +493,7 @@ socket.on('error-message', (msg) => {
     alert('Error: ' + msg);
     const viewport = document.getElementById('monitor-messages');
     if (viewport) {
-        viewport.innerHTML = `<div style="color: #ff6b6b; padding: 10px; font-weight: bold;"><i class="fas fa-exclamation-triangle"></i> Failed to monitor room: ${msg}</div>`;
+        viewport.innerHTML = `<div style="color: #a34235; padding: 10px; font-weight: bold;">${svgIcon('alert')} Failed to monitor room: ${escapeHtml(msg)}</div>`;
     }
 });
 
@@ -515,16 +514,16 @@ if (adminChatInput) {
 function togglePasswordVisibility(inputId, btnEl) {
     const input = document.getElementById(inputId);
     if (!input) return;
-    const icon = btnEl.querySelector('i');
+    const icon = btnEl.querySelector('use');
     if (!icon) return;
     
     if (input.type === 'password') {
         input.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
+        icon.setAttribute('href', '/icons.svg#icon-eye-off');
+        btnEl.setAttribute('aria-label', 'Hide password');
     } else {
         input.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
+        icon.setAttribute('href', '/icons.svg#icon-eye');
+        btnEl.setAttribute('aria-label', inputId === 'admin-secret' ? 'Show secret key' : 'Show password');
     }
 }

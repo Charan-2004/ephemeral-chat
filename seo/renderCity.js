@@ -35,7 +35,7 @@ function renderCityPage(city) {
 <meta property="og:url" content="${url}">
 <meta property="og:image" content="https://chathere.online/preview-image.jpg?v=3">
 <link rel="icon" type="image/png" href="/favicon.png">
-<style>${COMMON_CSS}</style>
+<style>${COMMON_CSS}</style><link rel="stylesheet" href="/site-theme.css?v=1">
 <script type="application/ld+json">${JSON.stringify(breadcrumbsJson)}</script>
 </head>
 <body>

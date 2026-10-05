@@ -36,7 +36,7 @@ function renderUseCasePage(uc, io) {
     `).join('');
 
     const safetyHtml = uc.safetyTips.map(st => `
-      <li class="feature-item"><span class="check">🛡️</span><span>${escHtml(st)}</span></li>
+      <li class="feature-item"><span class="check"><svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-shield"></use></svg></span><span>${escHtml(st)}</span></li>
     `).join('');
 
     const faqsHtml = uc.faqs.map(f => `
@@ -71,7 +71,7 @@ ${uc.editorialHold ? '<meta name="robots" content="noindex,follow">' : ''}
 <meta name="twitter:title" content="${escHtml(uc.title)}">
 <meta name="twitter:description" content="${escHtml(uc.metaDescription)}">
 <link rel="icon" type="image/png" href="/favicon.png">
-<style>${COMMON_CSS}</style>
+<style>${COMMON_CSS}</style><link rel="stylesheet" href="/site-theme.css?v=1">
 <script type="application/ld+json">${JSON.stringify(breadcrumbsJson)}</script>
 <script type="application/ld+json">${JSON.stringify(faqJson)}</script>
 </head>
