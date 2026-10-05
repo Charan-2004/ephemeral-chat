@@ -65,6 +65,11 @@ function cleanExpiredMessages(io) {
 function deleteMessage(id, io) {
     if (messages.has(id)) {
         const msg = messages.get(id);
+        const roomManager = require('./roomManager');
+        if (roomManager.getPinnedMessage()?.id === id) {
+            roomManager.setPinnedMessage(null);
+            if (io) io.emit('message-unpinned');
+        }
         const roomSet = roomIndex.get(msg.room);
         if (roomSet) roomSet.delete(id);
         storedMessageBytes -= messageSizes.get(id) || 0;

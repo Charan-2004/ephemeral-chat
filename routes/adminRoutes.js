@@ -1,9 +1,9 @@
 ﻿const express = require('express');
 const router = express.Router();
 const { isAdmin, getAdminAccounts, createSession } = require('../utils/adminAuth');
-const { getRooms, findRoom, addRoom, removeRoomByName, generateUniqueRoomId, getPublicRooms, getPinnedMessage, setPinnedMessage } = require('../utils/roomManager');
-const { getRoomUserCount } = require('../utils/users');
-const { getMessage, deleteMessage } = require('../utils/messages');
+const { getRooms, findRoom, addRoom, removeRoom, generateUniqueRoomId, getPublicRooms, getPinnedMessage, setPinnedMessage, broadcastRoomCounts } = require('../utils/roomManager');
+const { getRoomUserCount, getRoomUsers, userLeave } = require('../utils/users');
+const { getMessage, getRoomMessages, deleteMessage } = require('../utils/messages');
 const { enableBots, disableBots, getBotStatus } = require('../utils/botEngine');
 const config = require('../utils/config');
 
@@ -61,22 +61,36 @@ router.post('/rooms', isAdmin, (req, res) => {
         });
         io.emit('rooms-updated', getPublicRooms());
     } else if (action === 'delete') {
-        removeRoomByName(roomName);
+        const room = findRoom(roomName);
+        if (!room) return res.status(404).json({ error: 'Room not found.' });
+        const hadPinnedMessage = getPinnedMessage() && getRoomMessages(room.id).some(message => message.id === getPinnedMessage().id);
+        getRoomUsers(room.id).forEach(user => {
+            const memberSocket = io.sockets?.sockets?.get(user.id);
+            if (memberSocket) {
+                memberSocket.leave(room.id);
+                memberSocket.emit('room-not-found');
+            }
+            userLeave(user.id);
+        });
+        getRoomMessages(room.id).forEach(message => deleteMessage(message.id, null));
+        if (hadPinnedMessage) io.emit('message-unpinned');
+        removeRoom(room.id);
         io.emit('rooms-updated', getPublicRooms());
+        broadcastRoomCounts(io);
     } else if (action === 'lock') {
         const room = findRoom(roomName);
-        if (room) {
-            room.locked = true;
-            room.reason = reason || 'Room locked by moderator';
-            io.emit('rooms-updated', getPublicRooms());
-        }
+        if (!room) return res.status(404).json({ error: 'Room not found.' });
+        room.locked = true;
+        room.reason = typeof reason === 'string' ? reason.slice(0, 200) : 'Room locked by moderator';
+        io.emit('rooms-updated', getPublicRooms());
     } else if (action === 'unlock') {
         const room = findRoom(roomName);
-        if (room) {
-            room.locked = false;
-            room.reason = '';
-            io.emit('rooms-updated', getPublicRooms());
-        }
+        if (!room) return res.status(404).json({ error: 'Room not found.' });
+        room.locked = false;
+        room.reason = '';
+        io.emit('rooms-updated', getPublicRooms());
+    } else {
+        return res.status(400).json({ error: 'Invalid room action.' });
     }
 
     res.json({ success: true, currentRooms: getRooms() });
@@ -106,7 +120,10 @@ router.post('/config', isAdmin, (req, res) => {
 router.post('/messages/delete', isAdmin, (req, res) => {
     const { messageId } = req.body;
     const io = req.app.get('io');
+    if (!getMessage(messageId)) return res.status(404).json({ error: 'Message not found.' });
+    const wasPinned = getPinnedMessage()?.id === messageId;
     deleteMessage(messageId, null);
+    if (wasPinned) io.emit('message-unpinned');
     io.emit('message-deleted', messageId);
     res.json({ success: true });
 });
@@ -116,9 +133,13 @@ router.post('/messages/pin', isAdmin, (req, res) => {
     const { messageId, text, username } = req.body;
     const io = req.app.get('io');
     const msg = getMessage(messageId);
-    if (msg) msg.pinned = true;
-    const pinData = { id: messageId, text, username };
-    setPinnedMessage(pinData);
+    if (!msg) return res.status(404).json({ error: 'Message not found.' });
+    const room = findRoom(msg.room);
+    if (msg.isWhisper || !room || room.isPrivate) {
+        return res.status(403).json({ error: 'Private messages cannot be pinned publicly.' });
+    }
+    const pinData = { id: msg.id, text: msg.text || (msg.docData ? '[Document]' : '[Image]'), username: msg.username || username || 'Moderator' };
+    setPinnedMessage(pinData, msg);
     io.emit('message-pinned', pinData);
     res.json({ success: true });
 });

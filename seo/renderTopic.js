@@ -3,6 +3,20 @@ const { escHtml, COMMON_CSS, renderHeader, renderFooter, getOnlineCount } = requ
 
 function renderTopicPage(topic, io) {
     const onlineCount = getOnlineCount(io);
+    const faqs = [
+        {
+            question: 'Do I need an account to join?',
+            answer: 'No account is required. Choose a display name and join a public topic room.'
+        },
+        {
+            question: 'Are messages private or permanently deleted?',
+            answer: 'No. Public-room messages can be read by other participants. The chat application keeps messages in server memory for delivery; they may remain until a server restart or storage-limit cleanup. Other people may copy messages.'
+        },
+        {
+            question: 'Does ChatHere guarantee anonymity or safety?',
+            answer: 'No. Joining without an account does not guarantee anonymity, and automated filters cannot prevent every harmful interaction. Do not share sensitive personal information; leave a conversation that makes you uncomfortable.'
+        }
+    ];
     const breadcrumbsJson = {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
@@ -16,7 +30,7 @@ function renderTopicPage(topic, io) {
     const faqJson = {
         "@context": "https://schema.org",
         "@type": "FAQPage",
-        "mainEntity": topic.faqs.map(f => ({
+        "mainEntity": faqs.map(f => ({
             "@type": "Question",
             "name": f.question,
             "acceptedAnswer": { "@type": "Answer", "text": f.answer }
@@ -34,7 +48,7 @@ function renderTopicPage(topic, io) {
       <div class="starter-bubble">"${escHtml(s)}"</div>
     `).join('');
 
-    const faqsHtml = topic.faqs.map(f => `
+    const faqsHtml = faqs.map(f => `
       <details class="faq-box">
         <summary>${escHtml(f.question)}</summary>
         <div class="faq-content">${escHtml(f.answer)}</div>
@@ -45,22 +59,29 @@ function renderTopicPage(topic, io) {
       <a href="/chat/topic/${s}" class="link-pill">#${escHtml(s)}</a>
     `).join('');
 
+    // Keep the topic landing pages specific to the actual product. Older copy
+    // made broad claims about anonymity, moderation, and message deletion that
+    // were not guaranteed by the implementation.
+    const safeRoomName = escHtml(topic.name);
+    const pageTitle = `${topic.name} Chat Room | ChatHere`;
+    const pageDescription = `Join the public ${topic.name} chat room on ChatHere with a display name; no account is required. Messages are visible to participants.`;
+
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${escHtml(topic.title)}</title>
-<meta name="description" content="${escHtml(topic.metaDescription)}">
+<title>${escHtml(pageTitle)}</title>
+<meta name="description" content="${escHtml(pageDescription)}">
 <link rel="canonical" href="https://chathere.online/chat/topic/${topic.slug}">
 <meta property="og:type" content="website">
-<meta property="og:title" content="${escHtml(topic.title)}">
-<meta property="og:description" content="${escHtml(topic.metaDescription)}">
+<meta property="og:title" content="${escHtml(pageTitle)}">
+<meta property="og:description" content="${escHtml(pageDescription)}">
 <meta property="og:url" content="https://chathere.online/chat/topic/${topic.slug}">
 <meta property="og:image" content="https://chathere.online/preview-image.jpg?v=3">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="${escHtml(topic.title)}">
-<meta name="twitter:description" content="${escHtml(topic.metaDescription)}">
+<meta name="twitter:title" content="${escHtml(pageTitle)}">
+<meta name="twitter:description" content="${escHtml(pageDescription)}">
 <meta name="twitter:image" content="https://chathere.online/preview-image.jpg?v=3">
 <link rel="icon" type="image/png" href="/favicon.png">
 <style>${COMMON_CSS}</style>
@@ -77,9 +98,9 @@ ${renderHeader(onlineCount)}
   </div>
 
   <div class="hero">
-    <div class="hero-badge">${escHtml(topic.icon)} Live Topic Room</div>
-    <h1>${escHtml(topic.headline)}</h1>
-    <p class="subhead">${escHtml(topic.subheadline)}</p>
+      <div class="hero-badge">${escHtml(topic.icon)} Public topic room</div>
+      <h1>Join the ${safeRoomName} chat room</h1>
+    <p class="subhead">Talk by text in a public room for people interested in ${safeRoomName}. No account is required.</p>
     <div class="online-indicator">
       <span class="nav-live-dot"></span>
       ${Number.isFinite(onlineCount) ? `${onlineCount} chatters online now across ChatHere` : 'Live activity updates as people join'}
@@ -88,7 +109,7 @@ ${renderHeader(onlineCount)}
       <a href="/?room=${encodeURIComponent(topic.room)}" class="btn-cta-large">
         Join #${escHtml(topic.room)} Room Now &rarr;
       </a>
-      <div class="cta-subtext">Zero registration &bull; No login &bull; 100% Ephemeral & Free</div>
+      <div class="cta-subtext">No account required &bull; Free to use</div>
     </div>
   </div>
 
@@ -110,34 +131,35 @@ ${renderHeader(onlineCount)}
 
   <div class="section card">
     <div class="section-header">
-      <div class="section-tag">Privacy & Psychology</div>
-      <h2 class="section-title">Why Chat Anonymously About ${escHtml(topic.name)}?</h2>
+      <div class="section-tag">About this room</div>
+      <h2 class="section-title">Chat about ${safeRoomName}</h2>
     </div>
     <div class="prose">
-      <p>${escHtml(topic.whyAnonymous)}</p>
+      <p>This is a public text room for people interested in ${safeRoomName}. The discussion themes and starter questions on this page are suggestions; they are not live messages or a promise that other participants are currently online.</p>
+      <p>You can join without creating an account. Messages are held in server memory for delivery and may remain until a server restart or storage-limit cleanup. Other people in the room can read what you post, and they may copy it. Do not share passwords, contact details, financial information, or anything you need to keep private.</p>
     </div>
   </div>
 
   <div class="section">
     <div class="section-header">
       <div class="section-tag">How It Works</div>
-      <h2 class="section-title">Three Seconds to Real Conversation</h2>
+      <h2 class="section-title">How to join</h2>
     </div>
     <div class="grid-3">
       <div class="card">
         <div style="font-size:1.8rem;margin-bottom:10px">1️⃣</div>
         <h3 style="color:#fff;font-size:1.1rem;margin-bottom:6px">Pick a Temporary Name</h3>
-        <p style="color:var(--text-muted);font-size:0.9rem">No password, email, or identity verification. Use any alias you like.</p>
+        <p style="color:var(--text-muted);font-size:0.9rem">Choose a display name. No account or email signup is required.</p>
       </div>
       <div class="card">
         <div style="font-size:1.8rem;margin-bottom:10px">2️⃣</div>
         <h3 style="color:#fff;font-size:1.1rem;margin-bottom:6px">Join #${escHtml(topic.room)}</h3>
-        <p style="color:var(--text-muted);font-size:0.9rem">Connect instantly via secure WebSockets with zero loading lag.</p>
+        <p style="color:var(--text-muted);font-size:0.9rem">Open the room and send a text message. Availability depends on your connection and the service.</p>
       </div>
       <div class="card">
         <div style="font-size:1.8rem;margin-bottom:10px">3️⃣</div>
-        <h3 style="color:#fff;font-size:1.1rem;margin-bottom:6px">Zero Footprint</h3>
-        <p style="color:var(--text-muted);font-size:0.9rem">Messages vanish periodically from server RAM. Nothing is archived.</p>
+        <h3 style="color:#fff;font-size:1.1rem;margin-bottom:6px">Know what is public</h3>
+        <p style="color:var(--text-muted);font-size:0.9rem">Room messages are visible to participants and may remain in server memory until restart or storage-limit cleanup. Read <a href="/about.html">how ChatHere works</a>.</p>
       </div>
     </div>
   </div>

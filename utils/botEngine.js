@@ -198,21 +198,24 @@ function randomBetween(min, max) { return Math.floor(Math.random() * (max - min 
 function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function isBotUser(username) { return BOT_PROFILES.some(b => b.name === username); }
 
-function isRoomLocked(room) {
-    const rc = globalRoomsRef.find(r => r.name === room || r.id === room);
-    return rc && rc.locked;
+function getBotRoomConfig(room) {
+    return globalRoomsRef.find(r => r.id === room || r.name === room) || null;
 }
 
-function isRoomCustom(room) {
-    const rc = globalRoomsRef.find(r => r.id === room || r.name === room);
-    return rc && rc.isCustom;
+function isRoomUsableByBots(room) {
+    const rc = getBotRoomConfig(room);
+    return !!rc && !rc.locked && !rc.isPrivate && !rc.isCustom;
+}
+
+function isPublicRoom(room) {
+    const rc = getBotRoomConfig(room);
+    return !!rc && !rc.isPrivate;
 }
 
 // Send Bot Message
 function sendBotMessage(bot, room, text, replyTo, replyToText) {
     if (!botsEnabled || !io) return;
-    if (isRoomLocked(room)) return;
-    if (isRoomCustom(room)) return; // Completely block bots from custom user rooms
+    if (!isRoomUsableByBots(room)) return;
     const botId = BOT_ID_PREFIX + bot.name.toLowerCase();
     const message = formatMessage(bot.name, text, room, bot.color, replyTo || null, replyToText || null, null, botId);
     storeMessage(message, io);
@@ -223,7 +226,7 @@ function sendBotMessage(bot, room, text, replyTo, replyToText) {
 
 function emitTyping(bot, room, ms) {
     if (!botsEnabled || !io) return Promise.resolve();
-    if (isRoomLocked(room)) return Promise.resolve();
+    if (!isRoomUsableByBots(room)) return Promise.resolve();
     io.to(room).emit('user-typing', { username: bot.name });
     return new Promise(resolve => {
         const t = setTimeout(() => { io.to(room).emit('user-stop-typing', { username: bot.name }); resolve(); }, ms);
@@ -242,8 +245,7 @@ function botReact(room, messageId, emoji) {
 // Multiple bots reply to real users
 async function handleRealUserMessage(room, message) {
     if (!botsEnabled || isBotUser(message.username)) return;
-    if (isRoomLocked(room)) return;
-    if (isRoomCustom(room)) return; // Completely block bots from custom user rooms
+    if (!isRoomUsableByBots(room)) return;
     addToHistory(room, message);
 
     const text = (message.text || '').toLowerCase();
@@ -302,7 +304,7 @@ function startAmbientLoop(rooms) {
         const timer = setTimeout(async () => {
             if (!botsEnabled) return;
 
-            const available = rooms.filter(r => !isRoomLocked(r));
+            const available = rooms.filter(r => isRoomUsableByBots(r));
             if (available.length === 0) { scheduleNext(); return; }
             const room = pickRandom(available);
 
@@ -363,7 +365,7 @@ function startTrendingLoop(rooms) {
             if (topic.toLowerCase().includes(kw) && rooms.includes(rm)) { targetRoom = rm; break; }
         }
 
-        if (isRoomLocked(targetRoom)) return;
+        if (!isRoomUsableByBots(targetRoom)) return;
 
         console.log('[BotEngine] Trending: "' + topic + '" -> #' + targetRoom);
         const bot1 = pickRandom(BOT_PROFILES);
@@ -419,13 +421,15 @@ function initBots(socketIo, rooms) {
 function enableBots(rooms) {
     if (botsEnabled) return { success: true, message: 'Bots already enabled' };
     botsEnabled = true;
-    const roomNames = rooms.map(r => typeof r === 'string' ? r : r.name);
+    const roomNames = rooms
+        .map(r => typeof r === 'string' ? r : r.name)
+        .filter(room => isRoomUsableByBots(room));
 
     BOT_PROFILES.forEach(bot => {
         const botId = BOT_ID_PREFIX + bot.name.toLowerCase();
         const botRooms = new Set();
         roomNames.forEach(r => {
-            if (!isRoomLocked(r)) botRooms.add(r);
+            if (isRoomUsableByBots(r)) botRooms.add(r);
         });
         botRooms.forEach(room => {
             userJoin(botId + '-' + room, bot.name, room, true);
@@ -451,7 +455,7 @@ function disableBots(rooms) {
     botsEnabled = false;
     activeTimers.forEach(t => clearTimeout(t));
     activeTimers = [];
-    const roomNames = rooms.map(r => typeof r === 'string' ? r : r.name);
+    const roomNames = rooms.map(r => typeof r === 'string' ? r : r.name).filter(isPublicRoom);
     BOT_PROFILES.forEach(bot => {
         const d = botUsers.get(bot.name);
         if (d) d.rooms.forEach(room => {

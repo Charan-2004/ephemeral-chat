@@ -186,3 +186,90 @@ test('reactions cannot modify messages from another room', () => {
         messages.deleteMessage(message.id);
     }
 });
+
+test('locked rooms reject text, image, document, and whisper sends from existing members', () => {
+    let onConnection;
+    const io = {
+        engine: { clientsCount: 1 },
+        on(event, callback) { if (event === 'connection') onConnection = callback; },
+        emit() {},
+        to() { return { emit() {} }; }
+    };
+    require('../handlers/socketHandlers')(io);
+    const socket = {
+        id: 'review-locked-existing-socket',
+        events: new Map(),
+        sent: [],
+        on(event, callback) { this.events.set(event, callback); },
+        emit(event, payload) { this.sent.push([event, payload]); },
+        join() {},
+        leave() {},
+        to() { return { emit() {} }; }
+    };
+    const room = roomManager.findRoom('Tech');
+    const original = room.locked;
+    room.locked = false;
+    try {
+        onConnection(socket);
+        socket.events.get('joinRoom')({ username: 'ExistingMember', room: 'Tech' });
+        room.locked = true;
+
+        socket.events.get('chatMessage')({ text: 'blocked text' });
+        socket.events.get('whisper')({ recipientUserId: 'missing-user', text: 'blocked whisper' });
+        socket.events.get('chatImage')({ imageData: 'invalid image' });
+        socket.events.get('chatDocument')({ docData: 'invalid document' });
+
+        assert.equal(socket.sent.filter(([event, payload]) => event === 'error-message' && payload === 'This room is locked.').length, 4);
+    } finally {
+        room.locked = original;
+        users.userLeave(socket.id);
+    }
+});
+
+test('private room message activity is emitted only to that room', () => {
+    let onConnection;
+    const globalEvents = [];
+    const roomEvents = [];
+    const privateRoom = { name: 'review-private-activity-room', id: 'PRIVACT1', isPrivate: true, password: 'review-password' };
+    roomManager.addRoom(privateRoom);
+    const io = {
+        engine: { clientsCount: 1 },
+        on(event, callback) { if (event === 'connection') onConnection = callback; },
+        emit(...args) { globalEvents.push(args); },
+        to(room) { return { emit(...args) { roomEvents.push([room, ...args]); } }; }
+    };
+    require('../handlers/socketHandlers')(io);
+    const socket = {
+        id: 'review-private-activity-socket',
+        events: new Map(),
+        on(event, callback) { this.events.set(event, callback); },
+        emit() {},
+        join() {},
+        leave() {},
+        to() { return { emit() {} }; }
+    };
+    try {
+        onConnection(socket);
+        socket.events.get('joinRoom')({ username: 'PrivateMember', room: privateRoom.id, password: privateRoom.password });
+        socket.events.get('chatMessage')({ text: 'private room activity' });
+
+        assert.equal(globalEvents.some(([event, payload]) => event === 'room-message' && payload.room === privateRoom.id), false);
+        assert.ok(roomEvents.some(([room, event, payload]) => room === privateRoom.id && event === 'room-message' && payload.room === privateRoom.id));
+    } finally {
+        users.userLeave(socket.id);
+        messages.getRoomMessages(privateRoom.id).forEach(message => messages.deleteMessage(message.id));
+        roomManager.removeRoom(privateRoom.id);
+    }
+});
+
+test('deleting a pinned message clears the pin and its expiry exemption', () => {
+    const room = 'pin-delete-review-room';
+    const message = messages.formatMessage('Alias', 'pinned text', room);
+    messages.storeMessage(message);
+    roomManager.setPinnedMessage({ id: message.id, text: message.text, username: message.username }, message);
+
+    messages.deleteMessage(message.id);
+
+    assert.equal(message.pinned, false);
+    assert.equal(roomManager.getPinnedMessage(), null);
+});

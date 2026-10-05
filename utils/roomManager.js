@@ -12,6 +12,7 @@ const rooms = [
 ];
 
 let pinnedMessage = null;
+let pinnedMessageRef = null;
 
 // --- Room ID Generation ---
 
@@ -120,8 +121,10 @@ function broadcastRoomCounts(io) {
     _broadcastTimer = setTimeout(() => {
         _broadcastTimer = null;
         const counts = {};
-        rooms.forEach(r => {
-            counts[r.id] = getRoomUserCount(r.id);
+        getPublicRooms().forEach(r => {
+            const count = getRoomUserCount(r.id);
+            counts[r.id] = count;
+            counts[r.name] = count;
         });
         io.emit('room-counts', counts);
     }, 500);
@@ -130,7 +133,12 @@ function broadcastRoomCounts(io) {
 // --- Pinned Message State ---
 
 function getPinnedMessage() { return pinnedMessage; }
-function setPinnedMessage(msg) { pinnedMessage = msg; }
+function setPinnedMessage(msg, messageRef = null) {
+    if (pinnedMessageRef) pinnedMessageRef.pinned = false;
+    pinnedMessage = msg;
+    pinnedMessageRef = msg ? messageRef : null;
+    if (pinnedMessageRef) pinnedMessageRef.pinned = true;
+}
 
 // --- Room Users Broadcast Helper ---
 

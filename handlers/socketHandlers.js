@@ -8,6 +8,9 @@ const { getRooms, findRoom, addRoom, generateUniqueRoomId, tryCleanupRoom, getPi
 const { recordMessage, getLeaderboard, getUserRank, getTop3, updateAndCheckTop3, getMsUntilReset } = require('../utils/leaderboard');
 const config = require('../utils/config');
 const { sendPushToAll } = require('../utils/pushNotifications');
+const PRIVATE_JOIN_WINDOW_MS = 15 * 60 * 1000;
+const PRIVATE_JOIN_MAX_ATTEMPTS = 10;
+const privateJoinAttempts = new Map();
 
 function decodedDataUrlByteLength(dataUrl) {
     const separator = dataUrl.indexOf(',');
@@ -17,6 +20,57 @@ function decodedDataUrlByteLength(dataUrl) {
         return -1;
     }
     return Buffer.byteLength(base64, 'base64');
+}
+
+function getWritableRoom(socket, user) {
+    const roomConfig = findRoom(user.room);
+    if (!roomConfig) {
+        socket.emit('error-message', 'Room not found.');
+        socket.emit('room-not-found');
+        return null;
+    }
+    if (roomConfig.locked && !verifySession(socket.adminSessionToken)) {
+        socket.emit('error-message', 'This room is locked.');
+        return null;
+    }
+    return roomConfig;
+}
+
+function emitRoomActivity(io, roomConfig) {
+    const event = { room: roomConfig.id };
+    if (roomConfig.isPrivate) io.to(roomConfig.id).emit('room-message', event);
+    else io.emit('room-message', event);
+}
+
+function canJoinPrivateRoom(socket, roomConfig, password) {
+    const address = socket.handshake?.address || socket.conn?.remoteAddress || 'unknown';
+    const key = `${address}:${roomConfig.id}`;
+    const now = Date.now();
+    let attempt = privateJoinAttempts.get(key);
+    if (!attempt || now - attempt.windowStartedAt >= PRIVATE_JOIN_WINDOW_MS) {
+        attempt = { windowStartedAt: now, failures: 0, blockedUntil: 0 };
+    }
+    if (attempt.blockedUntil > now) {
+        privateJoinAttempts.set(key, attempt);
+        return false;
+    }
+    if (typeof password === 'string' && password === roomConfig.password) {
+        privateJoinAttempts.delete(key);
+        return true;
+    }
+    attempt.failures += 1;
+    if (attempt.failures >= PRIVATE_JOIN_MAX_ATTEMPTS) {
+        attempt.blockedUntil = now + PRIVATE_JOIN_WINDOW_MS;
+    }
+    privateJoinAttempts.set(key, attempt);
+    if (privateJoinAttempts.size > 10000) {
+        for (const [attemptKey, value] of privateJoinAttempts) {
+            if (now - value.windowStartedAt >= PRIVATE_JOIN_WINDOW_MS || (value.blockedUntil && value.blockedUntil <= now)) {
+                privateJoinAttempts.delete(attemptKey);
+            }
+        }
+    }
+    return false;
 }
 
 module.exports = function registerSocketHandlers(io) {
@@ -34,7 +88,7 @@ module.exports = function registerSocketHandlers(io) {
             }
 
             if (roomConfig.isPrivate) {
-                if (!password || roomConfig.password !== password) {
+                if (!canJoinPrivateRoom(socket, roomConfig, password)) {
                     socket.emit('error-message', 'Incorrect room password.');
                     socket.emit('incorrect-password');
                     return;
@@ -181,6 +235,7 @@ module.exports = function registerSocketHandlers(io) {
             }
             const user = getCurrentUser(socket.id);
             if (user) {
+                if (!getWritableRoom(socket, user)) return;
                 const now = Date.now();
                 if ((now - user.lastMessageTime) / 1000 < config.rateLimitSeconds) {
                     socket.emit('error-message', 'Please wait.');
@@ -223,11 +278,8 @@ module.exports = function registerSocketHandlers(io) {
             }
             const user = getCurrentUser(socket.id);
             if (user) {
-                const roomConfig = findRoom(user.room);
-                if (roomConfig && roomConfig.locked && !verifySession(socket.adminSessionToken)) {
-                    socket.emit('error-message', 'This room is locked.');
-                    return;
-                }
+                const roomConfig = getWritableRoom(socket, user);
+                if (!roomConfig) return;
 
                 const now = Date.now();
                 if ((now - user.lastMessageTime) / 1000 < config.rateLimitSeconds) {
@@ -240,7 +292,7 @@ module.exports = function registerSocketHandlers(io) {
                 storeMessage(message, io);
                 io.to(user.room).emit('message', message);
                 // Notify all clients for unread badge tracking
-                io.emit('room-message', { room: user.room });
+                emitRoomActivity(io, roomConfig);
 
                 // Event message routing (DISABLED - bots deactivated)
                 // if (user.room === 'General') {
@@ -272,6 +324,16 @@ module.exports = function registerSocketHandlers(io) {
                 socket.emit('error-message', 'Unauthorized administrative action.');
                 return;
             }
+            if (typeof text !== 'string' || text.trim().length === 0 || text.length > 500) {
+                socket.emit('error-message', 'Admin messages must be between 1 and 500 characters.');
+                return;
+            }
+            const roomConfig = findRoom(room);
+            if (!roomConfig) {
+                socket.emit('error-message', 'Room not found.');
+                return;
+            }
+            room = roomConfig.id;
             const verifiedUsername = session.username || username || 'Moderator';
             if (sendAsSystem && verifiedUsername === 'system') {
                 const message = formatMessage('System', text, room, '#888', null, null, null, 'system');
@@ -283,12 +345,14 @@ module.exports = function registerSocketHandlers(io) {
                 storeMessage(message, io);
                 io.to(room).emit('message', message);
             }
-            io.emit('room-message', { room });
+            emitRoomActivity(io, roomConfig);
         });
 
         socket.on('chatImage', ({ imageData, replyTo, replyToText }) => {
             const user = getCurrentUser(socket.id);
             if (user) {
+                const roomConfig = getWritableRoom(socket, user);
+                if (!roomConfig) return;
                 const now = Date.now();
                 const timeDiff = (now - user.lastMessageTime) / 1000;
                 if (timeDiff < config.rateLimitSeconds) {
@@ -314,10 +378,9 @@ module.exports = function registerSocketHandlers(io) {
                 const message = formatMessage(user.username, '', user.room, user.color, replyTo, replyToText, imageData, user.id, user.userId);
                 storeMessage(message, io);
                 io.to(user.room).emit('message', message);
-                io.emit('room-message', { room: user.room });
+                emitRoomActivity(io, roomConfig);
 
                 // Leaderboard: record image message for public rooms
-                const roomConfig = findRoom(user.room);
                 if (roomConfig && !roomConfig.isPrivate) {
                     recordMessage(user.room, user.userId, user.username);
                     const newTop3 = updateAndCheckTop3(user.room);
@@ -332,6 +395,8 @@ module.exports = function registerSocketHandlers(io) {
         socket.on('chatDocument', ({ docData, docName, docSize, replyTo, replyToText }) => {
             const user = getCurrentUser(socket.id);
             if (user) {
+                const roomConfig = getWritableRoom(socket, user);
+                if (!roomConfig) return;
                 const now = Date.now();
                 const timeDiff = (now - user.lastMessageTime) / 1000;
                 if (timeDiff < config.rateLimitSeconds) {
@@ -357,14 +422,13 @@ module.exports = function registerSocketHandlers(io) {
                 updateLastMessageTime(socket.id);
                 const message = formatMessage(user.username, '', user.room, user.color, replyTo, replyToText, null, user.id, user.userId);
                 message.docData = docData;
-                message.docName = docName || 'document';
-                message.docSize = docSize || 0;
+                message.docName = typeof docName === 'string' ? docName.slice(0, 255) : 'document';
+                message.docSize = documentSize;
                 storeMessage(message, io);
                 io.to(user.room).emit('message', message);
-                io.emit('room-message', { room: user.room });
+                emitRoomActivity(io, roomConfig);
 
                 // Leaderboard: record doc message for public rooms
-                const roomConfig = findRoom(user.room);
                 if (roomConfig && !roomConfig.isPrivate) {
                     recordMessage(user.room, user.userId, user.username);
                     const newTop3 = updateAndCheckTop3(user.room);
@@ -378,6 +442,7 @@ module.exports = function registerSocketHandlers(io) {
         socket.on('addReaction', ({ messageId, emoji }) => {
             const user = getCurrentUser(socket.id);
             if (user) {
+                if (!getWritableRoom(socket, user)) return;
                 // Reaction rate limit: sliding window
                 const now = Date.now();
                 socket.reactionWindow = socket.reactionWindow || [];

@@ -82,15 +82,15 @@ function renderHubPage(type, items, io) {
     let cardsHtml = "";
 
     if (type === 'topics') {
-        title = "Browse Anonymous Chat Rooms by Topic | ChatHere";
-        meta = "Explore 30+ free anonymous chat rooms across Tech, Gaming, Anime, Movies, Music, Politics, Books, and more. No login required.";
-        h1 = "Explore Topic Chat Rooms";
-        subhead = "Find communities that share your exact interests. Click any topic to see discussions or jump directly into the room.";
+        title = "Browse Public Topic Chat Rooms | ChatHere";
+        meta = "Browse public topic chat rooms on ChatHere. Join with a display name and no account; room messages are visible to participants.";
+        h1 = "Browse Public Topic Chat Rooms";
+        subhead = "Choose an interest to see suggested discussion prompts and room details. Topic labels are not a promise that others are currently online.";
         cardsHtml = items.map(t => `
           <a href="/chat/topic/${t.slug}" class="card" style="display:block;text-decoration:none">
             <div style="font-size:1.8rem;margin-bottom:8px">${t.icon}</div>
             <h3 style="color:#fff;font-size:1.15rem;margin-bottom:6px">${escHtml(t.name)}</h3>
-            <p style="color:var(--text-muted);font-size:0.88rem;line-height:1.5">${escHtml(t.subheadline)}</p>
+            <p style="color:var(--text-muted);font-size:0.88rem;line-height:1.5">Suggested discussion themes: ${escHtml((t.keyThemes || []).slice(0, 2).join(' · '))}</p>
             <div style="margin-top:12px;font-size:0.8rem;color:var(--primary);font-weight:700">Enter Room &rarr;</div>
           </a>
         `).join('');

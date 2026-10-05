@@ -42,10 +42,9 @@ router.get('/push/vapid-public-key', (req, res) => {
 // POST /api/push/subscribe
 router.post('/push/subscribe', (req, res) => {
     const subscription = req.body;
-    if (!subscription || !subscription.endpoint) {
+    if (!addSubscription(subscription)) {
         return res.status(400).json({ error: 'Invalid subscription' });
     }
-    addSubscription(subscription);
     res.status(201).json({ success: true });
 });
 
