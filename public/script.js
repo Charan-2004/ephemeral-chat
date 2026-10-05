@@ -9,12 +9,17 @@ const joinForm = document.getElementById('join-form');
 let activeTab = 'general';
 let selectedRoomType = 'public';
 let roomListReady = false;
+let roomLoadState = 'loading';
 
 function updateJoinSubmitState() {
     const submitButton = document.getElementById('join-submit-btn');
     if (!submitButton) return;
     submitButton.disabled = activeTab === 'general' && !roomListReady;
-    if (activeTab === 'general' && !roomListReady) submitButton.textContent = 'Loading rooms…';
+    if (activeTab === 'general' && !roomListReady) {
+        submitButton.textContent = roomLoadState === 'loading'
+            ? 'Loading rooms…'
+            : roomLoadState === 'error' ? 'Rooms unavailable' : 'No active rooms';
+    }
     else submitButton.textContent = activeTab === 'create' ? 'Create Room' : activeTab === 'join' ? 'Join with ID' : 'Join Room';
 }
 
@@ -161,7 +166,24 @@ document.addEventListener('click', (e) => {
     }
 });
 
-const socket = io();
+// A static preview or a partially loaded page may not serve the Socket.IO
+// client script. Keep the rest of the onboarding UI alive so it can show a
+// useful unavailable state instead of stopping at the HTML loading labels.
+const socketClientAvailable = typeof window.io === 'function';
+const socket = socketClientAvailable
+    ? window.io()
+    : {
+        id: null,
+        connected: false,
+        on() { return this; },
+        emit(eventName) {
+            console.warn(`Socket.IO is unavailable; skipped "${eventName}".`);
+            return this;
+        }
+    };
+if (!socketClientAvailable) {
+    console.error('The Socket.IO client did not load. Realtime chat is unavailable.');
+}
 
 function escapeHtml(value) {
     return String(value ?? '').replace(/[&<>"']/g, character => ({
@@ -404,18 +426,22 @@ let cachedRooms = [];
 let roomsRequestId = 0;
 async function fetchRooms() {
     const requestId = ++roomsRequestId;
+    roomLoadState = 'loading';
     roomListReady = false;
     updateJoinSubmitState();
     const grids = [document.getElementById('featured-rooms-grid'), document.getElementById('active-rooms-grid')].filter(Boolean);
     grids.forEach(grid => grid.setAttribute('aria-busy', 'true'));
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
     try {
-        const res = await fetch('/api/rooms');
+        const res = await fetch('/api/rooms', { signal: controller.signal });
         if (!res.ok) throw new Error(`Room request failed (${res.status})`);
         const rooms = await res.json();
         if (!Array.isArray(rooms)) throw new Error('Room response was not a list');
         if (requestId !== roomsRequestId) return;
         cachedRooms = rooms;
         roomListReady = rooms.some(room => !room.locked && !room.isPrivate);
+        roomLoadState = 'ready';
         renderRooms(cachedRooms);
         updateJoinSubmitState();
         grids.forEach(grid => grid.setAttribute('aria-busy', 'false'));
@@ -424,9 +450,12 @@ async function fetchRooms() {
     } catch (e) {
         if (requestId !== roomsRequestId) return;
         console.error('Could not load public rooms:', e);
+        roomLoadState = 'error';
         renderRoomsUnavailable();
         updateJoinSubmitState();
         grids.forEach(grid => grid.setAttribute('aria-busy', 'false'));
+    } finally {
+        clearTimeout(timeoutId);
     }
 }
 
@@ -765,6 +794,9 @@ function instantJoinRoom(roomId, roomName) {
 // Join Room
 joinForm.addEventListener('submit', (e) => {
     e.preventDefault();
+    if (!socketClientAvailable) {
+        return showError('Chat is unavailable here because the realtime server did not load. Open the hosted app or restart the local server.');
+    }
     const termsCheck = document.getElementById('terms-check');
     if (termsCheck && !termsCheck.checked) {
         return showError('You must agree to the Terms & Conditions to join');
