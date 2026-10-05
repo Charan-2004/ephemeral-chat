@@ -14,6 +14,7 @@ let roomLoadState = 'loading';
 function updateJoinSubmitState() {
     const submitButton = document.getElementById('join-submit-btn');
     if (!submitButton) return;
+    submitButton.classList.toggle('is-loading', activeTab === 'general' && roomLoadState === 'loading');
     submitButton.disabled = activeTab === 'general' && !roomListReady;
     if (activeTab === 'general' && !roomListReady) {
         submitButton.textContent = roomLoadState === 'loading'
@@ -103,8 +104,8 @@ if (contextWhisperBtn) {
         if (targetUserId && targetUsername) {
             activeWhisperRecipient = { userId: targetUserId, username: targetUsername };
             whisperText.replaceChildren();
-            const whisperIcon = document.createElement('i');
-            whisperIcon.className = 'fas fa-user-secret';
+            const whisperIcon = document.createElement('span');
+            whisperIcon.innerHTML = svgIcon('comment');
             whisperText.appendChild(whisperIcon);
             const whisperLabel = document.createElement('strong');
             whisperLabel.textContent = ` Whispering to @${targetUsername}`;
@@ -189,6 +190,10 @@ function escapeHtml(value) {
     return String(value ?? '').replace(/[&<>"']/g, character => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     })[character]);
+}
+
+function svgIcon(name, className = 'ui-icon') {
+    return `<svg class="${className}" aria-hidden="true" focusable="false"><use href="#icon-${name}"></use></svg>`;
 }
 
 let currentUserId = null;
@@ -511,7 +516,7 @@ function renderRooms(rooms) {
             const isHot = !r.locked && !r.isPrivate && r.name === hotRoomName;
             if (isHot) li.classList.add('hot-room');
 
-            const icon = r.locked ? '<i class="fas fa-lock" style="color:#ff6b6b"></i>' : (isHot ? '<span class="hot-fire">🔥</span>' : '<i class="fas fa-hashtag"></i>');
+            const icon = r.locked ? svgIcon('lock', 'ui-icon room-item-icon') : (isHot ? svgIcon('spark', 'ui-icon hot-fire') : svgIcon('hash', 'ui-icon room-item-icon'));
             const count = roomCounts[r.name] || 0;
             const unread = unreadCounts[r.name] || 0;
             let badge = '';
@@ -1207,7 +1212,7 @@ function outputMessage(msg) {
         // Add lock icon
         const lock = document.createElement('span');
         lock.className = 'whisper-lock';
-        lock.innerHTML = '<i class="fas fa-lock"></i> ';
+        lock.innerHTML = `${svgIcon('lock')} `;
         lock.style.color = '#a855f7';
         lock.style.marginRight = '4px';
         meta.insertBefore(lock, name);
@@ -1223,7 +1228,7 @@ function outputMessage(msg) {
     // Mod Badge (Checkmark) (User request 4)
     if (msg.isAdmin) {
         const badge = document.createElement('span');
-        badge.innerHTML = '<i class="fas fa-check-circle"></i> MOD';
+        badge.innerHTML = `${svgIcon('check')} MOD`;
         badge.style.color = '#ffd700';
         badge.style.marginLeft = '5px';
         badge.style.fontSize = '0.8rem';
@@ -1242,9 +1247,8 @@ function outputMessage(msg) {
             if (entry) {
                 rankBadge.style.display = 'inline-flex';
                 rankBadge.classList.add('rank-badge-' + entry.rank);
-                if (entry.rank === 1) rankBadge.innerHTML = '<i class="fas fa-crown"></i>';
-                else if (entry.rank === 2) rankBadge.innerHTML = '<i class="fas fa-medal"></i>';
-                else if (entry.rank === 3) rankBadge.innerHTML = '<i class="fas fa-medal"></i>';
+                if (entry.rank === 1) rankBadge.innerHTML = svgIcon('crown');
+                else if (entry.rank === 2 || entry.rank === 3) rankBadge.innerHTML = svgIcon('medal');
             }
         }
         meta.appendChild(rankBadge);
@@ -1284,7 +1288,7 @@ function outputMessage(msg) {
         const overlay = document.createElement('div');
         overlay.className = 'blur-overlay';
         overlay.innerHTML = `
-            <i class="fas fa-eye-slash blur-warning-icon"></i>
+            ${svgIcon('eye-off', 'ui-icon blur-warning-icon')}
             <div>Sensitive Content</div>
             <div style="font-size: 0.7rem; opacity: 0.8; margin-top: 4px;">Click to reveal</div>
         `;
@@ -1302,8 +1306,10 @@ function outputMessage(msg) {
         const docWrapper = document.createElement('div');
         docWrapper.className = 'document-wrapper';
         
-        const docIcon = document.createElement('i');
-        docIcon.className = 'fas fa-file-alt document-icon';
+        const docIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        docIcon.setAttribute('class', 'ui-icon document-icon');
+        docIcon.setAttribute('aria-hidden', 'true');
+        docIcon.innerHTML = '<use href="#icon-document"></use>';
         
         const docInfo = document.createElement('div');
         docInfo.className = 'document-info';
@@ -1324,7 +1330,7 @@ function outputMessage(msg) {
         downloadBtn.href = msg.docData;
         downloadBtn.download = msg.docName || 'document';
         downloadBtn.className = 'document-download';
-        downloadBtn.innerHTML = '<i class="fas fa-download"></i>';
+        downloadBtn.innerHTML = svgIcon('download');
         
         docWrapper.appendChild(docIcon);
         docWrapper.appendChild(docInfo);
@@ -1353,7 +1359,8 @@ function outputMessage(msg) {
 
     const repBtn = document.createElement('button');
     repBtn.className = 'action-btn';
-    repBtn.innerHTML = '<i class="fas fa-reply"></i>';
+    repBtn.setAttribute('aria-label', 'Reply');
+    repBtn.innerHTML = svgIcon('reply');
     repBtn.onclick = () => {
         replyToId = msg.id;
         replyToText = msg.text || (msg.docData ? '[Document]' : '[Image]');
@@ -1364,7 +1371,8 @@ function outputMessage(msg) {
 
     const reactBtn = document.createElement('button');
     reactBtn.className = 'action-btn';
-    reactBtn.innerHTML = '<i class="far fa-smile"></i>';
+    reactBtn.setAttribute('aria-label', 'Add a reaction');
+    reactBtn.innerHTML = svgIcon('smile');
     reactBtn.onclick = (e) => {
         currentMessageIdForReaction = msg.id;
         const rect = reactBtn.getBoundingClientRect();
@@ -2014,7 +2022,7 @@ function renderLeaderboard(leaderboard, myRank) {
     if (!leaderboard || leaderboard.length === 0) {
         leaderboardList.innerHTML = `
             <div class="leaderboard-empty">
-                <i class="fas fa-ghost"></i>
+                ${svgIcon('ghost')}
                 No messages yet this hour.<br>Be the first to chat and claim #1!
             </div>
         `;
@@ -2028,9 +2036,8 @@ function renderLeaderboard(leaderboard, myRank) {
             // Rank circle
             const rankEl = document.createElement('div');
             rankEl.className = 'leaderboard-rank';
-            if (entry.rank === 1) rankEl.innerHTML = '<i class="fas fa-crown"></i>';
-            else if (entry.rank === 2) rankEl.innerHTML = '<i class="fas fa-medal"></i>';
-            else if (entry.rank === 3) rankEl.innerHTML = '<i class="fas fa-medal"></i>';
+            if (entry.rank === 1) rankEl.innerHTML = svgIcon('crown');
+            else if (entry.rank === 2 || entry.rank === 3) rankEl.innerHTML = svgIcon('medal');
             else rankEl.textContent = `#${entry.rank}`;
             item.appendChild(rankEl);
 
@@ -2126,9 +2133,8 @@ function updateAllRankBadges() {
             if (entry) {
                 badge.style.display = 'inline-flex';
                 badge.classList.add('rank-badge-' + entry.rank);
-                if (entry.rank === 1) badge.innerHTML = '<i class="fas fa-crown"></i>';
-                else if (entry.rank === 2) badge.innerHTML = '<i class="fas fa-medal"></i>';
-                else if (entry.rank === 3) badge.innerHTML = '<i class="fas fa-medal"></i>';
+                if (entry.rank === 1) badge.innerHTML = svgIcon('crown');
+                else if (entry.rank === 2 || entry.rank === 3) badge.innerHTML = svgIcon('medal');
             }
         }
     });
@@ -2164,7 +2170,7 @@ function updateEventBannerUI() {
 
     if (eventBannerData.active) {
         banner.classList.add('event-live');
-        textEl.innerHTML = `🔴 LIVE: <strong>${eventBannerData.name}</strong> hosted by <strong>${eventBannerData.host}</strong> in General!`;
+        textEl.innerHTML = `<span class="event-live-dot" aria-hidden="true"></span> LIVE: <strong>${escapeHtml(eventBannerData.name)}</strong> hosted by <strong>${escapeHtml(eventBannerData.host)}</strong> in General!`;
         const ms = eventBannerData.timeRemaining;
         timerEl.textContent = formatMsToTime(ms);
     } else {
@@ -2317,7 +2323,7 @@ async function initPushNotifications() {
             });
             bellBtn.classList.add('push-subscribed');
             bellBtn.title = 'Notifications ON';
-            showSuccess('🔔 Notifications enabled! We\'ll ping you when things get busy.');
+            showSuccess('Notifications enabled. We’ll let you know when things get busy.');
         } catch(err) {
             console.error('[Push] Subscribe error:', err);
             showError('Could not enable notifications. Try again later.');
