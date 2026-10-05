@@ -118,6 +118,7 @@
         <symbol id="icon-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 3 4 3 4-3 4-3M9 9h.01M15 9h.01"/></symbol>
         <symbol id="icon-reply" viewBox="0 0 24 24"><path d="m9 17-5-5 5-5"/><path d="M4 12h10a6 6 0 0 1 6 6v1"/></symbol>
         <symbol id="icon-spark" viewBox="0 0 24 24"><path d="m12 2 1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z"/><path d="m19 15 .8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"/></symbol>
+        <symbol id="icon-arrow-right" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></symbol>
     </svg>
     <!-- SEO: Visible content for crawlers that don't execute JS -->
     <noscript>
@@ -235,9 +236,9 @@
                 <h1 class="hero-main-title">Drop in.<br>Find your <span class="text-gradient">people.</span></h1>
                 <p class="hero-subtagline">Talk with people in public topic rooms. Free to use, with no account to create.</p>
                 <ul class="hero-benefits" aria-label="ChatHere benefits">
-                    <li><span class="hero-benefit-mark" aria-hidden="true">✓</span><span>Choose a topic and join in seconds</span></li>
-                    <li><span class="hero-benefit-mark" aria-hidden="true">✓</span><span>Join public rooms without an account</span></li>
-                    <li><span class="hero-benefit-mark" aria-hidden="true">✓</span><span>Free to use</span></li>
+                    <li><span class="hero-benefit-mark" aria-hidden="true"><svg class="ui-icon"><use href="#icon-check"/></svg></span><span>Choose a topic and join in seconds</span></li>
+                    <li><span class="hero-benefit-mark" aria-hidden="true"><svg class="ui-icon"><use href="#icon-check"/></svg></span><span>Join public rooms without an account</span></li>
+                    <li><span class="hero-benefit-mark" aria-hidden="true"><svg class="ui-icon"><use href="#icon-check"/></svg></span><span>Free to use</span></li>
                 </ul>
             </div>
 
@@ -394,7 +395,7 @@
                         <p class="home-room-eyebrow">OPEN ROOMS</p>
                         <h2 id="home-rooms-title">Explore public rooms</h2>
                     </div>
-                    <button type="button" class="home-room-browse" id="home-browse-rooms">Explore all rooms <span aria-hidden="true">→</span></button>
+                    <button type="button" class="home-room-browse" id="home-browse-rooms">Explore all rooms <svg class="ui-icon" aria-hidden="true"><use href="#icon-arrow-right"/></svg></button>
                 </div>
                 <div class="active-rooms-grid home-active-rooms-grid" id="featured-rooms-grid" aria-busy="true">
                     <div class="active-rooms-empty room-loading-state" role="status"><span class="loading-spinner" aria-hidden="true"></span><span>Loading public rooms…</span></div>
@@ -531,10 +532,10 @@
         <div class="modal-content globe-modal-content">
             <div class="globe-header">
                 <h2><svg class="ui-icon" aria-hidden="true"><use href="#icon-globe"/></svg> Live Active Users</h2>
-                <button class="globe-close-btn">&#x2715;</button>
+                <button type="button" class="globe-close-btn" aria-label="Close active users"><svg class="ui-icon" aria-hidden="true"><use href="#icon-close"/></svg></button>
             </div>
             <div id="globe-container" class="globe-container"></div>
-            <p class="globe-note">&#x1F512; Public display names &bull; No account required &bull; Avoid sharing sensitive information</p>
+            <p class="globe-note"><svg class="ui-icon" aria-hidden="true"><use href="#icon-lock"/></svg> Public display names &bull; No account required &bull; Avoid sharing sensitive information</p>
         </div>
     </div>
 
