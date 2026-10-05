@@ -8,13 +8,26 @@ const joinForm = document.getElementById('join-form');
 // Onboarding dynamic tabs state
 let activeTab = 'general';
 let selectedRoomType = 'public';
+let roomListReady = false;
+
+function updateJoinSubmitState() {
+    const submitButton = document.getElementById('join-submit-btn');
+    if (!submitButton) return;
+    submitButton.disabled = activeTab === 'general' && !roomListReady;
+    if (activeTab === 'general' && !roomListReady) submitButton.textContent = 'Loading rooms…';
+    else submitButton.textContent = activeTab === 'create' ? 'Create Room' : activeTab === 'join' ? 'Join with ID' : 'Join Room';
+}
 
 // Tab click binding
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.onclick = () => {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.setAttribute('aria-pressed', 'false'));
         btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
         activeTab = btn.getAttribute('data-tab');
+
+        updateJoinSubmitState();
 
         // Hide all sections, show active section
         document.querySelectorAll('.tab-section').forEach(sec => sec.classList.remove('active'));
@@ -27,7 +40,9 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 document.querySelectorAll('.type-btn').forEach(btn => {
     btn.onclick = () => {
         document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.type-btn').forEach(b => b.setAttribute('aria-pressed', 'false'));
         btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
         selectedRoomType = btn.getAttribute('data-type');
 
         const passField = document.querySelector('.private-only');
@@ -35,6 +50,19 @@ document.querySelectorAll('.type-btn').forEach(btn => {
             passField.style.display = selectedRoomType === 'private' ? 'block' : 'none';
         }
     };
+});
+
+document.querySelectorAll('.password-toggle-btn[data-password-target]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const input = document.getElementById(btn.dataset.passwordTarget);
+        if (!input) return;
+        const showPassword = input.type === 'password';
+        input.type = showPassword ? 'text' : 'password';
+        btn.setAttribute('aria-pressed', String(showPassword));
+        btn.setAttribute('aria-label', showPassword ? 'Hide password' : 'Show password');
+        const slash = btn.querySelector('.eye-slash');
+        if (slash) slash.style.display = showPassword ? 'block' : 'none';
+    });
 });
 const msgInput = document.getElementById('msg');
 const imageInput = document.getElementById('image-input');
@@ -193,6 +221,7 @@ function setUsername(name) {
     if (usernameInput) usernameInput.value = name;
     const editInputEl = document.getElementById('username-edit-input');
     if (editInputEl) editInputEl.value = name;
+    if (usernameDisplay) usernameDisplay.setAttribute('aria-label', `Edit alias, currently ${name}`);
     localStorage.setItem('chathere_username', name);
 }
 
@@ -248,13 +277,19 @@ if (editInputEl) {
         }
         setUsername(val);
         editInputEl.style.display = 'none';
-        if (usernameDisplay) usernameDisplay.style.display = 'inline-flex';
+        if (usernameDisplay) {
+            usernameDisplay.style.display = 'inline-flex';
+            usernameDisplay.focus();
+        }
     };
 
     const cancelUsernameEdit = () => {
         editInputEl.value = usernameInput.value;
         editInputEl.style.display = 'none';
-        if (usernameDisplay) usernameDisplay.style.display = 'inline-flex';
+        if (usernameDisplay) {
+            usernameDisplay.style.display = 'inline-flex';
+            usernameDisplay.focus();
+        }
     };
 
     editInputEl.onkeydown = (e) => {
@@ -366,12 +401,61 @@ function populateEmojiPicker() {
 
 // Fetch Rooms
 let cachedRooms = [];
+let roomsRequestId = 0;
 async function fetchRooms() {
+    const requestId = ++roomsRequestId;
+    roomListReady = false;
+    updateJoinSubmitState();
+    const grids = [document.getElementById('featured-rooms-grid'), document.getElementById('active-rooms-grid')].filter(Boolean);
+    grids.forEach(grid => grid.setAttribute('aria-busy', 'true'));
     try {
         const res = await fetch('/api/rooms');
-        cachedRooms = await res.json();
+        if (!res.ok) throw new Error(`Room request failed (${res.status})`);
+        const rooms = await res.json();
+        if (!Array.isArray(rooms)) throw new Error('Room response was not a list');
+        if (requestId !== roomsRequestId) return;
+        cachedRooms = rooms;
+        roomListReady = rooms.some(room => !room.locked && !room.isPrivate);
         renderRooms(cachedRooms);
-    } catch (e) { console.error(e); }
+        updateJoinSubmitState();
+        grids.forEach(grid => grid.setAttribute('aria-busy', 'false'));
+        const status = document.getElementById('rooms-status');
+        if (status) status.textContent = `${rooms.length} public ${rooms.length === 1 ? 'room' : 'rooms'} available.`;
+    } catch (e) {
+        if (requestId !== roomsRequestId) return;
+        console.error('Could not load public rooms:', e);
+        renderRoomsUnavailable();
+        updateJoinSubmitState();
+        grids.forEach(grid => grid.setAttribute('aria-busy', 'false'));
+    }
+}
+
+function renderRoomsUnavailable() {
+    const select = document.getElementById('room');
+    if (select) {
+        const unavailable = new Option('Rooms unavailable — try again below', '', true, true);
+        unavailable.disabled = true;
+        select.replaceChildren(unavailable);
+    }
+    const errorContent = `
+        <div class="active-rooms-empty room-error-state">
+            <span role="alert">Rooms couldn’t load. Check your connection and try again.</span>
+            <button type="button" class="room-retry-btn">Try again</button>
+        </div>`;
+    [document.getElementById('featured-rooms-grid'), document.getElementById('active-rooms-grid')]
+        .filter(Boolean)
+        .forEach(grid => { grid.innerHTML = errorContent; });
+    document.querySelectorAll('.room-retry-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const status = document.getElementById('rooms-status');
+            if (status) status.textContent = 'Retrying room load.';
+            document.querySelectorAll('#featured-rooms-grid, #active-rooms-grid').forEach(grid => {
+                grid.setAttribute('aria-busy', 'true');
+                grid.innerHTML = '<div class="active-rooms-empty room-loading-state" role="status"><span class="loading-spinner" aria-hidden="true"></span><span>Loading public rooms…</span></div>';
+            });
+            fetchRooms();
+        });
+    });
 }
 
 function renderRooms(rooms) {
@@ -459,6 +543,13 @@ function renderRooms(rooms) {
 // Render Active Rooms on onboarding page
 // Onboarding navigation and transitions
 function showView(viewId) {
+    if (viewId !== 'onboarding-browse-view') {
+        const search = document.getElementById('rooms-search-input');
+        if (search && search.value) {
+            search.value = '';
+            renderActiveRooms(cachedRooms);
+        }
+    }
     const views = document.querySelectorAll('.onboarding-view');
     views.forEach(v => {
         v.classList.remove('active');
@@ -484,6 +575,12 @@ function showView(viewId) {
             wrapper.style.minHeight = 'auto';
         }
     }
+}
+
+function openCreateRoomFromEmptyState() {
+    showView('onboarding-custom-view');
+    document.querySelector('.tab-btn[data-tab="create"]')?.click();
+    setTimeout(() => document.getElementById('create-room-name')?.focus(), 20);
 }
 
 // Set up UI triggers and event handlers on DOMContentLoaded
@@ -522,8 +619,8 @@ document.addEventListener('DOMContentLoaded', () => {
         roomsSearchInput.addEventListener('input', () => {
             if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
             searchDebounceTimer = setTimeout(() => {
-                fetchRooms(); // refetch and trigger re-render
-            }, 300);
+                renderActiveRooms(cachedRooms); // Filter the current snapshot without a request on every keystroke.
+            }, 120);
         });
     }
 
@@ -586,20 +683,22 @@ function renderActiveRooms(rooms) {
         const card = document.createElement('div');
         card.className = 'active-room-card' + (count > 0 ? ' has-users' : '');
 
-        const icon = r.isCustom ? 'fa-comments' : 'fa-hashtag';
+        const icon = r.isCustom
+            ? '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 8.7 3.9a8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z"/></svg>'
+            : '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3 7 21M17 3l-2 18M4 8h17M3 16h17"/></svg>';
         const pulseHtml = count > 0 ? '<span class="room-pulse-dot"></span>' : '';
 
         card.innerHTML = `
             <div class="room-card-header">
-                <i class="fas ${icon} room-card-icon"></i>
+                <span class="room-card-icon">${icon}</span>
                 <span class="room-card-name">${escapeHtml(r.name)}</span>
             </div>
             <div class="room-card-stats">
                 ${pulseHtml}
             <span class="room-card-count">${count} ${count === 1 ? 'chatter' : 'chatters'}</span>
             </div>
-            <button class="room-card-join-btn" data-room="${escapeHtml(r.id || r.name)}" data-room-name="${escapeHtml(r.name)}">
-                <i class="fas fa-sign-in-alt"></i> Join
+                <button class="room-card-join-btn" data-room="${escapeHtml(r.id || r.name)}" data-room-name="${escapeHtml(r.name)}">
+                Join
             </button>`;
 
         // Instant join handler
@@ -616,8 +715,15 @@ function renderActiveRooms(rooms) {
         const visibleRooms = featured ? filteredRooms.slice(0, 3) : filteredRooms;
         if (!visibleRooms.length) {
             grid.innerHTML = searchQuery
-                ? '<div class="active-rooms-empty"><i class="fas fa-search" aria-hidden="true"></i><span>No public rooms match that search. Try another topic.</span></div>'
-                : '<div class="active-rooms-empty"><i class="fas fa-comments" aria-hidden="true"></i><span>No public rooms are active right now. Start one and be the first to say hello.</span></div>';
+                ? '<div class="active-rooms-empty room-empty-state"><span>No public rooms match that search.</span><div class="room-empty-actions"><button type="button" class="room-clear-search-btn">Clear search</button><button type="button" class="room-create-empty-btn">Create a room</button></div></div>'
+                : '<div class="active-rooms-empty room-empty-state"><span>No public rooms are active right now. Be the first to start a conversation.</span><div class="room-empty-actions"><button type="button" class="room-create-empty-btn">Create a room</button></div></div>';
+            grid.querySelector('.room-clear-search-btn')?.addEventListener('click', () => {
+                const search = document.getElementById('rooms-search-input');
+                if (search) search.value = '';
+                renderActiveRooms(cachedRooms);
+                search?.focus();
+            });
+            grid.querySelector('.room-create-empty-btn')?.addEventListener('click', openCreateRoomFromEmptyState);
             return;
         }
 
@@ -1287,15 +1393,10 @@ function showEmojiPicker(x, y, msgId) {
 }
 function showError(msg) {
     const d = document.createElement('div');
-    d.style.position = 'fixed';
-    d.style.top = '20px';
-    d.style.left = '50%';
-    d.style.transform = 'translateX(-50%)';
-    d.style.background = '#ff4757';
-    d.style.color = '#fff';
-    d.style.padding = '10px 20px';
-    d.style.zIndex = 10000;
-    d.innerText = msg;
+    d.className = 'app-toast app-toast-error';
+    d.setAttribute('role', 'alert');
+    d.setAttribute('aria-live', 'assertive');
+    d.textContent = msg;
     document.body.appendChild(d);
     setTimeout(() => d.remove(), 3000);
 }
@@ -1806,27 +1907,6 @@ window.addEventListener('click', () => {
 });
 
 // ============================================
-// PASSWORD VISIBILITY TOGGLE HELPER
-// ============================================
-function togglePasswordVisibility(inputId, btnEl) {
-    const input = document.getElementById(inputId);
-    if (!input) return;
-    const icon = btnEl.querySelector('i');
-    if (!icon) return;
-    
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-    } else {
-        input.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-    }
-}
-
-
-// ============================================
 // LEADERBOARD FEATURE
 // ============================================
 let top3Users = [];
@@ -2238,6 +2318,8 @@ window.addEventListener('scroll', () => {
 // Prevent all wheel & touchmove scrolling on the document except inside allowed scrollable containers
 ['touchmove', 'wheel'].forEach(eventType => {
     document.addEventListener(eventType, function(e) {
+        // The landing page contains content below the first viewport and must remain scrollable.
+        if (!document.body.classList.contains('in-chat')) return;
         const allowedScrollable = e.target.closest('.chat-messages, .active-rooms-grid, .modal-content, .users-list-panel, .panel-users-list');
         if (!allowedScrollable) {
             if (e.cancelable) e.preventDefault();

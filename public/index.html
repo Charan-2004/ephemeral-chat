@@ -34,9 +34,8 @@
     <link rel="preload" as="image" href="/bg.webp" fetchpriority="high">
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"></noscript>
-    <link rel="stylesheet" href="style.css?v=29-open-lounge">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css?v=31-onboarding-polish">
 
     <!-- Favicon - Google requires minimum 48x48px -->
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
@@ -220,15 +219,15 @@
                     <!-- Your Alias (Common to all views, shown at the top of the card!) -->
                     <div class="form-row-group" id="alias-form-group">
                         <div class="form-control" style="flex: 1;">
-                            <label for="username">Your Alias</label>
+                            <label for="username-display">Your Alias</label>
                             <div class="username-display-wrapper">
-                                <div class="username-display" id="username-display" title="Click to edit">
+                                <button type="button" class="username-display" id="username-display" title="Edit your alias" aria-label="Edit your alias">
                                     <span id="username-text">Generating...</span>
-                                    <i class="fas fa-pencil-alt edit-indicator"></i>
-                                </div>
+                                    <svg class="edit-indicator" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m15 5 4 4M4 20l4-.8L19 8a2.8 2.8 0 0 0-4-4L4 15l-.8 5Z"/></svg>
+                                </button>
                                 <input type="text" id="username-edit-input" class="username-edit-input" style="display: none;" maxlength="20" placeholder="Type custom name..." />
-                                <button type="button" class="btn-regenerate" id="regenerate-username-btn" title="Generate another name">
-                                    <i class="fas fa-redo-alt"></i>
+                                <button type="button" class="btn-regenerate" id="regenerate-username-btn" title="Generate another name" aria-label="Generate another alias">
+                                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9A7 7 0 0 1 17.5 6.5L20 12M4 12l2.5 5.5A7 7 0 0 0 18.4 15"/></svg>
                                 </button>
                             </div>
                             <input type="hidden" name="username" id="username" required />
@@ -239,9 +238,9 @@
                     <div id="onboarding-custom-view" class="onboarding-view active">
                         <!-- Glassmorphic Tab Selector Bar -->
                         <div class="onboarding-tabs">
-                            <button type="button" class="tab-btn active" data-tab="general"><i class="fas fa-compass"></i> Topic Rooms</button>
-                            <button type="button" class="tab-btn" data-tab="create"><i class="fas fa-plus-circle"></i> Create Room</button>
-                            <button type="button" class="tab-btn" data-tab="join"><i class="fas fa-sign-in-alt"></i> Room ID</button>
+                            <button type="button" class="tab-btn active" data-tab="general" aria-pressed="true">Topic Rooms</button>
+                            <button type="button" class="tab-btn" data-tab="create" aria-pressed="false">Create Room</button>
+                            <button type="button" class="tab-btn" data-tab="join" aria-pressed="false">Room ID</button>
                         </div>
 
                         <!-- Dynamic Fields Container -->
@@ -253,7 +252,7 @@
                                         <label for="room">Topic Room</label>
                                         <div class="select-wrapper">
                                             <select name="room" id="room">
-                                                <option value="" disabled selected>Loading rooms...</option>
+                                                <option value="" disabled selected>Loading rooms…</option>
                                             </select>
                                         </div>
                                     </div>
@@ -261,9 +260,7 @@
 
                                 <!-- Inline Browse Active Rooms Button (Orange Glass Capsule) -->
                                 <div class="form-row-group" style="margin-top: 18px; margin-bottom: 8px;">
-                                    <button type="button" class="btn-browse-inline" id="btn-browse-active-inline">
-                                        <i class="fas fa-compass"></i> Browse Active Rooms
-                                    </button>
+                                    <button type="button" class="btn-browse-inline" id="btn-browse-active-inline">Browse Active Rooms</button>
                                 </div>
                             </div>
 
@@ -281,18 +278,18 @@
                                     <div class="form-control" style="flex: 1;">
                                         <label>Room Accessibility</label>
                                         <div class="room-type-toggle">
-                                            <button type="button" class="type-btn active" data-type="public"><i class="fas fa-globe"></i> Public</button>
-                                            <button type="button" class="type-btn" data-type="private"><i class="fas fa-lock"></i> Private</button>
+                                            <button type="button" class="type-btn active" data-type="public" aria-pressed="true">Public</button>
+                                            <button type="button" class="type-btn" data-type="private" aria-pressed="false">Private</button>
                                         </div>
                                     </div>
                                 </div>
                                 <!-- Dynamic sliding private password field -->
                                 <div class="form-row-group private-only" style="display: none;">
                                     <div class="form-control" style="flex: 1;">
-                                        <label for="create-room-password">Room Password</label>
+                                        <label for="create-room-password">Room Password (8+ characters)</label>
                                         <div class="input-wrapper">
-                                            <input type="password" id="create-room-password" placeholder="Room Password (required)" autocomplete="new-password" />
-                                            <span class="password-toggle-btn" onclick="togglePasswordVisibility('create-room-password', this)"><i class="far fa-eye"></i></span>
+                                            <input type="password" id="create-room-password" placeholder="At least 8 characters" autocomplete="new-password" />
+                                            <button type="button" class="password-toggle-btn" data-password-target="create-room-password" aria-label="Show password" aria-pressed="false"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/><path class="eye-slash" d="m4 4 16 16" style="display:none"/></svg></button>
                                         </div>
                                     </div>
                                 </div>
@@ -304,7 +301,7 @@
                                     <div class="form-control" style="flex: 1;">
                                         <label for="join-room-id">Room ID</label>
                                         <div class="input-wrapper">
-                                            <input type="text" id="join-room-id" placeholder="8-Character Alphanumeric ID" autocomplete="off" max-length="8" style="text-transform: uppercase;" />
+                                            <input type="text" id="join-room-id" placeholder="8-character alphanumeric ID" autocomplete="off" maxlength="8" autocapitalize="characters" spellcheck="false" style="text-transform: uppercase;" />
                                         </div>
                                     </div>
                                 </div>
@@ -314,7 +311,7 @@
                                         <label for="join-room-password">Room Password (Optional)</label>
                                         <div class="input-wrapper">
                                             <input type="password" id="join-room-password" placeholder="Enter password if private" autocomplete="new-password" />
-                                            <span class="password-toggle-btn" onclick="togglePasswordVisibility('join-room-password', this)"><i class="far fa-eye"></i></span>
+                                            <button type="button" class="password-toggle-btn" data-password-target="join-room-password" aria-label="Show password" aria-pressed="false"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/><path class="eye-slash" d="m4 4 16 16" style="display:none"/></svg></button>
                                         </div>
                                     </div>
                                 </div>
@@ -327,7 +324,7 @@
                         </div>
 
                         <div class="form-actions">
-                            <button type="submit" class="btn-primary btn-glow">Join Room</button>
+                            <button type="submit" class="btn-primary btn-glow" id="join-submit-btn" disabled>Loading rooms…</button>
                             <button id="install-btn" class="btn-secondary" style="display:none;"><i class="fas fa-download"></i> Install App</button>
                         </div>
                     </div>
@@ -338,12 +335,13 @@
                             <button type="button" class="btn-back" id="back-to-selection-from-browse">
                                 <i class="fas fa-chevron-left"></i> Back
                             </button>
-                            <h2><i class="fas fa-fire"></i> Live Public Rooms</h2>
+                            <h2>Live Public Rooms</h2>
                         </div>
 
                         <div class="rooms-browser-search">
                             <div class="search-input-wrapper">
-                                <i class="fas fa-search search-icon"></i>
+                                <svg class="search-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+                                <label class="sr-only" for="rooms-search-input">Search public rooms</label>
                                 <input type="text" id="rooms-search-input" placeholder="Search rooms by name..." autocomplete="off" />
                             </div>
                         </div>
@@ -362,12 +360,13 @@
                         <p class="home-room-eyebrow">OPEN ROOMS</p>
                         <h2 id="home-rooms-title">Explore public rooms</h2>
                     </div>
-                    <button type="button" class="home-room-browse" id="home-browse-rooms">Explore all rooms <i class="fas fa-arrow-right" aria-hidden="true"></i></button>
+                    <button type="button" class="home-room-browse" id="home-browse-rooms">Explore all rooms <span aria-hidden="true">→</span></button>
                 </div>
-                <div class="active-rooms-grid home-active-rooms-grid" id="featured-rooms-grid" aria-live="polite">
-                    <div class="active-rooms-empty"><i class="fas fa-circle-notch fa-spin" aria-hidden="true"></i><span>Finding the rooms people are in…</span></div>
+                <div class="active-rooms-grid home-active-rooms-grid" id="featured-rooms-grid" aria-busy="true">
+                    <div class="active-rooms-empty room-loading-state" role="status"><span class="loading-spinner" aria-hidden="true"></span><span>Loading public rooms…</span></div>
                 </div>
-                <p class="home-room-note"><i class="fas fa-eye" aria-hidden="true"></i> Public rooms are visible to everyone in them. Messages stay in memory while a room is running; they aren’t saved to a persistent chat database.</p>
+                <p class="rooms-status sr-only" id="rooms-status" role="status" aria-live="polite" aria-atomic="true"></p>
+                <p class="home-room-note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"></path><circle cx="12" cy="12" r="2.5"></circle></svg> Public rooms are visible to everyone in them. Messages stay in memory while a room is running; they aren’t saved to a persistent chat database.</p>
             </section>
 
             <!-- SEO Footer - Minimal -->
@@ -629,10 +628,10 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYjYiPSqHHDb58B0yaPfYLjYEXyyp8AM5tcJHUROefWCEENgGRM1ryEL1QH2Vf11cKURn34319cCgrcDA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="script.js?v=28-open-lounge"></script>
+    <script src="script.js?v=32-onboarding-polish"></script>
     <script>
     // Force complete cache clearing and service worker updates on version bump (IMM_V10/GLASS_V5)
-    const APP_VERSION = 'OPEN_LOUNGE_UI_V1';
+    const APP_VERSION = 'OPEN_LOUNGE_UI_V5';
     const cachedVersion = localStorage.getItem('chathere_app_version');
     if (cachedVersion !== APP_VERSION) {
         if ('caches' in window) {
