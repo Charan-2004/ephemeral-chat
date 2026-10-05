@@ -38,7 +38,7 @@ function renderBlogPage(blog) {
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="${url}">
 <link rel="icon" type="image/png" href="/favicon.png">
-<style>${COMMON_CSS}</style>
+<style>${COMMON_CSS}</style><link rel="stylesheet" href="/site-theme.css?v=1">
 <script type="application/ld+json">${JSON.stringify(breadcrumbsJson)}</script>
 </head>
 <body>
@@ -70,7 +70,7 @@ function renderHeldBlogPage(blog) {
             { '@type': 'ListItem', position: 3, name: 'Editorial review', item: url }
         ]
     };
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Guide under editorial review | ChatHere</title><meta name="description" content="This ChatHere guide is temporarily unavailable while its claims and sources are reviewed."><meta name="robots" content="noindex,follow"><link rel="canonical" href="${url}"><link rel="icon" type="image/png" href="/favicon.png"><style>${COMMON_CSS}</style><script type="application/ld+json">${JSON.stringify(breadcrumbsJson)}</script></head><body>${renderHeader(null)}<main class="container" style="max-width:820px"><div class="breadcrumbs"><a href="/">Home</a><span class="sep">/</span><a href="/blog">Blog</a><span class="sep">/</span><span>Editorial review</span></div><section class="hero"><div class="hero-badge">Editorial review</div><h1>This guide is temporarily unavailable</h1><p class="subhead">We are checking the article’s factual claims, adding reliable sources, and confirming that ChatHere product details match the current service. We’ll republish it after that review is complete.</p><a href="/about.html" class="btn-cta-large">Read how ChatHere works &rarr;</a></section></main>${renderFooter()}</body></html>`;
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Guide under editorial review | ChatHere</title><meta name="description" content="This ChatHere guide is temporarily unavailable while its claims and sources are reviewed."><meta name="robots" content="noindex,follow"><link rel="canonical" href="${url}"><link rel="icon" type="image/png" href="/favicon.png"><style>${COMMON_CSS}</style><link rel="stylesheet" href="/site-theme.css?v=1"><script type="application/ld+json">${JSON.stringify(breadcrumbsJson)}</script></head><body>${renderHeader(null)}<main class="container" style="max-width:820px"><div class="breadcrumbs"><a href="/">Home</a><span class="sep">/</span><a href="/blog">Blog</a><span class="sep">/</span><span>Editorial review</span></div><section class="hero"><div class="hero-badge">Editorial review</div><h1>This guide is temporarily unavailable</h1><p class="subhead">We are checking the article’s factual claims, adding reliable sources, and confirming that ChatHere product details match the current service. We’ll republish it after that review is complete.</p><a href="/about.html" class="btn-cta-large">Read how ChatHere works &rarr;</a></section></main>${renderFooter()}</body></html>`;
 }
 
 function renderHubPage(type, items, io) {
@@ -183,7 +183,7 @@ ${['cities', 'comparisons'].includes(type) ? '<meta name="robots" content="noind
 <meta name="twitter:title" content="${escHtml(title)}">
 <meta name="twitter:description" content="${escHtml(meta)}">
 <link rel="icon" type="image/png" href="/favicon.png">
-<style>${COMMON_CSS}</style>
+<style>${COMMON_CSS}</style><link rel="stylesheet" href="/site-theme.css?v=1">
 <script type="application/ld+json">${JSON.stringify(breadcrumbsJson)}</script>
 </head>
 <body>

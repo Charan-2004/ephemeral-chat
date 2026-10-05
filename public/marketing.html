@@ -31,7 +31,6 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/logo.png">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <title>ChatHere | Public Topic Chat Rooms, No Account Needed</title>
 
@@ -90,6 +89,7 @@
         .fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
         .fade-in.visible { opacity: 1; transform: translateY(0); }
     </style>
+    <link rel="stylesheet" href="/site-theme.css?v=1">
 </head>
 <body>
 
@@ -108,7 +108,7 @@
             <h1>Public chat rooms, no account required</h1>
             <p class="tagline">Connect instantly. No strings attached.</p>
             <a href="/" class="hero-btn">
-                Start Chatting Now <i class="fas fa-arrow-right"></i>
+                Start Chatting Now <svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-arrow-right"></use></svg>
             </a>
             <p style="margin-top: 20px; color: #666; font-size: 0.9rem;">No login â€¢ No downloads â€¢ Free to use</p>
         </section>
@@ -134,17 +134,17 @@
             <h2 class="section-title">Why ChatHere?</h2>
             <div class="features-grid">
                 <div class="feature-card">
-                    <div class="feature-icon"><i class="fas fa-user-secret"></i></div>
+                    <div class="feature-icon"><svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-lock"></use></svg></div>
                     <h3>No Account Required</h3>
                     <p>Join with a display name and no email or phone signup. ChatHere processes connection information to deliver messages and protect service availability. Public-room messages are visible to other participants.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon"><i class="fas fa-wind"></i></div>
+                    <div class="feature-icon"><svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-globe"></use></svg></div>
                     <h3>Messages in server memory</h3>
                     <p>Messages are held in server memory for live delivery and may remain until a restart or storage-limit cleanup. Other participants may copy them.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+                    <div class="feature-icon"><svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-bolt"></use></svg></div>
                     <h3>Lightning Fast</h3>
                     <p>Powered by real-time WebSockets. Messages appear instantly. No refreshing, no waiting, just smooth chatting.</p>
                 </div>
@@ -179,32 +179,32 @@
             <h2 class="section-title">Explore Chat Rooms</h2>
             <div class="features-grid">
                 <div class="feature-card" style="text-align: center; border-top: 3px solid #5865F2;">
-                    <i class="fas fa-globe feature-icon" style="color: #5865F2;"></i>
+                    <svg class="ui-icon feature-icon" aria-hidden="true"><use href="/icons.svg#icon-globe"></use></svg>
                     <h3>General</h3>
                     <p>Talk about anything and everything.</p>
                 </div>
                 <div class="feature-card" style="text-align: center; border-top: 3px solid #2ecc71;">
-                    <i class="fas fa-laptop-code feature-icon" style="color: #2ecc71;"></i>
+                    <svg class="ui-icon feature-icon" aria-hidden="true"><use href="/icons.svg#icon-laptop"></use></svg>
                     <h3>Tech</h3>
                     <p>Programming, gadgets, and the future.</p>
                 </div>
                 <div class="feature-card" style="text-align: center; border-top: 3px solid #e74c3c;">
-                    <i class="fas fa-music feature-icon" style="color: #e74c3c;"></i>
+                    <svg class="ui-icon feature-icon" aria-hidden="true"><use href="/icons.svg#icon-music"></use></svg>
                     <h3>Music</h3>
                     <p>Share tracks, discuss artists, and jam.</p>
                 </div>
                 <div class="feature-card" style="text-align: center; border-top: 3px solid #9b59b6;">
-                    <i class="fas fa-film feature-icon" style="color: #9b59b6;"></i>
+                    <svg class="ui-icon feature-icon" aria-hidden="true"><use href="/icons.svg#icon-film"></use></svg>
                     <h3>Movies</h3>
                     <p>Cinema, TV shows, and entertainment.</p>
                 </div>
                 <div class="feature-card" style="text-align: center; border-top: 3px solid #f1c40f;">
-                    <i class="fas fa-gamepad feature-icon" style="color: #f1c40f;"></i>
+                    <svg class="ui-icon feature-icon" aria-hidden="true"><use href="/icons.svg#icon-gamepad"></use></svg>
                     <h3>Gaming</h3>
                     <p>PC, console, tabletop, and esports.</p>
                 </div>
                 <div class="feature-card" style="text-align: center; border-top: 3px solid #34495e;">
-                    <i class="fas fa-landmark feature-icon" style="color: #34495e;"></i>
+                    <svg class="ui-icon feature-icon" aria-hidden="true"><use href="/icons.svg#icon-building"></use></svg>
                     <h3>Politics</h3>
                     <p>Current events and global news.</p>
                 </div>
@@ -217,35 +217,35 @@
                 <details style="background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer;">
                     <summary style="font-size: 1.2rem; font-weight: 600; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
                         Is ChatHere completely free?
-                        <i class="fas fa-chevron-down" style="color: var(--primary-color);"></i>
+                        <svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-chevron-down"></use></svg>
                     </summary>
                     <p style="margin-top: 15px; color: var(--text-muted); line-height: 1.6;">ChatHere is currently free to use. No payment is required to join a public room.</p>
                 </details>
                 <details style="background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer;">
                     <summary style="font-size: 1.2rem; font-weight: 600; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
                         Do I need to create an account or login?
-                        <i class="fas fa-chevron-down" style="color: var(--primary-color);"></i>
+                        <svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-chevron-down"></use></svg>
                     </summary>
                     <p style="margin-top: 15px; color: var(--text-muted); line-height: 1.6;">No account or login is required. Choose a display name and join a public room. A display name does not guarantee anonymity; other participants can read your messages.</p>
                 </details>
                 <details style="background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer;">
                     <summary style="font-size: 1.2rem; font-weight: 600; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
                         Are my messages on ChatHere private?
-                        <i class="fas fa-chevron-down" style="color: var(--primary-color);"></i>
+                        <svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-chevron-down"></use></svg>
                     </summary>
                     <p style="margin-top: 15px; color: var(--text-muted); line-height: 1.6;">Messages are held in server memory for delivery and are not written to a persistent message database by the chat application. They may remain until restart or storage-limit cleanup. Public-room messages are visible to room participants; avoid sharing sensitive information.</p>
                 </details>
                 <details style="background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer;">
                     <summary style="font-size: 1.2rem; font-weight: 600; outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
                         How is ChatHere different from other apps?
-                        <i class="fas fa-chevron-down" style="color: var(--primary-color);"></i>
+                        <svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-chevron-down"></use></svg>
                     </summary>
                     <p style="margin-top: 15px; color: var(--text-muted); line-height: 1.6;">ChatHere lets you join a room without an email address or phone number. Review the privacy information on the home page before sharing personal details.</p>
                 </details>
             </div>
             <style>
-                details[open] summary .fa-chevron-down { transform: rotate(180deg); }
-                details summary .fa-chevron-down { transition: transform 0.3s; }
+                details[open] summary .ui-icon { transform: rotate(180deg); }
+                details summary .ui-icon { transition: transform 0.3s; }
             </style>
         </section>
 
@@ -253,7 +253,7 @@
             <h2 style="font-size: 3rem; margin-bottom: 20px;">Ready to Chat?</h2>
             <p style="color: var(--text-muted); font-size: 1.2rem; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto;">Choose a topic room and join the conversation without creating an account.</p>
             <a href="/" class="hero-btn" style="padding: 20px 60px; font-size: 1.4rem;">
-                Enter ChatHere <i class="fas fa-sign-in-alt"></i>
+                Enter ChatHere <svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-sign-in"></use></svg>
             </a>
         </section>
 

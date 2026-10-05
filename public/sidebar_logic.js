@@ -9,7 +9,10 @@ function populateSidebar({ standard, trending }) {
     // Helper to create list item
     const createItem = (room, isTrending) => {
         const li = document.createElement('li');
-        li.innerHTML = isTrending ? `<i class="fas fa-fire" style="color: #ffaa00;"></i> ${room}` : `<i class="fas fa-hashtag"></i> ${room}`;
+        li.innerHTML = isTrending
+            ? '<svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-spark"></use></svg> '
+            : '<svg class="ui-icon" aria-hidden="true"><use href="#icon-hash"></use></svg> ';
+        li.appendChild(document.createTextNode(room));
         li.dataset.room = room;
         if (room === currentRoom) li.classList.add('active');
 
@@ -44,7 +47,7 @@ function switchRoom(newRoom) {
     // Update local UI
     document.getElementById('room-name').innerText = newRoom;
     document.getElementById('chat-messages').innerHTML = ''; // Clear chat
-    document.getElementById('online-count').innerHTML = '<i class="fas fa-circle"></i> 0 online'; // Reset count
+    document.getElementById('online-count').innerHTML = '<svg class="ui-icon" aria-hidden="true"><use href="#icon-check"></use></svg> 0 online';
 
     // Update Sidebar Active State
     const sidebarList = document.getElementById('sidebar-room-list');

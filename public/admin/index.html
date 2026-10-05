@@ -7,25 +7,25 @@
     <meta name="robots" content="noindex,follow">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="/admin/admin.css?v=1.0.1">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/site-theme.css?v=1">
 </head>
 
 <body>
     <!-- Login Screen -->
     <div id="admin-login-screen" class="login-screen">
         <div class="login-card">
-            <h1><i class="fas fa-shield-alt"></i> Admin Access</h1>
+            <h1><svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-shield"></use></svg> Admin Access</h1>
             <form id="admin-login-form">
                 <div class="admin-input-wrapper">
                     <input type="text" id="admin-user" placeholder="Username" required>
                 </div>
                 <div class="admin-input-wrapper">
                     <input type="password" id="admin-pass" placeholder="Password" required>
-                    <span class="password-toggle-btn" onclick="togglePasswordVisibility('admin-pass', this)"><i class="far fa-eye"></i></span>
+                    <button type="button" class="password-toggle-btn" aria-label="Show password" onclick="togglePasswordVisibility('admin-pass', this)"><svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-eye"></use></svg></button>
                 </div>
                 <div class="admin-input-wrapper">
                     <input type="password" id="admin-secret" placeholder="Secret Key" required>
-                    <span class="password-toggle-btn" onclick="togglePasswordVisibility('admin-secret', this)"><i class="far fa-eye"></i></span>
+                    <button type="button" class="password-toggle-btn" aria-label="Show secret key" onclick="togglePasswordVisibility('admin-secret', this)"><svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-eye"></use></svg></button>
                 </div>
                 <button type="submit" class="btn">Login</button>
                 <p id="login-error" class="error"></p>
@@ -35,17 +35,17 @@
 
     <!-- Dashboard -->
     <div id="admin-dashboard" class="dashboard" style="display: none;">
-        <button id="admin-mobile-menu" class="admin-mobile-menu-btn"><i class="fas fa-bars"></i></button>
+        <button id="admin-mobile-menu" class="admin-mobile-menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-menu"></use></svg></button>
         <aside class="sidebar">
-            <h2><i class="fas fa-ghost"></i> Primal Admin</h2>
+            <h2><svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-ghost"></use></svg> Primal Admin</h2>
             <nav>
-                <button class="nav-btn active" data-tab="overview"><i class="fas fa-chart-bar"></i> Overview</button>
-                <button class="nav-btn" data-tab="rooms"><i class="fas fa-door-open"></i> Rooms</button>
-                <button class="nav-btn" data-tab="monitor"><i class="fas fa-eye"></i> Monitor</button>
-                <button class="nav-btn" data-tab="config"><i class="fas fa-cog"></i> Config</button>
-                <button class="nav-btn" data-tab="bots"><i class="fas fa-robot"></i> Bots</button>
+                <button class="nav-btn active" data-tab="overview"><svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-chart"></use></svg> Overview</button>
+                <button class="nav-btn" data-tab="rooms"><svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-door"></use></svg> Rooms</button>
+                <button class="nav-btn" data-tab="monitor"><svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-eye"></use></svg> Monitor</button>
+                <button class="nav-btn" data-tab="config"><svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-settings"></use></svg> Config</button>
+                <button class="nav-btn" data-tab="bots"><svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-robot"></use></svg> Bots</button>
             </nav>
-            <button id="logout-btn" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            <button id="logout-btn" class="btn btn-logout"><svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-logout"></use></svg> Logout</button>
         </aside>
 
         <main class="main-content">
@@ -54,21 +54,21 @@
                 <h2>Overview</h2>
                 <div class="stats-grid">
                     <div class="stat-card" style="border-left: 4px solid #10b981;">
-                        <i class="fas fa-users" style="color: #10b981;"></i>
+                        <svg class="ui-icon" aria-hidden="true" style="color: #10b981;"><use href="/icons.svg#icon-users"></use></svg>
                         <div class="stat-info">
                             <span id="stat-users">0</span>
                             <label>Active Users</label>
                         </div>
                     </div>
                     <div class="stat-card" style="border-left: 4px solid #f97316;">
-                        <i class="fas fa-fire" style="color: #f97316;"></i>
+                        <svg class="ui-icon" aria-hidden="true" style="color: #f97316;"><use href="/icons.svg#icon-spark"></use></svg>
                         <div class="stat-info">
                             <span id="stat-online-rooms">0</span>
                             <label>Online Rooms</label>
                         </div>
                     </div>
                     <div class="stat-card" style="border-left: 4px solid #6366f1;">
-                        <i class="fas fa-door-open" style="color: #6366f1;"></i>
+                        <svg class="ui-icon" aria-hidden="true" style="color: #6366f1;"><use href="/icons.svg#icon-door"></use></svg>
                         <div class="stat-info">
                             <span id="stat-total-rooms">0</span>
                             <label>Total Rooms</label>
@@ -82,7 +82,7 @@
                 <h2>Room Management</h2>
                 <div class="room-controls">
                     <input type="text" id="new-room-name" placeholder="New Room Name">
-                    <button id="add-room-btn" class="btn"><i class="fas fa-plus"></i> Create</button>
+                    <button id="add-room-btn" class="btn"><svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-plus"></use></svg> Create</button>
                 </div>
                 <ul id="admin-room-list" class="admin-room-list"></ul>
             </section>
@@ -98,7 +98,7 @@
                         <span>or</span>
                         <input type="text" id="monitor-private-id" placeholder="Private Room ID" maxlength="8">
                         <input type="password" id="monitor-private-pass" placeholder="Password">
-                        <button id="monitor-private-btn" class="btn" style="margin: 0; padding: 10px 15px;"><i class="fas fa-sign-in-alt"></i> Join Private</button>
+                        <button id="monitor-private-btn" class="btn" style="margin: 0; padding: 10px 15px;"><svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-sign-in"></use></svg> Join Private</button>
                     </div>
                     <div class="chat-viewport" id="monitor-messages">
                         <!-- Messages render here -->
@@ -111,7 +111,7 @@
                             style="padding: 10px 20px; background: gold; color: #000; border:none; font-weight: bold; cursor: pointer;">SEND</button>
                         <button id="admin-unpin-btn"
                             style="padding: 10px; background: #ff4757; color: white; border:none; border-radius:4px; cursor: pointer; font-weight:bold;"
-                            title="Unpin Active Message"><i class="fas fa-unlink"></i> UNPIN</button>
+                            title="Unpin Active Message"><svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-unlink"></use></svg> UNPIN</button>
                     </div>
                 </div>
             </section>
@@ -130,7 +130,7 @@
                         <input type="range" id="config-spam" min="1" max="30" value="3">
                         <span id="spam-val">3s</span>
                     </div>
-                    <button id="save-config-btn" class="btn"><i class="fas fa-save"></i> Save Changes</button>
+                    <button id="save-config-btn" class="btn"><svg class="ui-icon" aria-hidden="true"><use href="/icons.svg#icon-save"></use></svg> Save Changes</button>
                 </div>
             </section>
 

@@ -84,7 +84,7 @@ function renderTopicPage(topic, io) {
 <meta name="twitter:description" content="${escHtml(pageDescription)}">
 <meta name="twitter:image" content="https://chathere.online/preview-image.jpg?v=3">
 <link rel="icon" type="image/png" href="/favicon.png">
-<style>${COMMON_CSS}</style>
+<style>${COMMON_CSS}</style><link rel="stylesheet" href="/site-theme.css?v=1">
 <script type="application/ld+json">${JSON.stringify(breadcrumbsJson)}</script>
 <script type="application/ld+json">${JSON.stringify(faqJson)}</script>
 </head>
